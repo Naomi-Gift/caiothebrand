@@ -4,7 +4,6 @@ import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import BranchFirstVisitModal from "@/components/BranchFirstVisitModal";
 import OrderMethodModal from "@/components/OrderMethodModal";
 import { BranchProvider } from "@/context/BranchContext";
 import { CartProvider } from "@/context/CartContext";
@@ -55,7 +54,6 @@ export default function RootLayout({
                   <Header />
                   <main className="flex-1">{children}</main>
                   <Footer />
-                  <BranchFirstVisitModal />
                   <OrderMethodModal />
                 </OrderMethodProvider>
               </AccountCartBridge>

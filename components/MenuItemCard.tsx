@@ -69,7 +69,7 @@ export default function MenuItemCard({ item }: { item: MenuItem }) {
         </div>
         {item.soldOut && showSoldOutNote && (
           <p className="font-display text-sm italic text-brown-light">
-            Sold out of the jollof. Tomorrow, I promise.
+            Sold out of the {item.name.toLowerCase()}. Tomorrow, I promise.
           </p>
         )}
       </div>

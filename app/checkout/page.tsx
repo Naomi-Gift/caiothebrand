@@ -51,8 +51,9 @@ export default function CheckoutPage() {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null
   );
-  const [addressLine, setAddressLine] = useState("");
-  const [addressCity, setAddressCity] = useState("");
+  const { orderAddress } = useOrderMethod();
+  const [addressLine, setAddressLine] = useState(orderAddress?.line1 ?? "");
+  const [addressCity, setAddressCity] = useState(orderAddress?.city ?? "");
   const [addressNotes, setAddressNotes] = useState("");
   const [locating, setLocating] = useState(false);
   const [locationNote, setLocationNote] = useState<string | null>(null);

@@ -41,9 +41,9 @@ export function BranchProvider({ children }: { children: React.ReactNode }) {
     if (stored === "owerri" || stored === "lagos") {
       setBranchId(stored);
       setHasChosenBranch(true);
-    } else {
-      setIsPromptOpen(true);
     }
+    // Branch selection on first visit is handled inside OrderMethodModal
+    // (pickup step), so we never auto-open BranchContext's own prompt.
     setHydrated(true);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);

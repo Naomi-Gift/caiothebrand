@@ -32,9 +32,7 @@ export default async function ItemDetailPage({
           {item.name}
         </h1>
         <p className="mt-4 font-display text-xl italic text-brown-light">
-          {item.id === "jollof-fire"
-            ? "Sold out of the jollof. Tomorrow, I promise."
-            : `Sold out of the ${item.name.toLowerCase()}. Tomorrow, I promise.`}
+          {`Sold out of the ${item.name.toLowerCase()}. Tomorrow, I promise.`}
         </p>
         <Button href="/menu" className="mt-8">
           Back to menu

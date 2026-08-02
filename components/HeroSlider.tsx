@@ -94,7 +94,7 @@ function PizzaWheel({ className = "" }: { className?: string }) {
 }
 
 export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
-  const { chooseFulfillment } = useOrderMethod();
+  const { startOrder } = useOrderMethod();
 
   return (
     <section className="relative overflow-hidden bg-brown text-cream">
@@ -121,7 +121,7 @@ export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
             <button
               key={option.mode}
               type="button"
-              onClick={() => chooseFulfillment(option.mode)}
+              onClick={() => startOrder(option.mode)}
               className="group relative flex flex-row items-center gap-6 rounded-2xl border border-cream/20 bg-cream/10 px-10 py-10 text-left backdrop-blur-sm transition-all duration-200 hover:border-cream/50 hover:bg-cream/20 hover:scale-[1.02]"
             >
               {/* Radio indicator */}
