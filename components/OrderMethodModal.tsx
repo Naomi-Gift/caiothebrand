@@ -53,14 +53,14 @@ const OPTIONS: {
 }[] = [
   {
     mode: "pickup",
-    label: "Pickup",
-    description: "Grab it fresh from the branch.",
+    label: "Pick-up",
+    description: "Take your meal at the restaurant.",
     icon: <PickupIcon />,
   },
   {
     mode: "delivery",
     label: "Delivery",
-    description: "We bring it straight to your door.",
+    description: "Receive your food at your doorstep.",
     icon: <DeliveryIcon />,
   },
 ];
@@ -81,11 +81,8 @@ export default function OrderMethodModal() {
       >
         <p className="label-uppercase text-xs text-brown-light">Order Now</p>
         <h2 className="mt-2 font-display text-3xl font-black italic text-brown">
-          How would you like your order?
-        </h2>
-        <p className="mt-3 text-sm text-brown-light">
           Please select your preferred order method.
-        </p>
+        </h2>
 
         <div className="mt-6 flex flex-col gap-3">
           {OPTIONS.map((option) => (

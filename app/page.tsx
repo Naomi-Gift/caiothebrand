@@ -9,7 +9,7 @@ const HERO_SLIDES: HeroSlide[] = [
   {
     eyebrow: "Owerri & Lagos",
     headline: "Made to delight your taste buds.",
-    sub: "Italian technique, Nigerian flavour. Chef driven, from Lagos — now in Owerri too.",
+    sub: "Italian technique, Nigerian flavour. Chef driven, from Lagos, now in Owerri too.",
   },
   {
     eyebrow: "Fan favourite",
@@ -65,7 +65,7 @@ export default function HomePage() {
           </h2>
           <p className="mt-4 text-base text-brown-light">
             We put dodo on a pizza and won&apos;t lecture you about it.
-            Proudly Nigerian, happens to make excellent pizza — and we&apos;ll
+            Proudly Nigerian, happens to make excellent pizza, and we&apos;ll
             always warn you when it&apos;s actually spicy.
           </p>
         </Reveal>

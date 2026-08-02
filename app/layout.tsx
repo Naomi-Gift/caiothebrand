@@ -8,8 +8,8 @@ import BranchFirstVisitModal from "@/components/BranchFirstVisitModal";
 import OrderMethodModal from "@/components/OrderMethodModal";
 import { BranchProvider } from "@/context/BranchContext";
 import { CartProvider } from "@/context/CartContext";
-import { AccountProvider } from "@/context/AccountContext";
 import { OrderMethodProvider } from "@/context/OrderMethodContext";
+import AccountCartBridge from "@/components/AccountCartBridge";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -49,8 +49,8 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col bg-crisp text-brown-darkest">
         <SessionProvider>
           <BranchProvider>
-            <AccountProvider>
-              <CartProvider>
+            <CartProvider>
+              <AccountCartBridge>
                 <OrderMethodProvider>
                   <Header />
                   <main className="flex-1">{children}</main>
@@ -58,8 +58,8 @@ export default function RootLayout({
                   <BranchFirstVisitModal />
                   <OrderMethodModal />
                 </OrderMethodProvider>
-              </CartProvider>
-            </AccountProvider>
+              </AccountCartBridge>
+            </CartProvider>
           </BranchProvider>
         </SessionProvider>
       </body>

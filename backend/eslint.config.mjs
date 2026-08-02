@@ -12,8 +12,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // The backend is a separate app with its own lint config/script.
-    "backend/**",
+    "lib/generated/**",
   ]),
 ]);
 

@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "motion/react";
-import Button from "@/components/Button";
 import { useOrderMethod } from "@/context/OrderMethodContext";
+import type { FulfillmentMode } from "@/lib/types";
 
 export interface HeroSlide {
   eyebrow: string;
@@ -12,7 +10,67 @@ export interface HeroSlide {
   sub: string;
 }
 
-const AUTOPLAY_MS = 5500;
+function PickupIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 10.5 12 4l8 6.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5.5 9.5V19a1 1 0 0 0 1 1H10v-4.5a2 2 0 0 1 4 0V20h3.5a1 1 0 0 0 1-1V9.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function DeliveryIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M3 7h11v9H3z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M14 10h4l3 3v3h-7z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <circle cx="7" cy="18.5" r="1.6" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="17" cy="18.5" r="1.6" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+const OPTIONS: {
+  mode: FulfillmentMode;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    mode: "pickup",
+    label: "Pick-up",
+    description: "Take your meal at the restaurant.",
+    icon: <PickupIcon />,
+  },
+  {
+    mode: "delivery",
+    label: "Delivery",
+    description: "Receive your food at your doorstep.",
+    icon: <DeliveryIcon />,
+  },
+];
 
 function PizzaWheel({ className = "" }: { className?: string }) {
   return (
@@ -35,79 +93,58 @@ function PizzaWheel({ className = "" }: { className?: string }) {
   );
 }
 
-export default function HeroSlider({ slides }: { slides: HeroSlide[] }) {
-  const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const { openPrompt } = useOrderMethod();
-
-  useEffect(() => {
-    if (paused || slides.length <= 1) return;
-    const timer = setInterval(() => {
-      setIndex((i) => (i + 1) % slides.length);
-    }, AUTOPLAY_MS);
-    return () => clearInterval(timer);
-  }, [paused, slides.length]);
-
-  const slide = slides[index];
-
-  const goTo = (i: number) => setIndex(((i % slides.length) + slides.length) % slides.length);
+export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
+  const { chooseFulfillment } = useOrderMethod();
 
   return (
-    <section
-      className="relative overflow-hidden bg-brown text-cream"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
+    <section className="relative overflow-hidden bg-brown text-cream">
       <PizzaWheel className="left-0 -translate-x-1/2" />
       <PizzaWheel className="right-0 translate-x-1/2" />
 
-      <div className="relative mx-auto flex min-h-[560px] max-w-3xl flex-col items-center justify-center gap-10 px-4 py-16 text-center sm:px-6 sm:py-20 md:min-h-[640px]">
-        <div className="w-full">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+      <div className="relative mx-auto flex min-h-[560px] max-w-5xl flex-col items-center justify-center gap-5 px-8 py-16 text-center sm:px-12 sm:py-20 md:min-h-[700px]">
+
+        {/* Centered heading block */}
+        <div>
+          <h1 className="font-display text-4xl font-black italic text-cream sm:text-5xl">
+            Made to delight your taste buds.
+          </h1>
+          <p className="label-uppercase mt-3 text-sm tracking-widest text-cream/60">
+            Order Now
+          </p>
+          <p className="mt-3 font-display text-2xl font-black italic text-cream/90">
+            Please select your preferred order method
+          </p>
+        </div>
+
+        <div className="mt-14 grid w-full max-w-4xl grid-cols-1 gap-5 sm:grid-cols-2">
+          {OPTIONS.map((option) => (
+            <button
+              key={option.mode}
+              type="button"
+              onClick={() => chooseFulfillment(option.mode)}
+              className="group relative flex flex-row items-center gap-6 rounded-2xl border border-cream/20 bg-cream/10 px-10 py-10 text-left backdrop-blur-sm transition-all duration-200 hover:border-cream/50 hover:bg-cream/20 hover:scale-[1.02]"
             >
-              <p className="label-uppercase inline-block rounded-full border border-cream/50 px-3 py-1 text-xs text-cream/90">
-                {slide.eyebrow}
-              </p>
-              <h1 className="mx-auto mt-5 max-w-2xl font-display text-5xl font-black italic leading-[1.02] sm:text-7xl">
-                {slide.headline}
-              </h1>
-              <p className="mx-auto mt-5 max-w-md text-base text-cream/90">
-                {slide.sub}
-              </p>
-            </motion.div>
-          </AnimatePresence>
+              {/* Radio indicator */}
+              <span className="absolute right-5 top-5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-cream/40 transition-colors group-hover:border-cream">
+                <span className="h-2.5 w-2.5 scale-0 rounded-full bg-cream transition-transform group-hover:scale-100" />
+              </span>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Button type="button" onClick={openPrompt} variant="solid-cream">
-              Order Now
-            </Button>
-            <Button href="/branches" variant="outline-cream">
-              Find a branch
-            </Button>
-          </div>
+              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-cream/15 text-cream">
+                {option.icon}
+              </span>
 
-          {slides.length > 1 && (
-            <div className="mt-8 flex justify-center gap-2">
-              {slides.map((s, i) => (
-                <button
-                  key={s.headline}
-                  type="button"
-                  onClick={() => goTo(i)}
-                  aria-label={`Go to slide ${i + 1}`}
-                  aria-current={i === index}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    i === index ? "w-6 bg-cream" : "w-2 bg-cream/40"
-                  }`}
-                />
-              ))}
-            </div>
-          )}
+              <span>
+                {/* Card label — Playfair Display bold */}
+                <span className="font-display block text-xl font-black text-cream">
+                  {option.label}
+                </span>
+                {/* Card description */}
+                <span className="mt-1.5 block text-sm text-cream/70">
+                  {option.description}
+                </span>
+              </span>
+            </button>
+          ))}
         </div>
       </div>
     </section>

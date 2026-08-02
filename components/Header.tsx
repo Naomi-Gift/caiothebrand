@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import Logo from "@/components/Logo";
-import BranchSelector from "@/components/BranchSelector";
 import { useCart } from "@/context/CartContext";
 import { useAccount } from "@/context/AccountContext";
 import { useOrderMethod } from "@/context/OrderMethodContext";
@@ -74,8 +73,6 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <BranchSelector />
-
           <Link
             href="/cart"
             aria-label="Cart"
@@ -104,13 +101,13 @@ export default function Header() {
                     href="/login"
                     className="label-uppercase text-xs text-brown transition-opacity hover:opacity-60"
                   >
-                    Login
+                    Sign In
                   </Link>
                   <Link
                     href="/signup"
                     className="label-uppercase text-xs text-brown transition-opacity hover:opacity-60"
                   >
-                    Signup
+                    Sign Up
                   </Link>
                 </>
               )}
@@ -153,14 +150,14 @@ export default function Header() {
                 onClick={() => setMenuOpen(false)}
                 className="label-uppercase border-b border-bone px-4 py-3 text-xs text-brown"
               >
-                Login
+                Sign In
               </Link>
               <Link
                 href="/signup"
                 onClick={() => setMenuOpen(false)}
                 className="label-uppercase border-b border-bone px-4 py-3 text-xs text-brown"
               >
-                Signup
+                Sign Up
               </Link>
             </>
           )}

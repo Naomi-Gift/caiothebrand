@@ -1,29 +1,29 @@
 {
-  "name": "caiothebrand",
+  "name": "caiothebrand-backend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 4000",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --port 4000",
     "lint": "eslint"
   },
   "dependencies": {
-    "@paystack/inline-js": "^2.24.0",
-    "motion": "^12.42.2",
+    "@auth/prisma-adapter": "^2.11.3",
+    "@prisma/client": "^6.19.3",
     "next": "16.2.10",
     "next-auth": "^5.0.0-beta.32",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
-    "tailwindcss": "^4",
+    "prisma": "^6.19.3",
     "typescript": "^5"
   }
 }

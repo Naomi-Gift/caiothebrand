@@ -59,7 +59,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-brown-deep px-4 py-4 text-center text-xs text-bone sm:px-6">
-        © {new Date().getFullYear()} Caio Pizza — Owerri &amp; Lagos. Caio for
+        © {new Date().getFullYear()} Caio Pizza · Owerri &amp; Lagos. Caio for
         now.
       </div>
     </footer>

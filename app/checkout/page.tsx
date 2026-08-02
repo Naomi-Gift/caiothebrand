@@ -47,6 +47,7 @@ export default function CheckoutPage() {
       seededFulfillment.current = true;
     }
   }, [chosenFulfillment]);
+
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null
   );
@@ -57,6 +58,7 @@ export default function CheckoutPage() {
   const [locationNote, setLocationNote] = useState<string | null>(null);
   const [saveThisAddress, setSaveThisAddress] = useState(false);
   const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
 
   const savedAddress: SavedAddress | undefined = account?.addresses.find(
     (a) => a.id === selectedAddressId
@@ -91,9 +93,11 @@ export default function CheckoutPage() {
   const canPay = lines.length > 0 && addressReady && branch;
 
   const handlePay = async () => {
-    if (!canPay || !branch) return;
+    if (!canPay || !branch || !account) return;
+    setPayError(null);
     setPaying(true);
 
+    // Save new address to account if requested
     if (fulfillment === "delivery" && saveThisAddress && addressLine.trim()) {
       addAddress({
         label: "New address",
@@ -103,25 +107,78 @@ export default function CheckoutPage() {
       });
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    // Build a unique reference so the order can be traced back after verification
+    const reference = `CAIO-${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2, 8)
+      .toUpperCase()}`;
 
-    const order: OrderRecord = {
-      id: `CAIO-${Date.now().toString().slice(-8)}`,
-      createdAt: new Date().toISOString(),
-      branchId: branch.id,
-      fulfillment,
-      lines,
-      subtotal,
-      discount,
-      total,
-      promoCode: promoCode ?? undefined,
-      status: "received",
-    };
+    // Paystack amount is in kobo (smallest currency unit) — multiply by 100
+    const amountKobo = Math.round(total * 100);
 
-    saveOrder(order);
-    window.localStorage.setItem(LAST_ORDER_KEY, order.id);
-    clearCart();
-    router.push("/checkout/confirmation");
+    // Lazily import the Paystack popup (client-only)
+    const PaystackPop = (await import("@paystack/inline-js")).default;
+    const popup = new PaystackPop();
+
+    popup.newTransaction({
+      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY ?? "",
+      email: account.email,
+      amount: amountKobo,
+      currency: "NGN",
+      reference,
+      metadata: {
+        branchId: branch.id,
+        fulfillment,
+        promoCode: promoCode ?? undefined,
+      },
+
+      onSuccess: async (response: { reference: string }) => {
+        // Verify the payment server-side before saving the order
+        try {
+          const res = await fetch("/api/paystack/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ reference: response.reference }),
+          });
+
+          if (!res.ok) {
+            const err = (await res.json()) as { error?: string };
+            setPayError(
+              err.error ?? "Payment verification failed. Contact support."
+            );
+            setPaying(false);
+            return;
+          }
+
+          // Payment confirmed — persist the order and clear the cart
+          const order: OrderRecord = {
+            id: reference,
+            createdAt: new Date().toISOString(),
+            branchId: branch.id,
+            fulfillment,
+            lines,
+            subtotal,
+            discount,
+            total,
+            promoCode: promoCode ?? undefined,
+            status: "received",
+          };
+
+          saveOrder(order);
+          window.localStorage.setItem(LAST_ORDER_KEY, order.id);
+          clearCart();
+          router.push("/checkout/confirmation");
+        } catch {
+          setPayError("Something went wrong verifying your payment. Contact support.");
+          setPaying(false);
+        }
+      },
+
+      onCancel: () => {
+        // User closed the popup without paying
+        setPaying(false);
+      },
+    });
   };
 
   if (!hydrated || !account) return null;
@@ -302,6 +359,12 @@ export default function CheckoutPage() {
             </div>
           </div>
 
+          {payError && (
+            <p className="mt-4 rounded-xl bg-red-50 px-4 py-2 text-xs text-red-600">
+              {payError}
+            </p>
+          )}
+
           <Button
             onClick={handlePay}
             disabled={!canPay || paying}
@@ -309,9 +372,6 @@ export default function CheckoutPage() {
           >
             {paying ? "Processing…" : "Pay with Paystack"}
           </Button>
-          <p className="mt-2 text-center text-[0.65rem] text-brown-light">
-            Prototype checkout — no live charge is made.
-          </p>
         </div>
       </div>
     </div>

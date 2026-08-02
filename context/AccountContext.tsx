@@ -50,7 +50,7 @@ function writeDirectory(directory: Record<string, Account>) {
   window.localStorage.setItem(DIRECTORY_KEY, JSON.stringify(directory));
 }
 
-export function AccountProvider({ children }: { children: React.ReactNode }) {
+export function AccountProvider({ children, onLogout }: { children: React.ReactNode; onLogout?: () => void }) {
   const { data: session, status } = useSession();
   const [account, setAccount] = useState<Account | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -128,7 +128,9 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     window.localStorage.removeItem(SESSION_KEY);
+    window.localStorage.removeItem("caio-cart");
     setAccount(null);
+    onLogout?.();
     if (status === "authenticated") {
       void nextAuthSignOut({ callbackUrl: "/" });
     }
