@@ -50,6 +50,16 @@ path.join(process.cwd(), "lib/generated/prisma/libquery_engine-darwin-arm64.dyli
  */
 export type User = Prisma.UserModel
 /**
+ * Model Category
+ * 
+ */
+export type Category = Prisma.CategoryModel
+/**
+ * Model MenuItem
+ * 
+ */
+export type MenuItem = Prisma.MenuItemModel
+/**
  * Model Account
  * 
  */

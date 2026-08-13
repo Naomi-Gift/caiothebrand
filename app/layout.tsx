@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Archivo, Inter } from "next/font/google";
+import { Cormorant_Garamond, DM_Sans, Lora } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -10,23 +10,27 @@ import { CartProvider } from "@/context/CartContext";
 import { OrderMethodProvider } from "@/context/OrderMethodContext";
 import AccountCartBridge from "@/components/AccountCartBridge";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+// Display / headlines — editorial Italian elegance
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["400", "900"],
+  weight: ["400", "600", "700"],
   style: ["normal", "italic"],
 });
 
-const archivo = Archivo({
-  variable: "--font-archivo",
+// Labels, nav, buttons — clean geometric sans
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
-  weight: ["800", "900"],
+  weight: ["400", "500", "700", "800"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+// Body copy — warm readable serif
+const lora = Lora({
+  variable: "--font-lora",
   subsets: ["latin"],
   weight: ["400", "500", "700"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -43,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${archivo.variable} ${inter.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${dmSans.variable} ${lora.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-crisp text-brown-darkest">
         <SessionProvider>

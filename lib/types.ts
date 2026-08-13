@@ -13,7 +13,7 @@ export interface Branch {
   lng: number;
 }
 
-export type MenuCategory = "pizzas" | "sides" | "drinks" | "desserts";
+export type MenuCategory = "pizzas" | "sides" | "drinks";
 
 export interface SizeOption {
   id: string;

@@ -105,18 +105,15 @@ export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
 
         {/* Centered heading block */}
         <div>
-          <h1 className="font-display text-4xl font-black italic text-cream sm:text-5xl">
+          <h1 className="font-display text-5xl font-bold italic leading-tight text-cream sm:text-6xl md:text-7xl whitespace-nowrap">
             Made to delight your taste buds.
           </h1>
-          <p className="label-uppercase mt-3 text-sm tracking-widest text-cream/60">
-            Order Now
-          </p>
-          <p className="mt-3 font-display text-2xl font-black italic text-cream/90">
-            Please select your preferred order method
+          <p className="mt-4 font-display text-2xl font-semibold italic text-cream/80">
+            How would you like to receive your order?
           </p>
         </div>
 
-        <div className="mt-14 grid w-full max-w-4xl grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="mt-10 grid w-full max-w-4xl grid-cols-1 gap-5 sm:grid-cols-2">
           {OPTIONS.map((option) => (
             <button
               key={option.mode}
@@ -134,12 +131,10 @@ export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
               </span>
 
               <span>
-                {/* Card label — Playfair Display bold */}
-                <span className="font-display block text-xl font-black text-cream">
+                <span className="font-display block text-2xl font-bold italic text-cream">
                   {option.label}
                 </span>
-                {/* Card description */}
-                <span className="mt-1.5 block text-sm text-cream/70">
+                <span className="label-uppercase mt-1 block text-[0.65rem] text-cream/60">
                   {option.description}
                 </span>
               </span>

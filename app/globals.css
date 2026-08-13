@@ -9,22 +9,40 @@
   --color-brown-darkest: #1a0e08;
   --color-brown-light: #8b6f4f;
 
-  --font-display: var(--font-playfair);
-  --font-heading: var(--font-archivo);
-  --font-body: var(--font-inter);
+  /* Cormorant Garamond — editorial display headlines */
+  --font-display: var(--font-cormorant);
+  /* DM Sans — labels, nav, UI elements */
+  --font-heading: var(--font-dm-sans);
+  /* Lora — body copy, descriptions */
+  --font-body: var(--font-lora);
 }
 
 body {
   background: var(--color-crisp);
   color: var(--color-brown-darkest);
   font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.65;
+  font-optical-sizing: auto;
+}
+
+/* Cormorant reads best slightly larger — bump the base display scale */
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+}
+
+/* Italic headline refinement — tighter tracking on large Cormorant */
+h1.font-display,
+h2.font-display {
+  letter-spacing: -0.01em;
 }
 
 @layer utilities {
   .label-uppercase {
     font-family: var(--font-heading);
-    font-weight: 800;
-    letter-spacing: 0.08em;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 

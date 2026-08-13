@@ -36,7 +36,7 @@ export default function HomePage() {
             <p className="label-uppercase text-xs text-brown-light">
               Fan favourites
             </p>
-            <h2 className="mt-2 font-display text-4xl font-black italic text-brown sm:text-5xl">
+            <h2 className="mt-2 font-display text-5xl font-bold italic text-brown sm:text-6xl">
               Featured on the menu
             </h2>
           </div>
@@ -60,7 +60,7 @@ export default function HomePage() {
 
       <section className="bg-bone">
         <Reveal className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
-          <h2 className="font-display text-4xl font-black italic text-brown sm:text-5xl">
+          <h2 className="font-display text-5xl font-bold italic text-brown sm:text-6xl">
             Bold, not loud.
           </h2>
           <p className="mt-4 text-base text-brown-light">
@@ -76,7 +76,7 @@ export default function HomePage() {
           <p className="label-uppercase text-xs text-brown-light">
             Two branches, one menu
           </p>
-          <h2 className="mt-2 font-display text-4xl font-black italic text-brown sm:text-5xl">
+          <h2 className="mt-2 font-display text-5xl font-bold italic text-brown sm:text-6xl">
             Owerri &amp; Lagos
           </h2>
         </Reveal>
