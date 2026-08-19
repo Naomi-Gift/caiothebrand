@@ -15,6 +15,7 @@ interface PlaceholderImageProps {
   category?: string;
   className?: string;
   fit?: "cover" | "contain";
+  imagePosition?: string;
 }
 
 export default function PlaceholderImage({
@@ -23,6 +24,7 @@ export default function PlaceholderImage({
   category = "pizzas",
   className = "",
   fit = "cover",
+  imagePosition = "center",
 }: PlaceholderImageProps) {
   const [failed, setFailed] = useState(false);
   const icon = CATEGORY_ICON[category] ?? "◐";
@@ -43,13 +45,16 @@ export default function PlaceholderImage({
     }
 
     return (
-      // eslint-disable-next-line @next/next/no-img-element -- fallback needs a plain <img> onError; src comes from a fixed, non-user-controlled manifest path
-      <img
-        src={src}
-        alt={label}
-        className={`object-cover ${className}`}
-        onError={() => setFailed(true)}
-      />
+      <div className={`overflow-hidden bg-bone ${className}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- fallback needs a plain <img> onError; src comes from a fixed, non-user-controlled manifest path */}
+        <img
+          src={src}
+          alt={label}
+          style={{ objectPosition: imagePosition }}
+          className="h-full w-full object-cover scale-110 transition-transform duration-500"
+          onError={() => setFailed(true)}
+        />
+      </div>
     );
   }
 

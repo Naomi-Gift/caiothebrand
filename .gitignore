@@ -45,3 +45,4 @@ lib/generated/prisma
 # database
 prisma/*.db
 prisma/*.db-journal
+.env*.local
