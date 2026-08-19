@@ -118,10 +118,18 @@ export default function CheckoutPage() {
     const amountKobo = Math.round(total * 100);
 
     // Lazily import the Paystack popup (client-only)
-    const PaystackPop = (await import("@paystack/inline-js")).default;
-    const popup = new PaystackPop();
+    let PaystackPop: Awaited<typeof import("@paystack/inline-js")>["default"];
+    try {
+      PaystackPop = (await import("@paystack/inline-js")).default;
+    } catch {
+      setPayError("Could not load payment module. Please refresh and try again.");
+      setPaying(false);
+      return;
+    }
 
-    popup.newTransaction({
+    try {
+      const popup = new PaystackPop();
+      popup.newTransaction({
       key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY ?? "",
       email: account.email,
       amount: amountKobo,
@@ -180,6 +188,10 @@ export default function CheckoutPage() {
         setPaying(false);
       },
     });
+    } catch {
+      setPayError("Payment could not be started. Please try again.");
+      setPaying(false);
+    }
   };
 
   if (!hydrated || !account) return null;

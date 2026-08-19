@@ -11,6 +11,7 @@ export default function CartPage() {
     lines,
     updateQuantity,
     removeLine,
+    clearCart,
     promoCode,
     promoError,
     applyPromoCode,
@@ -20,6 +21,7 @@ export default function CartPage() {
     total,
   } = useCart();
   const [codeInput, setCodeInput] = useState("");
+  const [confirmClear, setConfirmClear] = useState(false);
 
   if (lines.length === 0) {
     return (
@@ -39,9 +41,38 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <h1 className="font-display text-4xl font-black italic text-brown">
-        Your cart
-      </h1>
+      <div className="mb-2 flex items-center justify-between">
+        <h1 className="font-display text-4xl font-black italic text-brown">
+          Your cart
+        </h1>
+        {confirmClear ? (
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-brown-light">Clear everything?</span>
+            <button
+              type="button"
+              onClick={() => { clearCart(); setConfirmClear(false); }}
+              className="font-semibold text-brown underline"
+            >
+              Yes, clear
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmClear(false)}
+              className="text-brown-light underline"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setConfirmClear(true)}
+            className="label-uppercase text-[0.65rem] text-brown-light underline"
+          >
+            Clear cart
+          </button>
+        )}
+      </div>
 
       <div className="mt-8 flex flex-col gap-4">
         {lines.map((line) => (
