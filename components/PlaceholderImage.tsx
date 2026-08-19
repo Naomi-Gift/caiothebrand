@@ -50,8 +50,8 @@ export default function PlaceholderImage({
         <img
           src={src}
           alt={label}
-          style={{ objectPosition: imagePosition }}
-          className="h-full w-full object-cover scale-110 transition-transform duration-500"
+          style={{ objectPosition: imagePosition, transform: "scale(1.08)" }}
+          className="h-full w-full object-cover transition-transform duration-500"
           onError={() => setFailed(true)}
         />
       </div>
