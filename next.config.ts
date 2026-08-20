@@ -15,7 +15,10 @@ const nextConfig: NextConfig = {
   // no CORS, no cross-origin cookie issues.
   async rewrites() {
     return [
-      { source: "/api/auth/:path*",     destination: `${API_URL}/api/auth/:path*`     },
+      // Register route handled directly by the backend — must be listed
+      // BEFORE the wildcard auth rewrite so it isn't swallowed by NextAuth.
+      { source: "/api/auth/register", destination: `${API_URL}/api/auth/register` },
+      { source: "/api/auth/:path*",   destination: `${API_URL}/api/auth/:path*`   },
       { source: "/api/paystack/:path*", destination: `${API_URL}/api/paystack/:path*` },
     ];
   },
