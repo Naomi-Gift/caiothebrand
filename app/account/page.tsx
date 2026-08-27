@@ -51,7 +51,7 @@ export default function AccountPage() {
         </Button>
       </div>
 
-      <div className="mt-8 flex gap-2 border-b border-bone">
+      <div className="mt-8 flex gap-2 overflow-x-auto border-b border-bone pb-px">
         {(
           [
             ["profile", "Profile"],
@@ -63,7 +63,7 @@ export default function AccountPage() {
             key={key}
             type="button"
             onClick={() => setTab(key)}
-            className={`label-uppercase rounded-t-xl px-4 py-2.5 text-xs transition-colors ${
+            className={`label-uppercase shrink-0 rounded-t-xl px-4 py-2.5 text-xs transition-colors ${
               tab === key
                 ? "bg-brown text-cream"
                 : "text-brown-light hover:text-brown"
@@ -177,7 +177,7 @@ export default function AccountPage() {
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <p className="font-body font-semibold text-brown">
+                      <p className="truncate font-body font-semibold text-brown">
                         {order.id}
                       </p>
                       <p className="text-xs text-brown-light">

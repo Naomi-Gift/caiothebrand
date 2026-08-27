@@ -104,34 +104,34 @@ export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
       <div className="relative mx-auto flex min-h-[560px] max-w-5xl flex-col items-center justify-center gap-5 px-8 py-16 text-center sm:px-12 sm:py-20 md:min-h-[700px]">
 
         {/* Centered heading block */}
-        <div>
-          <h1 className="font-display text-5xl font-bold italic leading-tight text-cream sm:text-6xl md:text-7xl whitespace-nowrap">
+        <div className="px-2">
+          <h1 className="font-display text-3xl font-bold italic leading-tight text-cream sm:text-5xl md:text-6xl">
             Made to delight your taste buds.
           </h1>
-          <p className="mt-4 font-display text-2xl font-semibold italic text-cream/80">
+          <p className="mt-3 font-display text-lg font-semibold italic text-cream/80 sm:text-2xl">
             How would you like to receive your order?
           </p>
         </div>
 
-        <div className="mt-10 grid w-full max-w-4xl grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="mt-6 grid w-full max-w-4xl grid-cols-1 gap-4 sm:mt-10 sm:grid-cols-2">
           {OPTIONS.map((option) => (
             <button
               key={option.mode}
               type="button"
               onClick={() => startOrder(option.mode)}
-              className="group relative flex flex-row items-center gap-6 rounded-2xl border border-cream/20 bg-cream/10 px-10 py-10 text-left backdrop-blur-sm transition-all duration-200 hover:border-cream/50 hover:bg-cream/20 hover:scale-[1.02]"
+              className="group relative flex flex-row items-center gap-4 rounded-2xl border border-cream/20 bg-cream/10 px-5 py-5 text-left backdrop-blur-sm transition-all duration-200 hover:border-cream/50 hover:bg-cream/20 hover:scale-[1.02] sm:gap-6 sm:px-10 sm:py-10"
             >
               {/* Radio indicator */}
-              <span className="absolute right-5 top-5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-cream/40 transition-colors group-hover:border-cream">
+              <span className="absolute right-4 top-4 flex h-5 w-5 items-center justify-center rounded-full border-2 border-cream/40 transition-colors group-hover:border-cream">
                 <span className="h-2.5 w-2.5 scale-0 rounded-full bg-cream transition-transform group-hover:scale-100" />
               </span>
 
-              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-cream/15 text-cream">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cream/15 text-cream sm:h-16 sm:w-16">
                 {option.icon}
               </span>
 
               <span>
-                <span className="font-display block text-2xl font-bold italic text-cream">
+                <span className="font-display block text-xl font-bold italic text-cream sm:text-2xl">
                   {option.label}
                 </span>
                 <span className="label-uppercase mt-1 block text-[0.65rem] text-cream/60">

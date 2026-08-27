@@ -46,7 +46,7 @@ export default function CartPage() {
           Your cart
         </h1>
         {confirmClear ? (
-          <div className="flex items-center gap-3 text-sm">
+          <div className="flex flex-wrap items-center gap-2 text-sm sm:gap-3">
             <span className="text-brown-light">Clear everything?</span>
             <button
               type="button"
@@ -103,7 +103,7 @@ export default function CartPage() {
                 quantity={line.quantity}
                 onChange={(q) => updateQuantity(line.lineId, q)}
               />
-              <span className="w-24 text-right font-body font-semibold text-brown">
+              <span className="min-w-[5rem] text-right font-body font-semibold text-brown">
                 {formatNaira(line.unitPrice * line.quantity)}
               </span>
             </div>

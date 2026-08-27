@@ -31,12 +31,12 @@ export default function HomePage() {
       <HeroSlider slides={HERO_SLIDES} />
 
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <Reveal className="flex items-end justify-between gap-4">
+        <Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="label-uppercase text-xs text-brown-light">
               Fan favourites
             </p>
-            <h2 className="mt-2 font-display text-5xl font-bold italic text-brown sm:text-6xl">
+            <h2 className="mt-2 font-display text-4xl font-bold italic text-brown sm:text-5xl lg:text-6xl">
               Featured on the menu
             </h2>
           </div>
@@ -44,7 +44,7 @@ export default function HomePage() {
             href="/menu"
             variant="outline"
             size="sm"
-            className="hidden sm:inline-flex"
+            className="self-start sm:self-auto"
           >
             Full menu →
           </Button>
@@ -60,7 +60,7 @@ export default function HomePage() {
 
       <section className="bg-bone">
         <Reveal className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
-          <h2 className="font-display text-5xl font-bold italic text-brown sm:text-6xl">
+          <h2 className="font-display text-4xl font-bold italic text-brown sm:text-5xl lg:text-6xl">
             Bold, not loud.
           </h2>
           <p className="mt-4 text-base text-brown-light">
@@ -76,7 +76,7 @@ export default function HomePage() {
           <p className="label-uppercase text-xs text-brown-light">
             Two branches, one menu
           </p>
-          <h2 className="mt-2 font-display text-5xl font-bold italic text-brown sm:text-6xl">
+          <h2 className="mt-2 font-display text-4xl font-bold italic text-brown sm:text-5xl lg:text-6xl">
             Owerri &amp; Lagos
           </h2>
         </Reveal>

@@ -129,16 +129,14 @@ export default function ItemCustomizer({ item }: { item: MenuItem }) {
             <QuantityStepper quantity={quantity} onChange={setQuantity} />
           </div>
 
-          <div className="mt-8 flex items-center justify-between border-t border-bone pt-6">
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-bone pt-6">
             <div>
-              <p className="label-uppercase text-xs text-brown-light">
-                Total
-              </p>
+              <p className="label-uppercase text-xs text-brown-light">Total</p>
               <p className="font-display text-3xl font-black text-brown">
                 {formatNaira(unitPrice * quantity)}
               </p>
             </div>
-            <Button onClick={handleAddToCart}>Add to cart</Button>
+            <Button onClick={handleAddToCart} className="w-full sm:w-auto">Add to cart</Button>
           </div>
 
           {added && (
