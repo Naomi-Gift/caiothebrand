@@ -24,7 +24,7 @@ export default function MenuItemCard({ item }: { item: MenuItem }) {
           category={item.category}
           fit={item.category === "drinks" ? "contain" : "cover"}
           imagePosition={item.imagePosition}
-          className="h-44 w-full"
+          className="h-52 w-full"
         />
         <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
           {item.isNew && <Badge tone="brown">New</Badge>}

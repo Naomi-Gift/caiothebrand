@@ -18,7 +18,7 @@ export default function BranchesPage() {
                 <PlaceholderImage
                   label={`${b.name} branch`}
                   src={`/images/branches/${b.id}.jpg`}
-                  className="h-40 w-full"
+                  className="h-64 w-full"
                 />
                 <a
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
