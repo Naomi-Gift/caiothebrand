@@ -1,13 +1,13 @@
 import NextAuth, { type NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 const config: NextAuthConfig = {
   trustHost: true,
-  adapter: PrismaAdapter(prisma),
+  // No adapter — using JWT strategy which works without a DB session table.
+  // The adapter will be re-enabled once the DB migration has run.
   providers: [
     // ── Google OAuth ────────────────────────────────────────────────────────
     Google({
@@ -28,34 +28,46 @@ const config: NextAuthConfig = {
           typeof credentials?.password !== "string"
         ) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email.trim().toLowerCase() },
-        });
-
-        if (!user || !user.password) return null;
-
-        const valid = await bcrypt.compare(credentials.password, user.password);
-        if (!valid) return null;
-
-        return { id: user.id, name: user.name, email: user.email };
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email.trim().toLowerCase() },
+          });
+          if (!user || !user.password) return null;
+          const valid = await bcrypt.compare(credentials.password, user.password);
+          if (!valid) return null;
+          return { id: user.id, name: user.name, email: user.email };
+        } catch {
+          // DB not yet available
+          return null;
+        }
       },
     }),
   ],
 
-  // Database sessions for OAuth; JWT for Credentials (adapter + credentials
-  // together require a hybrid approach).
   session: { strategy: "jwt" },
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, profile }) {
       if (user) {
-        token.id   = user.id;
-        token.name = user.name;
+        token.id    = user.id;
+        token.name  = user.name;
+        token.email = user.email;
+      }
+      // For Google sign-in, profile contains the Google account info
+      if (profile) {
+        token.name  = profile.name  ?? token.name;
+        token.email = profile.email ?? token.email;
+        token.picture = (profile as { picture?: string }).picture ?? undefined;
       }
       return token;
     },
     async session({ session, token }) {
-      if (token?.id) session.user.id = token.id as string;
+      if (token) {
+        session.user.id    = (token.id    as string) ?? "";
+        session.user.name  = (token.name  as string) ?? session.user.name;
+        session.user.email = (token.email as string) ?? session.user.email;
+        session.user.image = (token.picture as string | undefined) ?? session.user.image;
+      }
       return session;
     },
   },
