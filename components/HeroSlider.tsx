@@ -80,7 +80,7 @@ function PizzaWheel({ className = "" }: { className?: string }) {
       <div className="relative h-56 w-56 rounded-full border-4 border-cream/30 p-2 shadow-soft-lg md:h-72 md:w-72">
         <div className="h-full w-full animate-[spin_14s_linear_infinite] overflow-hidden rounded-full">
           <Image
-            src="/images/hero-pizza.jpg"
+            src="/images/spinwheel.jpeg"
             alt=""
             width={640}
             height={640}

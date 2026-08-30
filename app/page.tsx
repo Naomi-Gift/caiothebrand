@@ -13,13 +13,13 @@ const HERO_SLIDES: HeroSlide[] = [
   },
   {
     eyebrow: "Fan favourite",
-    headline: "Suya, off the skewer.",
-    sub: "Grilled suya beef, yaji spice, and a thread of chili oil — a Caio original.",
+    headline: "Suya. Off the skewer.",
+    sub: "Grilled suya beef, yaji spice, and a thread of chili oil. A Caio original.",
   },
   {
     eyebrow: "The classic",
-    headline: "Bold, not loud.",
-    sub: "San Marzano tomato, fior di latte, torn basil. No fusion, no fuss.",
+    headline: "Simple done right.",
+    sub: "San Marzano tomato, fior di latte, torn basil. The one you order to know if a place is actually good.",
   },
 ];
 
@@ -64,9 +64,9 @@ export default function HomePage() {
             Bold, not loud.
           </h2>
           <p className="mt-4 text-base text-brown-light">
-            We put dodo on a pizza and won&apos;t lecture you about it.
-            Proudly Nigerian, happens to make excellent pizza, and we&apos;ll
-            always warn you when it&apos;s actually spicy.
+            Suya beef, yaji spice, scotch bonnet on a pizza and it works.
+            Every pie built from scratch, real ingredients, and the
+            🌶️ on the menu means it is actually spicy.
           </p>
         </Reveal>
       </section>
