@@ -77,11 +77,11 @@ function PizzaWheel({ className = "" }: { className?: string }) {
     <div
       className={`pointer-events-none absolute top-1/2 hidden -translate-y-1/2 sm:block ${className}`}
     >
-      <div className="relative h-56 w-56 rounded-full border-4 border-cream/30 p-2 shadow-soft-lg md:h-72 md:w-72">
-        <div className="h-full w-full animate-[spin_14s_linear_infinite] overflow-hidden rounded-full">
+      <div className="relative h-64 w-64 rounded-full border-4 border-cream/20 p-1.5 shadow-soft-lg md:h-80 md:w-80">
+        <div className="h-full w-full animate-[spin_18s_linear_infinite] overflow-hidden rounded-full">
           <Image
             src="/images/spinwheel.jpeg"
-            alt=""
+            alt="Caio pizza"
             width={640}
             height={640}
             className="h-full w-full object-cover"
