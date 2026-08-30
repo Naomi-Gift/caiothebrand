@@ -60,6 +60,16 @@ export type Category = Prisma.CategoryModel
  */
 export type MenuItem = Prisma.MenuItemModel
 /**
+ * Model Order
+ * 
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model OrderLine
+ * 
+ */
+export type OrderLine = Prisma.OrderLineModel
+/**
  * Model Account
  * 
  */

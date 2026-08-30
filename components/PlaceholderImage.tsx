@@ -15,7 +15,6 @@ interface PlaceholderImageProps {
   category?: string;
   className?: string;
   fit?: "cover" | "contain";
-  imagePosition?: string;
 }
 
 export default function PlaceholderImage({
@@ -24,7 +23,6 @@ export default function PlaceholderImage({
   category = "pizzas",
   className = "",
   fit = "cover",
-  imagePosition = "center",
 }: PlaceholderImageProps) {
   const [failed, setFailed] = useState(false);
   const icon = CATEGORY_ICON[category] ?? "◐";
@@ -50,7 +48,7 @@ export default function PlaceholderImage({
         <img
           src={src}
           alt={label}
-          style={{ objectPosition: imagePosition, transform: "scale(1.08) translateY(10px)" }}
+          style={{ transform: "scale(1.08)" }}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           onError={() => setFailed(true)}
         />

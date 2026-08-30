@@ -123,7 +123,6 @@ export const menuItems: MenuItem[] = [
     spicy: false,
     vegetarian: true,
     featured: true,
-    imagePosition: "center 70%",
   },
   {
     id: "beef-suya-experience",
@@ -167,7 +166,6 @@ export const menuItems: MenuItem[] = [
     spicy: false,
     vegetarian: true,
     featured: true,
-    imagePosition: "center 70%",
   },
   {
     id: "smoky-bbq-chicken",
@@ -266,8 +264,6 @@ export const menuItems: MenuItem[] = [
     addOns: pizzaAddOns,
     spicy: false,
     vegetarian: false,
-    featured: true,
-    imagePosition: "center 70%",
   },
 
   // ── Sides ────────────────────────────────────────────────────────────────────

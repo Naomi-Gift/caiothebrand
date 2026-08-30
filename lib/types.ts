@@ -42,8 +42,8 @@ export interface MenuItem {
   soldOut?: boolean;
   featured?: boolean;
   isNew?: boolean;
-  /** CSS object-position value for the card image, e.g. "center 70%" */
-  imagePosition?: string;
+  available?: boolean;
+
 }
 
 export interface CartLineAddOn {

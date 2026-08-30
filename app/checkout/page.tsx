@@ -159,9 +159,47 @@ export default function CheckoutPage() {
             return;
           }
 
-          // Payment confirmed — persist the order and clear the cart
+          // Payment confirmed — persist order to DB then clear the cart
+          const orderPayload = {
+            branchId: branch.id,
+            fulfillment: fulfillment.toUpperCase(),
+            lines,
+            subtotal,
+            discount,
+            total,
+            promoCode: promoCode ?? null,
+            paystackRef: response.reference,
+            deliveryAddress:
+              fulfillment === "delivery"
+                ? savedAddress
+                  ? `${savedAddress.line1}, ${savedAddress.city}`
+                  : addressLine.trim()
+                    ? `${addressLine.trim()}${addressCity.trim() ? `, ${addressCity.trim()}` : ""}`
+                    : null
+                : null,
+            customerEmail: account.email,
+            customerName: account.name ?? null,
+          };
+
+          let orderId = response.reference;
+          try {
+            const orderRes = await fetch("/api/orders", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(orderPayload),
+            });
+            if (orderRes.ok) {
+              const saved = await orderRes.json() as { id: string };
+              orderId = saved.id;
+            }
+          } catch {
+            // Non-fatal — order is verified, just couldn't persist to DB
+            console.error("Failed to save order to DB");
+          }
+
+          // Also keep local record for confirmation page fallback
           const order: OrderRecord = {
-            id: reference,
+            id: orderId,
             createdAt: new Date().toISOString(),
             branchId: branch.id,
             fulfillment,
@@ -172,9 +210,8 @@ export default function CheckoutPage() {
             promoCode: promoCode ?? undefined,
             status: "received",
           };
-
           saveOrder(order);
-          window.localStorage.setItem(LAST_ORDER_KEY, order.id);
+          window.localStorage.setItem(LAST_ORDER_KEY, orderId);
           clearCart();
           router.push("/checkout/confirmation");
         } catch {

@@ -59,6 +59,19 @@ const config: NextAuthConfig = {
         token.email = profile.email ?? token.email;
         token.picture = (profile as { picture?: string }).picture ?? undefined;
       }
+      // Fetch role from DB on every token refresh so promotions take effect
+      if (token.email) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: token.email as string },
+            select: { id: true, role: true },
+          });
+          if (dbUser) {
+            token.id   = dbUser.id;
+            token.role = dbUser.role;
+          }
+        } catch { /* DB unavailable — keep existing token */ }
+      }
       return token;
     },
     async session({ session, token }) {
@@ -67,6 +80,8 @@ const config: NextAuthConfig = {
         session.user.name  = (token.name  as string) ?? session.user.name;
         session.user.email = (token.email as string) ?? session.user.email;
         session.user.image = (token.picture as string | undefined) ?? session.user.image;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (session.user as any).role = token.role ?? "USER";
       }
       return session;
     },

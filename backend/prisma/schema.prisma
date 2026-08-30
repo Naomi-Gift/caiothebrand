@@ -27,6 +27,7 @@ model User {
   role          Role      @default(USER)
   accounts      Account[]
   sessions      Session[]
+  orders        Order[]
 }
 
 model Category {
@@ -38,17 +39,73 @@ model Category {
 }
 
 model MenuItem {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   name        String
-  slug        String   @unique
+  slug        String      @unique
+  descriptor  String?
   description String?
-  price       Float
+  basePrice   Float
   image       String?
-  available   Boolean  @default(true)
+  available   Boolean     @default(true)
+  soldOut     Boolean     @default(false)
+  featured    Boolean     @default(false)
+  spicy       Boolean     @default(false)
+  vegetarian  Boolean     @default(false)
+  sizes       Json        @default("[]")  // SizeOption[]
+  addOns      Json        @default("[]")  // AddOnOption[]
   categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  category    Category    @relation(fields: [categoryId], references: [id])
+  orderLines  OrderLine[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum OrderStatus {
+  RECEIVED
+  KITCHEN
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum FulfillmentMode {
+  DELIVERY
+  PICKUP
+}
+
+model Order {
+  id              String          @id @default(cuid())
+  userId          String?
+  user            User?           @relation(fields: [userId], references: [id])
+  branchId        String
+  fulfillment     FulfillmentMode
+  status          OrderStatus     @default(RECEIVED)
+  subtotal        Float
+  discount        Float           @default(0)
+  total           Float
+  promoCode       String?
+  paystackRef     String?         @unique
+  deliveryAddress String?
+  customerEmail   String?
+  customerName    String?
+  lines           OrderLine[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model OrderLine {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId String?
+  menuItem   MenuItem? @relation(fields: [menuItemId], references: [id])
+  name       String
+  descriptor String?
+  sizeLabel  String
+  addOns     Json     @default("[]")  // { label, price }[]
+  quantity   Int
+  unitPrice  Float
+  createdAt  DateTime @default(now())
 }
 
 model Account {

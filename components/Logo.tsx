@@ -28,7 +28,7 @@ function LogoMark({ variant }: { variant: LogoVariant }) {
         width={mark.width}
         height={mark.height}
         alt="Caio Pizza"
-        className="h-9 w-9 object-contain"
+        className="h-12 w-12 object-contain"
         priority
       />
     );
@@ -41,7 +41,7 @@ function LogoMark({ variant }: { variant: LogoVariant }) {
       width={lockup.width}
       height={lockup.height}
       alt="Caio Pizza"
-      className="h-10 w-auto object-contain"
+      className="h-16 w-auto object-contain"
       priority
     />
   );

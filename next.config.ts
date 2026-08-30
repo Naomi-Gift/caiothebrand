@@ -17,9 +17,14 @@ const nextConfig: NextConfig = {
     return [
       // Register route handled directly by the backend — must be listed
       // BEFORE the wildcard auth rewrite so it isn't swallowed by NextAuth.
-      { source: "/api/auth/register", destination: `${API_URL}/api/auth/register` },
-      { source: "/api/auth/:path*",   destination: `${API_URL}/api/auth/:path*`   },
+      { source: "/api/auth/register",   destination: `${API_URL}/api/auth/register` },
+      { source: "/api/auth/:path*",     destination: `${API_URL}/api/auth/:path*`   },
       { source: "/api/paystack/:path*", destination: `${API_URL}/api/paystack/:path*` },
+      { source: "/api/orders/:path*",   destination: `${API_URL}/api/orders/:path*` },
+      { source: "/api/orders",          destination: `${API_URL}/api/orders`         },
+      { source: "/api/menu/:path*",     destination: `${API_URL}/api/menu/:path*`   },
+      { source: "/api/menu",            destination: `${API_URL}/api/menu`           },
+      { source: "/api/categories",      destination: `${API_URL}/api/categories`     },
     ];
   },
 };

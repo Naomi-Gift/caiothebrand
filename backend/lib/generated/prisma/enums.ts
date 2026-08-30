@@ -15,3 +15,22 @@ export const Role = {
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const OrderStatus = {
+  RECEIVED: 'RECEIVED',
+  KITCHEN: 'KITCHEN',
+  OUT_FOR_DELIVERY: 'OUT_FOR_DELIVERY',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
+export const FulfillmentMode = {
+  DELIVERY: 'DELIVERY',
+  PICKUP: 'PICKUP'
+} as const
+
+export type FulfillmentMode = (typeof FulfillmentMode)[keyof typeof FulfillmentMode]
