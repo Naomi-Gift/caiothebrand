@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS "Setting" (
+  "key"       TEXT NOT NULL,
+  "value"     TEXT NOT NULL,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "Setting_pkey" PRIMARY KEY ("key")
+);

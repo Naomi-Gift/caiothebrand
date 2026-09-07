@@ -1,79 +1,117 @@
-/**
- * GET  /api/orders   — admin only: list all orders (newest first)
- * POST /api/orders   — public (authenticated or guest): create a new order after payment
- */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/adminAuth";
-import { auth } from "@/auth";
 
-export async function GET() {
-  const adminAuth = await requireAdmin();
-  if (!adminAuth.ok) return adminAuth.response;
+interface OrderLineInput {
+  itemId?: string;
+  name: string;
+  descriptor?: string;
+  size: { label: string };
+  addOns: { label: string; price: number }[];
+  quantity: number;
+  unitPrice: number;
+}
 
-  const orders = await prisma.order.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      lines: true,
-      user: { select: { id: true, name: true, email: true } },
-    },
-  });
-  return NextResponse.json(orders);
+interface CreateOrderBody {
+  branchId: string;
+  fulfillment: "DELIVERY" | "PICKUP";
+  lines: OrderLineInput[];
+  subtotal: number;
+  discount: number;
+  total: number;
+  promoCode?: string | null;
+  paystackRef: string;
+  deliveryAddress?: string | null;
+  customerEmail?: string | null;
+  customerName?: string | null;
+  userId?: string | null;
 }
 
 export async function POST(req: NextRequest) {
-  let body: Record<string, unknown>;
-  try { body = await req.json(); } catch {
-    return NextResponse.json({ error: "Invalid body." }, { status: 400 });
+  let body: CreateOrderBody;
+  try {
+    body = (await req.json()) as CreateOrderBody;
+  } catch {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { branchId, fulfillment, lines, subtotal, discount, total,
-          promoCode, paystackRef, deliveryAddress, customerEmail, customerName } = body;
+  const {
+    branchId,
+    fulfillment,
+    lines,
+    subtotal,
+    discount,
+    total,
+    promoCode,
+    paystackRef,
+    deliveryAddress,
+    customerEmail,
+    customerName,
+    userId,
+  } = body;
 
-  if (!branchId || !fulfillment || !Array.isArray(lines) || lines.length === 0 || !total) {
+  if (!branchId || !fulfillment || !lines?.length || !paystackRef) {
+    return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+  }
+
+  try {
+    const order = await prisma.order.create({
+      data: {
+        branchId,
+        fulfillment,
+        subtotal,
+        discount: discount ?? 0,
+        total,
+        promoCode:       promoCode       ?? null,
+        paystackRef:     paystackRef,
+        deliveryAddress: deliveryAddress ?? null,
+        customerEmail:   customerEmail   ?? null,
+        customerName:    customerName    ?? null,
+        userId:          userId          ?? null,
+        lines: {
+          create: lines.map((l) => ({
+            name:       l.name,
+            descriptor: l.descriptor ?? null,
+            sizeLabel:  l.size.label,
+            addOns:     l.addOns,
+            quantity:   l.quantity,
+            unitPrice:  l.unitPrice,
+            menuItem:   l.itemId
+              ? { connect: { id: l.itemId } }
+              : undefined,
+          })),
+        },
+      },
+      include: { lines: true },
+    });
+
+    return NextResponse.json({ id: order.id, createdAt: order.createdAt });
+  } catch (err) {
+    console.error("[api/orders] create error", err);
     return NextResponse.json(
-      { error: "branchId, fulfillment, lines and total are required." },
-      { status: 400 }
+      { error: "Could not save order." },
+      { status: 500 }
     );
   }
+}
 
-  if (!["DELIVERY", "PICKUP"].includes(String(fulfillment).toUpperCase())) {
-    return NextResponse.json({ error: "fulfillment must be DELIVERY or PICKUP." }, { status: 400 });
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const email = searchParams.get("email");
+
+  if (!email) {
+    return NextResponse.json({ error: "email is required." }, { status: 400 });
   }
 
-  // Attach to user if signed in
-  const session = await auth();
-  const userId = session?.user?.email
-    ? (await prisma.user.findUnique({ where: { email: session.user.email }, select: { id: true } }))?.id ?? null
-    : null;
-
-  const order = await prisma.order.create({
-    data: {
-      userId,
-      branchId: String(branchId),
-      fulfillment: String(fulfillment).toUpperCase() as "DELIVERY" | "PICKUP",
-      subtotal: Number(subtotal ?? total),
-      discount: Number(discount ?? 0),
-      total: Number(total),
-      promoCode: promoCode ? String(promoCode) : null,
-      paystackRef: paystackRef ? String(paystackRef) : null,
-      deliveryAddress: deliveryAddress ? String(deliveryAddress) : null,
-      customerEmail: customerEmail ? String(customerEmail) : null,
-      customerName: customerName ? String(customerName) : null,
-      lines: {
-        create: (lines as Array<Record<string, unknown>>).map((l) => ({
-          menuItemId: l.itemId ? String(l.itemId) : null,
-          name: String(l.name),
-          descriptor: l.descriptor ? String(l.descriptor) : null,
-          sizeLabel: String((l.size as Record<string, unknown>)?.label ?? l.sizeLabel ?? ""),
-          addOns: (l.addOns as object) ?? [],
-          quantity: Number(l.quantity),
-          unitPrice: Number(l.unitPrice),
-        })),
-      },
-    },
-    include: { lines: true },
-  });
-
-  return NextResponse.json(order, { status: 201 });
+  try {
+    const orders = await prisma.order.findMany({
+      where: { customerEmail: email },
+      include: { lines: true },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
+    return NextResponse.json(orders);
+  } catch (err) {
+    console.error("[api/orders] fetch error", err);
+    return NextResponse.json({ error: "Could not fetch orders." }, { status: 500 });
+  }
 }
