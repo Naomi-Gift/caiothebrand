@@ -6,9 +6,10 @@ const BACKEND = process.env.BACKEND_URL ?? "http://localhost:4000";
 
 const config: NextAuthConfig = {
   trustHost: true,
+  secret: process.env.AUTH_SECRET,
   providers: [
     Google({
-      clientId: process.env.AUTH_GOOGLE_ID!,
+      clientId:     process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
     }),
     Credentials({
@@ -18,43 +19,56 @@ const config: NextAuthConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (typeof credentials?.email !== "string" || typeof credentials?.password !== "string") return null;
+        if (!credentials?.email || !credentials?.password) return null;
         try {
-          // Verify credentials against the backend auth endpoint
-          const res = await fetch(`${BACKEND}/api/auth/callback/credentials`, {
+          // Sign in via the backend credentials endpoint
+          const res = await fetch(`${BACKEND}/api/auth/signin/credentials`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: credentials.email, password: credentials.password }),
+            body: JSON.stringify({
+              email:    credentials.email,
+              password: credentials.password,
+              redirect: false,
+            }),
           });
           if (!res.ok) return null;
-          const user = await res.json() as { id: string; name: string; email: string; role: string };
-          if (!user?.email) return null;
-          return user;
+          const data = await res.json() as { user?: { id: string; name: string; email: string } };
+          if (!data.user?.email) return null;
+          return data.user;
         } catch { return null; }
       },
     }),
   ],
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, profile }) {
+      // On first sign-in attach basic info
       if (user) {
         token.id    = user.id;
         token.email = user.email;
         token.name  = user.name;
       }
-      // Fetch role from backend to confirm ADMIN on every refresh
+      if (profile) {
+        token.name  = profile.name  ?? token.name;
+        token.email = profile.email ?? token.email;
+      }
+      // Check ADMIN role against backend on every token refresh
       if (token.email) {
         try {
-          const res = await fetch(`${BACKEND}/api/admin/users`, {
-            headers: { "x-admin-check": "1", "x-user-email": token.email as string },
+          const res = await fetch(`${BACKEND}/api/admin/role-check`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-admin-secret": process.env.AUTH_SECRET ?? "",
+            },
+            body: JSON.stringify({ email: token.email }),
             cache: "no-store",
           });
           if (res.ok) {
-            const users = await res.json() as Array<{ email: string; role: string }>;
-            const me = users.find((u) => u.email === token.email);
-            token.role = me?.role ?? "USER";
+            const data = await res.json() as { role: string };
+            token.role = data.role;
           }
-        } catch { /* keep existing */ }
+        } catch { /* keep existing role */ }
       }
       return token;
     },
