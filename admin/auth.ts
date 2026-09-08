@@ -55,8 +55,9 @@ const config: NextAuthConfig = {
         token.name  = profile.name  ?? token.name;
         token.email = profile.email ?? token.email;
       }
-      // On Google sign-in or refresh, verify role from backend
-      if (token.email && !token.role) {
+      // Always fetch role from backend for Google sign-ins
+      // For credentials sign-in, role is already on the token from authorize()
+      if (token.email && (account?.provider === "google" || !token.role)) {
         try {
           const res = await fetch(`${BACKEND}/api/admin/role-check`, {
             method: "POST",
@@ -94,12 +95,13 @@ const config: NextAuthConfig = {
             body: JSON.stringify({ email: user.email }),
             cache: "no-store",
           });
-          if (res.ok) {
-            const data = await res.json() as { role: string };
-            if (data.role !== "ADMIN") return "/login?error=AccessDenied";
-            return true;
-          }
-        } catch { /* fail open — role check happens in middleware too */ }
+          if (!res.ok) return "/login?error=AccessDenied";
+          const data = await res.json() as { role: string };
+          if (data.role !== "ADMIN") return "/login?error=AccessDenied";
+          return true;
+        } catch {
+          return "/login?error=AccessDenied";
+        }
       }
       return true;
     },
