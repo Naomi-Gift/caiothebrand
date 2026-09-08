@@ -11,6 +11,7 @@ export interface Branch {
   deliveryEstimate: string;
   lat: number;
   lng: number;
+  comingSoon?: boolean;
 }
 
 export type MenuCategory = "pizzas" | "sides" | "drinks";

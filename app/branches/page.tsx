@@ -32,9 +32,21 @@ export default function BranchesPage() {
                 </a>
               </div>
               <div className="p-6">
-                <h2 className="font-display text-3xl font-black text-brown">
-                  {b.name}
-                </h2>
+                <div className="flex items-start justify-between gap-3">
+                  <h2 className="font-display text-3xl font-black text-brown">
+                    {b.name}
+                  </h2>
+                  {b.comingSoon && (
+                    <span className="label-uppercase mt-1.5 shrink-0 rounded-full bg-brown px-3 py-1 text-[0.6rem] text-cream">
+                      Coming soon
+                    </span>
+                  )}
+                </div>
+                {b.comingSoon && (
+                  <p className="mt-2 text-sm italic text-brown-light">
+                    We&apos;re not open in {b.name} yet — but we&apos;re on our way. Stay tuned.
+                  </p>
+                )}
                 <dl className="mt-4 flex flex-col gap-3 text-sm">
                   <div>
                     <dt className="label-uppercase text-[0.65rem] text-brown-light">

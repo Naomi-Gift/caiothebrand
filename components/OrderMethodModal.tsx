@@ -201,16 +201,32 @@ function PickupBranchStep({ onBack }: { onBack: () => void }) {
 
       <div className="mt-6 flex flex-col gap-3">
         {branchList.map((b) => (
-          <button
-            key={b.id}
-            type="button"
-            onClick={() => choose(b.id)}
-            className="flex flex-col rounded-2xl bg-bone px-5 py-4 text-left shadow-soft transition-all duration-200 hover:scale-[1.01] hover:bg-brown hover:text-cream hover:shadow-soft-lg"
-          >
-            <span className="font-display text-xl font-black">{b.name}</span>
-            <span className="mt-0.5 text-xs opacity-75">{b.address}</span>
-            <span className="mt-1 text-xs opacity-60">{b.hours}</span>
-          </button>
+          b.comingSoon ? (
+            <div
+              key={b.id}
+              className="flex items-start justify-between rounded-2xl bg-bone/50 px-5 py-4 opacity-60 cursor-not-allowed"
+            >
+              <div className="flex flex-col">
+                <span className="font-display text-xl font-black text-brown">{b.name}</span>
+                <span className="mt-0.5 text-xs text-brown-light">{b.address}</span>
+                <span className="mt-1 text-xs text-brown-light">{b.hours}</span>
+              </div>
+              <span className="label-uppercase mt-1 shrink-0 rounded-full bg-brown px-3 py-1 text-[0.6rem] text-cream">
+                Coming soon
+              </span>
+            </div>
+          ) : (
+            <button
+              key={b.id}
+              type="button"
+              onClick={() => choose(b.id)}
+              className="flex flex-col rounded-2xl bg-bone px-5 py-4 text-left shadow-soft transition-all duration-200 hover:scale-[1.01] hover:bg-brown hover:text-cream hover:shadow-soft-lg"
+            >
+              <span className="font-display text-xl font-black">{b.name}</span>
+              <span className="mt-0.5 text-xs opacity-75">{b.address}</span>
+              <span className="mt-1 text-xs opacity-60">{b.hours}</span>
+            </button>
+          )
         ))}
       </div>
     </>
