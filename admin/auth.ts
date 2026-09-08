@@ -21,39 +21,42 @@ const config: NextAuthConfig = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
         try {
-          // Sign in via the backend credentials endpoint
-          const res = await fetch(`${BACKEND}/api/auth/signin/credentials`, {
+          const res = await fetch(`${BACKEND}/api/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               email:    credentials.email,
               password: credentials.password,
-              redirect: false,
             }),
           });
           if (!res.ok) return null;
-          const data = await res.json() as { user?: { id: string; name: string; email: string } };
-          if (!data.user?.email) return null;
-          return data.user;
+          const user = await res.json() as {
+            id: string; name: string; email: string; role: string;
+          };
+          if (!user?.email) return null;
+          // Only allow ADMIN role to sign in to the admin app
+          if (user.role !== "ADMIN") return null;
+          return user;
         } catch { return null; }
       },
     }),
   ],
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user, account, profile }) {
-      // On first sign-in attach basic info
+    async jwt({ token, user, profile }) {
       if (user) {
         token.id    = user.id;
         token.email = user.email;
         token.name  = user.name;
+        // Role comes from the login endpoint directly
+        token.role  = (user as Record<string, unknown>).role ?? "USER";
       }
       if (profile) {
         token.name  = profile.name  ?? token.name;
         token.email = profile.email ?? token.email;
       }
-      // Check ADMIN role against backend on every token refresh
-      if (token.email) {
+      // On Google sign-in or refresh, verify role from backend
+      if (token.email && !token.role) {
         try {
           const res = await fetch(`${BACKEND}/api/admin/role-check`, {
             method: "POST",
@@ -68,7 +71,7 @@ const config: NextAuthConfig = {
             const data = await res.json() as { role: string };
             token.role = data.role;
           }
-        } catch { /* keep existing role */ }
+        } catch { /* keep existing */ }
       }
       return token;
     },
@@ -77,6 +80,28 @@ const config: NextAuthConfig = {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (session.user as any).role = token.role ?? "USER";
       return session;
+    },
+    async signIn({ user, account }) {
+      // For Google sign-in, check role before allowing access
+      if (account?.provider === "google") {
+        try {
+          const res = await fetch(`${BACKEND}/api/admin/role-check`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-admin-secret": process.env.AUTH_SECRET ?? "",
+            },
+            body: JSON.stringify({ email: user.email }),
+            cache: "no-store",
+          });
+          if (res.ok) {
+            const data = await res.json() as { role: string };
+            if (data.role !== "ADMIN") return "/login?error=AccessDenied";
+            return true;
+          }
+        } catch { /* fail open — role check happens in middleware too */ }
+      }
+      return true;
     },
   },
   pages: { signIn: "/login", error: "/login" },
