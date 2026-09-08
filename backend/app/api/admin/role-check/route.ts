@@ -11,8 +11,13 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: NextRequest) {
   // Verify shared secret so this can't be called publicly
   const secret = req.headers.get("x-admin-secret");
-  if (!secret || secret !== process.env.AUTH_SECRET) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  const expected = process.env.AUTH_SECRET ?? "";
+
+  // Debug: log first 8 chars to verify secret is loading (remove after fix)
+  console.log("AUTH_SECRET prefix:", expected.slice(0, 8));
+
+  if (!secret || secret !== expected) {
+    return NextResponse.json({ error: "Forbidden.", hint: expected.slice(0, 8) }, { status: 403 });
   }
 
   let body: { email?: string };
