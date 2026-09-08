@@ -11,10 +11,10 @@ export default function ContactPage() {
   const [sent, setSent] = useState(false);
 
   const whatsappHref = branch
-    ? `https://wa.me/?text=${encodeURIComponent(
+    ? `https://wa.me/2348137550148?text=${encodeURIComponent(
         `Hi Caio Pizza ${branch.name}, I have a question.`
       )}`
-    : "https://wa.me/";
+    : "https://wa.me/2348137550148";
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
@@ -26,6 +26,15 @@ export default function ContactPage() {
         Questions about an order, catering, or just want to say hi — we&apos;re
         around.
       </p>
+
+      <div className="mt-6 flex items-center gap-3">
+        <a
+          href="tel:08137550148"
+          className="label-uppercase flex items-center gap-2 rounded-full bg-bone px-5 py-2.5 text-xs text-brown transition-all hover:bg-brown hover:text-cream"
+        >
+          📞 0813 755 0148
+        </a>
+      </div>
 
       <a
         href={whatsappHref}
