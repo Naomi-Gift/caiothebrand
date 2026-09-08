@@ -62,5 +62,5 @@ function corsHeaders(origin: string) {
 }
 
 export const config = {
-  matcher: ["/api/:path*", "/admin/:path*"],
+  matcher: ["/api/((?!admin/role-check).)*", "/admin/:path*"],
 };
