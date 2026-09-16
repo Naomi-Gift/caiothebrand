@@ -19,10 +19,49 @@
   --font-body: var(--font-lora);
 }
 
-html { scroll-behavior: smooth; }
+/* ── Page transitions ───────────────────────────────────────────────────── */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+main {
+  animation: pageIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Focus ring ─────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-brown);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Cursor glow on interactive elements ────────────────────────────────── */
+.cursor-glow {
+  position: relative;
+  isolation: isolate;
+}
+.cursor-glow::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(200px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(58,36,24,0.08), transparent 70%);
+  pointer-events: none;
+}
+.cursor-glow:hover::after {
+  opacity: 1;
+}
+
+/* ── Selection ──────────────────────────────────────────────────────────── */
+::selection {
+  background: var(--color-brown);
+  color: var(--color-cream);
+}
 
 body {
-  background: var(--color-crisp);
+  background: var(--color-cream);
   color: var(--color-brown-darkest);
   font-family: var(--font-body);
   font-size: 1rem;
@@ -137,9 +176,9 @@ h2.font-display {
 
   /* ── Gradient utilities ─────────────────────────────────────────────────── */
   .bg-card-gradient {
-    background: linear-gradient(160deg, #ffffff 0%, #fdfaf6 100%);
+    background: linear-gradient(160deg, #fffcf8 0%, #faf4eb 100%);
   }
   .bg-warm-gradient {
-    background: linear-gradient(160deg, #ffffff 0%, #f8f3e9 60%, #ebe2cf 100%);
+    background: linear-gradient(160deg, #f5ede0 0%, #ede0cc 60%, #ddd0b8 100%);
   }
 }

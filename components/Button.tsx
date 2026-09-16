@@ -1,10 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "motion/react";
 
 type ButtonVariant = "solid" | "outline" | "solid-cream" | "outline-cream";
 type ButtonSize = "sm" | "md";
 
 const base =
-  "label-uppercase inline-flex items-center justify-center gap-1.5 rounded-full border-2 text-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:hover:scale-100";
+  "label-uppercase inline-flex items-center justify-center gap-1.5 rounded-full border-2 text-center transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none";
 
 const sizes: Record<ButtonSize, string> = {
   sm: "px-4 py-2 text-[0.65rem]",
@@ -48,23 +51,32 @@ export default function Button({
 }: ButtonProps) {
   const classes = `${base} ${sizes[size]} ${variants[variant]} ${className}`;
 
+  const motionProps = {
+    whileHover: { scale: 1.03 },
+    whileTap:   { scale: 0.96 },
+    transition: { type: "spring" as const, stiffness: 400, damping: 20 },
+  };
+
   if (href) {
     return (
-      <Link href={href} className={classes} {...aria}>
-        {children}
-      </Link>
+      <motion.div {...motionProps} style={{ display: "inline-block" }}>
+        <Link href={href} className={classes} {...aria}>
+          {children}
+        </Link>
+      </motion.div>
     );
   }
 
   return (
-    <button
+    <motion.button
       type={type}
       onClick={onClick}
       disabled={disabled}
       className={classes}
-      {...aria}
+      {...(aria as Record<string, unknown>)}
+      {...motionProps}
     >
       {children}
-    </button>
+    </motion.button>
   );
 }
