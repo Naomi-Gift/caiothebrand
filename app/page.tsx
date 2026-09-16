@@ -11,16 +11,6 @@ const HERO_SLIDES: HeroSlide[] = [
     headline: "Made to delight your taste buds.",
     sub: "Italian technique, Nigerian flavour. Chef driven, from Lagos, now in Owerri too.",
   },
-  {
-    eyebrow: "Fan favourite",
-    headline: "Suya. Off the skewer.",
-    sub: "Grilled suya beef, yaji spice, and a thread of chili oil. A Caio original.",
-  },
-  {
-    eyebrow: "The classic",
-    headline: "Simple done right.",
-    sub: "San Marzano tomato, fior di latte, torn basil. The one you order to know if a place is actually good.",
-  },
 ];
 
 export default function HomePage() {
@@ -31,80 +21,109 @@ export default function HomePage() {
       {/* ── Hero ────────────────────────────────────────────────────────── */}
       <HeroSlider slides={HERO_SLIDES} />
 
-      {/* ── Featured items ──────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
-        <Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="label-uppercase text-xs text-brown-light">
-              Fan favourites
-            </p>
-            <h2 className="mt-2 font-display text-4xl font-bold italic text-brown sm:text-5xl lg:text-6xl">
-              Featured on the menu
-            </h2>
-          </div>
-          <Button
-            href="/menu"
-            variant="outline"
-            size="sm"
-            className="self-start sm:self-auto"
-          >
-            Full menu →
-          </Button>
-        </Reveal>
+      {/* ── Ombre divider ───────────────────────────────────────────────── */}
+      <div className="ombre-divider" aria-hidden="true" />
 
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {featured.map((item, i) => (
-            <Reveal key={item.id} delay={i * 0.08}>
-              <MenuItemCard item={item} />
-            </Reveal>
-          ))}
+      {/* ── Featured items ──────────────────────────────────────────────── */}
+      <section
+        className="relative overflow-hidden"
+        style={{ background: "linear-gradient(180deg, #fdfaf6 0%, #f5ede0 100%)" }}
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-0 top-0 h-[32rem] w-[32rem] opacity-50"
+          style={{ background: "radial-gradient(circle at top right, #ebe2cf, transparent 65%)" }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 opacity-30"
+          style={{ background: "radial-gradient(circle at bottom left, #d4c4a8, transparent 70%)" }}
+        />
+
+        <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+          <Reveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="label-uppercase text-xs text-brown-light">Fan favourites</p>
+              <h2 className="mt-2 font-display text-4xl font-bold italic text-brown sm:text-5xl lg:text-6xl">
+                Featured on the menu
+              </h2>
+            </div>
+            <Button href="/menu" variant="outline" size="sm" className="self-start sm:self-auto">
+              Full menu →
+            </Button>
+          </Reveal>
+
+          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {featured.map((item, i) => (
+              <Reveal key={item.id} delay={i * 0.1}>
+                <MenuItemCard item={item} />
+              </Reveal>
+            ))}
+          </div>
         </div>
+
+        {/* Bottom ombre border into next section */}
+        <div className="ombre-divider-warm" aria-hidden="true" />
       </section>
 
       {/* ── Brand statement ─────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-brown">
-        {/* Subtle grid pattern */}
+      <section className="relative overflow-hidden bg-brown-deep">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(235,226,207,1) 1px, transparent 1px), linear-gradient(90deg, rgba(235,226,207,1) 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-          }}
+          className="pointer-events-none absolute right-[-8rem] top-[-6rem] h-[36rem] w-[36rem] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(139,111,79,0.2) 0%, transparent 65%)" }}
         />
-        {/* Glow blob */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute right-[-6rem] top-[-4rem] h-80 w-80 rounded-full opacity-15"
-          style={{ background: "radial-gradient(circle, #8b6f4f 0%, transparent 70%)" }}
+          className="pointer-events-none absolute bottom-[-4rem] left-[-4rem] h-72 w-72 rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(139,111,79,0.12) 0%, transparent 70%)" }}
+        />
+        {/* Ambient horizontal glow */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 opacity-40"
+          style={{ background: "linear-gradient(90deg, transparent 0%, rgba(235,226,207,0.25) 30%, rgba(235,226,207,0.5) 50%, rgba(235,226,207,0.25) 70%, transparent 100%)" }}
         />
 
-        <Reveal className="relative mx-auto max-w-3xl px-4 py-20 text-center sm:px-6">
-          <h2 className="font-display text-4xl font-bold italic text-cream sm:text-5xl lg:text-6xl">
+        <Reveal className="relative mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
+          <p className="label-uppercase mb-4 text-[0.65rem] tracking-widest text-brown-light/60">
+            Our philosophy
+          </p>
+          {/* Ombre headline text */}
+          <h2 className="font-display text-4xl font-bold italic text-shimmer sm:text-5xl lg:text-6xl">
             Bold, not loud.
           </h2>
-          <p className="mt-5 text-base text-bone/70 leading-relaxed">
-            Suya beef, yaji spice, scotch bonnet on a pizza and it works.
+          <p className="mx-auto mt-6 max-w-md text-base leading-relaxed text-bone/60">
+            Suya beef, yaji spice, scotch bonnet on a pizza — and it works.
             Every pie built from scratch, real ingredients, and the
             🌶️ on the menu means it is actually spicy.
           </p>
-          {/* Ornamental divider */}
-          <div className="mt-8 flex items-center justify-center gap-3">
-            <div className="h-px w-16 bg-gradient-to-r from-transparent to-bone/30" />
-            <span className="text-bone/20 text-xl">✦</span>
-            <div className="h-px w-16 bg-gradient-to-l from-transparent to-bone/30" />
+          {/* Ombre ornamental divider */}
+          <div className="mt-10 flex items-center justify-center gap-4">
+            <div className="h-px w-24" style={{ background: "linear-gradient(90deg, transparent, rgba(235,226,207,0.4))" }} />
+            <span className="text-bone/20 text-base">✦</span>
+            <div className="h-px w-24" style={{ background: "linear-gradient(270deg, transparent, rgba(235,226,207,0.4))" }} />
           </div>
         </Reveal>
+
+        {/* Ombre border bottom */}
+        <div className="ombre-divider-dark" aria-hidden="true" />
       </section>
 
       {/* ── Branches ────────────────────────────────────────────────────── */}
-      <section className="bg-warm-gradient">
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+      <section
+        className="relative overflow-hidden"
+        style={{ background: "linear-gradient(160deg, #f0e6d6 0%, #e8d9c4 50%, #ddd0b8 100%)" }}
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-[-6rem] bottom-[-4rem] h-96 w-96"
+          style={{ background: "radial-gradient(circle, rgba(58,36,24,0.1) 0%, transparent 70%)" }}
+        />
+
+        <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
           <Reveal>
-            <p className="label-uppercase text-xs text-brown-light">
-              Two branches, one menu
-            </p>
+            <p className="label-uppercase text-xs text-brown-light">Two branches, one menu</p>
             <h2 className="mt-2 font-display text-4xl font-bold italic text-brown sm:text-5xl lg:text-6xl">
               Owerri &amp; Lagos
             </h2>
@@ -112,40 +131,42 @@ export default function HomePage() {
 
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
             {branchList.map((b, i) => (
-              <Reveal key={b.id} delay={i * 0.1}>
-                <div className="group relative overflow-hidden rounded-2xl bg-crisp p-7 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-lg">
-                  {/* Corner accent */}
+              <Reveal key={b.id} delay={i * 0.12}>
+                <div
+                  className="group relative overflow-hidden rounded-2xl p-7 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-brown-lg ombre-card-border"
+                  style={{ background: "rgba(255,252,248,0.88)", backdropFilter: "blur(8px)" }}
+                >
                   <div
                     aria-hidden="true"
-                    className="absolute right-0 top-0 h-32 w-32 rounded-bl-full opacity-5 transition-opacity duration-300 group-hover:opacity-10"
-                    style={{ background: "linear-gradient(225deg, #3a2418, transparent)" }}
+                    className="absolute right-0 top-0 h-40 w-40 rounded-bl-full opacity-[0.07] transition-opacity duration-300 group-hover:opacity-[0.14]"
+                    style={{ background: "radial-gradient(circle at top right, #3a2418, transparent)" }}
                   />
                   <div className="relative">
-                    <h3 className="font-display text-3xl font-black text-brown">
-                      {b.name}
-                    </h3>
-                    {b.comingSoon && (
-                      <span className="label-uppercase ml-2 inline-block rounded-full bg-brown px-3 py-0.5 text-[0.58rem] text-cream align-middle">
-                        Coming soon
-                      </span>
-                    )}
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="font-display text-3xl font-black text-brown">{b.name}</h3>
+                      {b.comingSoon && (
+                        <span className="label-uppercase mt-1 shrink-0 rounded-full bg-brown px-3 py-1 text-[0.58rem] text-cream">
+                          Coming soon
+                        </span>
+                      )}
+                    </div>
                     <p className="mt-2 text-sm text-brown-light">{b.address}</p>
                     {b.comingSoon ? (
-                      <p className="mt-2 text-sm italic text-brown-light">
+                      <p className="mt-3 text-sm italic text-brown-light/80">
                         Not open yet — coming to {b.name} soon.
                       </p>
                     ) : (
                       <>
                         <p className="mt-1 text-sm text-brown-light">{b.hours}</p>
                         <div className="mt-5 flex flex-wrap gap-3">
-                          <span className="label-uppercase rounded-full bg-bone px-4 py-1.5 text-[0.65rem] text-brown">
+                          <span className="label-uppercase rounded-full bg-bone px-4 py-1.5 text-[0.65rem] text-brown shadow-sm">
                             Delivery in {b.deliveryEstimate}
                           </span>
                           <a
                             href={`https://maps.google.com/?q=${encodeURIComponent(b.address)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="label-uppercase rounded-full border border-bone px-4 py-1.5 text-[0.65rem] text-brown-light transition-colors hover:bg-bone hover:text-brown"
+                            className="label-uppercase rounded-full border border-bone px-4 py-1.5 text-[0.65rem] text-brown-light transition-all duration-200 hover:border-brown hover:bg-brown hover:text-cream"
                           >
                             Directions →
                           </a>
