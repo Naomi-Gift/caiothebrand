@@ -98,6 +98,48 @@ export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
 
   return (
     <section className="relative overflow-hidden bg-brown text-cream">
+      {/* ── Mobile-only: 3 pizza photos scrolling as background ─────────── */}
+      <div aria-hidden="true" className="absolute inset-0 sm:hidden overflow-hidden">
+        {/* Duplicate the 3 photos so the scroll loop is seamless */}
+        <div
+          className="flex h-full"
+          style={{
+            width: "600%",
+            animation: "footerScroll 12s linear infinite",
+          }}
+        >
+          {[
+            "chicken-suya-experience",
+            "margherita",
+            "bbq-chicken",
+            "chicken-suya-experience",
+            "margherita",
+            "bbq-chicken",
+          ].map((slug, i) => (
+            <div
+              key={i}
+              className="h-full overflow-hidden"
+              style={{ width: "16.6667%" }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/images/menu/${slug}.jpg`}
+                alt=""
+                className="h-full w-full object-cover"
+                style={{ transform: "scale(1.08)", transformOrigin: "center" }}
+              />
+            </div>
+          ))}
+        </div>
+        {/* Brown transparent overlay */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(160deg, rgba(26,14,8,0.80) 0%, rgba(58,36,24,0.72) 50%, rgba(26,14,8,0.85) 100%)",
+          }}
+        />
+      </div>
       <PizzaWheel className="left-0 -translate-x-1/2" />
       <PizzaWheel className="right-0 translate-x-1/2" />
 

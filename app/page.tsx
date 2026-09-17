@@ -86,9 +86,6 @@ export default function HomePage() {
         />
 
         <Reveal className="relative mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
-          <p className="label-uppercase mb-4 text-[0.65rem] tracking-widest text-brown-light/60">
-            Our philosophy
-          </p>
           {/* Ombre headline text */}
           <h2 className="font-display text-4xl font-bold italic text-shimmer sm:text-5xl lg:text-6xl">
             Bold, not loud.

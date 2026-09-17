@@ -34,9 +34,22 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.caiopizza.com"),
   title: "Caio Pizza — Made to delight your taste buds",
   description:
     "Chef driven Nigerian Italian fusion pizza. Owerri and Lagos. Order online for delivery or pickup.",
+  openGraph: {
+    title: "Caio Pizza",
+    description: "Chef driven Nigerian Italian fusion pizza. Owerri and Lagos.",
+    url: "https://www.caiopizza.com",
+    siteName: "Caio Pizza",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Caio Pizza",
+    description: "Chef driven Nigerian Italian fusion pizza. Owerri and Lagos.",
+  },
 };
 
 export default function RootLayout({
@@ -49,7 +62,7 @@ export default function RootLayout({
       lang="en"
       className={`${cormorant.variable} ${dmSans.variable} ${lora.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-crisp text-brown-darkest">
+      <body className="flex min-h-full flex-col bg-cream text-brown-darkest">
         <SessionProvider>
           <BranchProvider>
             <CartProvider>

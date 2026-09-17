@@ -43,21 +43,19 @@ const config: NextAuthConfig = {
   ],
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user, profile }) {
+    async jwt({ token, user, account: oauthAccount, profile }) {
       if (user) {
         token.id    = user.id;
         token.email = user.email;
         token.name  = user.name;
-        // Role comes from the login endpoint directly
         token.role  = (user as Record<string, unknown>).role ?? "USER";
       }
       if (profile) {
         token.name  = profile.name  ?? token.name;
         token.email = profile.email ?? token.email;
       }
-      // Always fetch role from backend for Google sign-ins
-      // For credentials sign-in, role is already on the token from authorize()
-      if (token.email && (account?.provider === "google" || !token.role)) {
+      // Fetch role from backend for Google sign-ins or when role is missing
+      if (token.email && (oauthAccount?.provider === "google" || !token.role)) {
         try {
           const res = await fetch(`${BACKEND}/api/admin/role-check`, {
             method: "POST",

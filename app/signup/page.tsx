@@ -86,7 +86,8 @@ function SignupForm() {
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/auth/register`, {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
+      const res = await fetch(`${apiBase}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
