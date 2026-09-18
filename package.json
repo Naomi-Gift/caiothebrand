@@ -4,12 +4,21 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:seed": "dotenv -e .env -- tsx prisma/seed.ts",
+    "db:migrate": "prisma migrate deploy",
+    "prisma:generate": "prisma generate"
+  },
+  "prisma": {
+    "seed": "dotenv -e .env -- tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.3",
     "@paystack/inline-js": "^2.24.0",
+    "@prisma/client": "^6.19.3",
+    "bcryptjs": "^2.4.3",
     "motion": "^12.42.2",
     "next": "16.2.10",
     "next-auth": "^5.0.0-beta.32",
@@ -18,12 +27,17 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "prisma": "^6.19.3",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "^5"
   }
 }

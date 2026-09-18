@@ -1,9 +1,10 @@
 /**
- * Fetch menu items from the backend API.
- * Falls back to the static data if the API is unavailable (e.g. local dev without backend).
+ * Fetch menu items from Prisma database.
+ * Falls back to static data if database is unavailable.
  */
 import type { MenuItem } from "@/lib/types";
 import { menuItems as staticItems } from "@/lib/data/menu";
+import { prisma } from "@/lib/prisma";
 
 interface ApiMenuItem {
   id: string;
@@ -43,16 +44,14 @@ function toMenuItem(raw: ApiMenuItem): MenuItem {
 }
 
 export async function fetchMenuItems(): Promise<MenuItem[]> {
-  const apiUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl) return staticItems;
-
   try {
-    const res = await fetch(`${apiUrl}/api/menu`, {
-      next: { revalidate: 60 }, // revalidate every 60 s — menu changes are not instant
+    const raw = await prisma.menuItem.findMany({
+      where: { available: true },
+      include: { category: { select: { slug: true, name: true } } },
+      orderBy: [{ category: { order: "asc" } }, { name: "asc" }],
     });
-    if (!res.ok) return staticItems;
-    const data = (await res.json()) as ApiMenuItem[];
-    return data.map(toMenuItem);
+    if (!raw || raw.length === 0) return staticItems;
+    return (raw as unknown as ApiMenuItem[]).map(toMenuItem);
   } catch {
     return staticItems;
   }
