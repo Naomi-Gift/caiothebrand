@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { useState, useRef } from "react";
 import { useOrderMethod } from "@/context/OrderMethodContext";
 import type { FulfillmentMode } from "@/lib/types";
 
@@ -10,180 +10,219 @@ export interface HeroSlide {
   sub: string;
 }
 
+// ── Combo deals data ──────────────────────────────────────────────────────────
+const COMBOS = [
+  {
+    id: 1,
+    tag:   "Combo Deal",
+    name:  "Suya Box",
+    desc:  "Chicken Suya pizza + any drink",
+    price: "₦7,500",
+    color: "#8B5A25",
+    img:   "/images/menu/chicken-suya-experience.jpg",
+  },
+  {
+    id: 2,
+    tag:   "Family Deal",
+    name:  "The Works",
+    desc:  "Large pizza + 2 sides + 2 drinks",
+    price: "₦14,000",
+    color: "#3a2418",
+    img:   "/images/menu/bbq-beef.jpg",
+  },
+  {
+    id: 3,
+    tag:   "Lunch Special",
+    name:  "Midday Pick",
+    desc:  "Any medium pizza + a drink",
+    price: "₦5,500",
+    color: "#6b4f38",
+    img:   "/images/menu/margherita.jpg",
+  },
+  {
+    id: 4,
+    tag:   "Date Night",
+    name:  "Two & Two",
+    desc:  "2 medium pizzas + 2 drinks",
+    price: "₦11,000",
+    color: "#281710",
+    img:   "/images/menu/bbq-chicken.jpg",
+  },
+];
+
 function PickupIcon() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M4 10.5 12 4l8 6.5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M5.5 9.5V19a1 1 0 0 0 1 1H10v-4.5a2 2 0 0 1 4 0V20h3.5a1 1 0 0 0 1-1V9.5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 10.5 12 4l8 6.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M5.5 9.5V19a1 1 0 001 1H10v-4.5a2 2 0 014 0V20h3.5a1 1 0 001-1V9.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
 
 function DeliveryIcon() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M3 7h11v9H3z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M14 10h4l3 3v3h-7z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-      <circle cx="7" cy="18.5" r="1.6" stroke="currentColor" strokeWidth="1.6" />
-      <circle cx="17" cy="18.5" r="1.6" stroke="currentColor" strokeWidth="1.6" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M3 7h11v9H3z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+      <path d="M14 10h4l3 3v3h-7z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+      <circle cx="7" cy="18.5" r="1.6" stroke="currentColor" strokeWidth="1.6"/>
+      <circle cx="17" cy="18.5" r="1.6" stroke="currentColor" strokeWidth="1.6"/>
     </svg>
   );
 }
 
-const OPTIONS: {
-  mode: FulfillmentMode;
-  label: string;
-  description: string;
-  icon: React.ReactNode;
-}[] = [
-  {
-    mode: "pickup",
-    label: "Pick-up",
-    description: "Take your meal at the restaurant.",
-    icon: <PickupIcon />,
-  },
-  {
-    mode: "delivery",
-    label: "Delivery",
-    description: "Receive your food at your doorstep.",
-    icon: <DeliveryIcon />,
-  },
+const OPTIONS: { mode: FulfillmentMode; label: string; desc: string; icon: React.ReactNode }[] = [
+  { mode: "pickup",   label: "Pick-up",  desc: "Collect at the restaurant", icon: <PickupIcon /> },
+  { mode: "delivery", label: "Delivery", desc: "Delivered to your door",     icon: <DeliveryIcon /> },
 ];
-
-function PizzaWheel({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`pointer-events-none absolute top-1/2 hidden -translate-y-1/2 sm:block ${className}`}
-    >
-      <div className="relative h-64 w-64 rounded-full border-4 border-cream/20 p-1.5 shadow-soft-lg md:h-80 md:w-80">
-        <div className="h-full w-full animate-[spin_18s_linear_infinite] overflow-hidden rounded-full">
-          <Image
-            src="/images/spinwheel.jpeg"
-            alt="Caio pizza"
-            width={640}
-            height={640}
-            className="h-full w-full object-cover"
-            priority
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
   const { startOrder } = useOrderMethod();
+  const [active, setActive] = useState(0);
+  const startX  = useRef<number>(0);
+  const dragging = useRef(false);
+
+  // Touch / mouse swipe handlers
+  const onStart = (x: number) => { startX.current = x; dragging.current = true; };
+  const onEnd   = (x: number) => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    const diff = startX.current - x;
+    if (diff > 40)  setActive((a) => Math.min(a + 1, COMBOS.length - 1));
+    if (diff < -40) setActive((a) => Math.max(a - 1, 0));
+  };
 
   return (
-    <section className="relative overflow-hidden bg-brown text-cream">
-      {/* ── Mobile-only: 3 pizza photos scrolling as background ─────────── */}
-      <div aria-hidden="true" className="absolute inset-0 sm:hidden overflow-hidden">
-        {/* Duplicate the 3 photos so the scroll loop is seamless */}
+    <div>
+      {/* ── Swipeable combo deals banner ─────────────────────────────────── */}
+      <div
+        className="relative overflow-hidden select-none"
+        style={{ height: "120px", background: "#1a0e08" }}
+        onTouchStart={(e) => onStart(e.touches[0].clientX)}
+        onTouchEnd={(e)   => onEnd(e.changedTouches[0].clientX)}
+        onMouseDown={(e)  => onStart(e.clientX)}
+        onMouseUp={(e)    => onEnd(e.clientX)}
+      >
+        {/* Slides */}
         <div
-          className="flex h-full"
-          style={{
-            width: "600%",
-            animation: "footerScroll 12s linear infinite",
-          }}
+          className="flex h-full transition-transform duration-350 ease-out"
+          style={{ width: `${COMBOS.length * 100}%`, transform: `translateX(-${(active / COMBOS.length) * 100}%)` }}
         >
-          {[
-            "chicken-suya-experience",
-            "margherita",
-            "bbq-chicken",
-            "chicken-suya-experience",
-            "margherita",
-            "bbq-chicken",
-          ].map((slug, i) => (
+          {COMBOS.map((combo) => (
             <div
-              key={i}
-              className="h-full overflow-hidden"
-              style={{ width: "16.6667%" }}
+              key={combo.id}
+              className="relative flex h-full shrink-0 items-center gap-4 px-5"
+              style={{ width: `${100 / COMBOS.length}%` }}
             >
+              {/* Background photo — no overlay */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={`/images/menu/${slug}.jpg`}
+                src={combo.img}
                 alt=""
-                className="h-full w-full object-cover"
-                style={{ transform: "scale(1.08)", transformOrigin: "center" }}
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full object-cover"
+                style={{ transform: "scale(1.06)" }}
+                draggable={false}
               />
+              {/* Dark gradient only on left so text is legible */}
+              <div className="absolute inset-0"
+                style={{ background: "linear-gradient(90deg, rgba(20,10,4,0.88) 0%, rgba(20,10,4,0.55) 55%, transparent 100%)" }}
+              />
+
+              {/* Content */}
+              <div className="relative flex flex-col gap-0.5">
+                <span className="label-uppercase text-[0.55rem] tracking-widest text-bone/50">
+                  {combo.tag}
+                </span>
+                <p className="font-display text-xl font-black italic leading-tight text-cream">
+                  {combo.name}
+                </p>
+                <p className="text-[0.7rem] text-bone/60">{combo.desc}</p>
+              </div>
+
+              {/* Price pill — right side */}
+              <div className="relative ml-auto shrink-0">
+                <span
+                  className="label-uppercase rounded-full px-4 py-2 text-sm font-black text-cream shadow-soft"
+                  style={{ background: combo.color }}
+                >
+                  {combo.price}
+                </span>
+              </div>
             </div>
           ))}
         </div>
-        {/* Brown transparent overlay */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(160deg, rgba(26,14,8,0.80) 0%, rgba(58,36,24,0.72) 50%, rgba(26,14,8,0.85) 100%)",
-          }}
-        />
-      </div>
-      <PizzaWheel className="left-0 -translate-x-1/2" />
-      <PizzaWheel className="right-0 translate-x-1/2" />
 
-      <div className="relative mx-auto flex min-h-[560px] max-w-5xl flex-col items-center justify-center gap-5 px-8 py-16 text-center sm:px-12 sm:py-20 md:min-h-[700px]">
-
-        {/* Centered heading block */}
-        <div className="px-2">
-          <h1 className="font-display text-3xl font-bold italic leading-tight text-cream sm:text-5xl md:text-6xl">
-            Made to delight your taste buds.
-          </h1>
-          <p className="mt-3 font-display text-lg font-semibold italic text-cream/80 sm:text-2xl">
-            How would you like to receive your order?
-          </p>
-        </div>
-
-        <div className="mt-6 grid w-full max-w-4xl grid-cols-1 gap-4 sm:mt-10 sm:grid-cols-2">
-          {OPTIONS.map((option) => (
+        {/* Dot indicators */}
+        <div className="absolute bottom-2.5 left-1/2 flex -translate-x-1/2 gap-1.5">
+          {COMBOS.map((_, i) => (
             <button
-              key={option.mode}
-              type="button"
-              onClick={() => startOrder(option.mode)}
-              className="group relative flex flex-row items-center gap-4 rounded-2xl border border-cream/20 bg-cream/10 px-5 py-5 text-left backdrop-blur-sm transition-all duration-200 hover:border-cream/50 hover:bg-cream/20 hover:scale-[1.02] sm:gap-6 sm:px-10 sm:py-10"
-            >
-              {/* Radio indicator */}
-              <span className="absolute right-4 top-4 flex h-5 w-5 items-center justify-center rounded-full border-2 border-cream/40 transition-colors group-hover:border-cream">
-                <span className="h-2.5 w-2.5 scale-0 rounded-full bg-cream transition-transform group-hover:scale-100" />
-              </span>
-
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cream/15 text-cream sm:h-16 sm:w-16">
-                {option.icon}
-              </span>
-
-              <span>
-                <span className="font-display block text-xl font-bold italic text-cream sm:text-2xl">
-                  {option.label}
-                </span>
-                <span className="label-uppercase mt-1 block text-[0.65rem] text-cream/60">
-                  {option.description}
-                </span>
-              </span>
-            </button>
+              key={i}
+              onClick={() => setActive(i)}
+              aria-label={`Combo ${i + 1}`}
+              className="h-1 rounded-full transition-all duration-200"
+              style={{
+                width: active === i ? "20px" : "6px",
+                background: active === i ? "#ebe2cf" : "rgba(235,226,207,0.3)",
+              }}
+            />
           ))}
         </div>
+
+        {/* Arrow buttons — desktop only */}
+        <button
+          onClick={() => setActive((a) => Math.max(a - 1, 0))}
+          disabled={active === 0}
+          className="absolute left-3 top-1/2 -translate-y-1/2 hidden sm:flex h-7 w-7 items-center justify-center rounded-full text-cream/50 transition-colors hover:text-cream disabled:opacity-20"
+          style={{ background: "rgba(235,226,207,0.1)" }}
+          aria-label="Previous"
+        >
+          ‹
+        </button>
+        <button
+          onClick={() => setActive((a) => Math.min(a + 1, COMBOS.length - 1))}
+          disabled={active === COMBOS.length - 1}
+          className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:flex h-7 w-7 items-center justify-center rounded-full text-cream/50 transition-colors hover:text-cream disabled:opacity-20"
+          style={{ background: "rgba(235,226,207,0.1)" }}
+          aria-label="Next"
+        >
+          ›
+        </button>
       </div>
-    </section>
+
+      {/* ── Order method selector — compact bar ──────────────────────────── */}
+      <div
+        className="border-b"
+        style={{ background: "linear-gradient(180deg, #281710 0%, #3a2418 100%)", borderColor: "rgba(235,226,207,0.08)" }}
+      >
+        <div className="mx-auto flex max-w-5xl items-center justify-center gap-3 px-4 py-4 sm:gap-5">
+          <p className="font-display text-sm italic text-cream/60 hidden sm:block">
+            How would you like to order?
+          </p>
+          <div className="flex gap-3">
+            {OPTIONS.map((opt) => (
+              <button
+                key={opt.mode}
+                type="button"
+                onClick={() => startOrder(opt.mode)}
+                className="group flex items-center gap-2.5 rounded-full px-5 py-2.5 transition-all duration-200 hover:scale-[1.02]"
+                style={{ background: "rgba(235,226,207,0.08)", border: "1px solid rgba(235,226,207,0.15)" }}
+              >
+                <span className="text-cream/60 group-hover:text-cream transition-colors">
+                  {opt.icon}
+                </span>
+                <span>
+                  <span className="font-display block text-sm font-bold italic text-cream">
+                    {opt.label}
+                  </span>
+                  <span className="label-uppercase block text-[0.55rem] text-bone/40">
+                    {opt.desc}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
