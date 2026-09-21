@@ -1,9 +1,6 @@
-import { fetchMenuItems } from "@/lib/fetchMenu";
-import MenuPageClient from "./MenuPageClient";
+import { redirect } from "next/navigation";
 
-export const revalidate = 60;
-
-export default async function MenuPage() {
-  const items = await fetchMenuItems();
-  return <MenuPageClient items={items} />;
+// Menu is now the homepage — redirect any direct /menu visits to /
+export default function MenuPage() {
+  redirect("/");
 }
