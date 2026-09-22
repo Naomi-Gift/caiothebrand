@@ -49,20 +49,9 @@ export default function MenuPageClient({ items }: { items: MenuItem[] }) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      {branch && (
-        <p className="label-uppercase mb-4 inline-flex rounded-full bg-bone px-4 py-2 text-xs text-brown">
-          You&apos;re{" "}
-          {fulfillment === "pickup" ? "picking up from" : "getting delivery from"}{" "}
-          {branch.name}
-        </p>
-      )}
-
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="label-uppercase text-xs text-brown-light">
-            {branch ? `${branch.name} branch` : "Menu"}
-          </p>
-          <h1 className="mt-2 font-display text-5xl font-black italic text-brown">
+          <h1 className="font-display text-5xl font-black italic text-brown">
             Menu
           </h1>
         </div>
