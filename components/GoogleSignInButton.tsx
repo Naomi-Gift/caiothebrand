@@ -26,14 +26,14 @@ function GoogleIcon() {
 }
 
 export default function GoogleSignInButton({
-  callbackUrl,
+  callbackUrl: _callbackUrl,
 }: {
   callbackUrl: string;
 }) {
   return (
     <button
       type="button"
-      onClick={() => signIn("google", { callbackUrl })}
+      onClick={() => signIn("google", { callbackUrl: "/auth/redirect" })}
       className="flex items-center justify-center gap-2.5 rounded-full border-2 border-bone bg-crisp px-6 py-3 text-sm font-medium text-brown shadow-soft transition-all duration-200 hover:scale-[1.02] hover:bg-bone hover:shadow-soft-lg"
     >
       <GoogleIcon />

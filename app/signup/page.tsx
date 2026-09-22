@@ -73,7 +73,12 @@ function SignupForm() {
       if (!res.ok) { setError(body.error ?? "Something went wrong. Please try again."); setLoading(false); return; }
       const result = await signIn("credentials", { email: email.trim().toLowerCase(), password, redirect: false });
       if (!result?.ok || result.error) { router.push(`/login?redirect=${encodeURIComponent(redirectTo)}`); return; }
-      router.push(redirectTo);
+      // Check role and redirect accordingly
+      const { getSession } = await import("next-auth/react");
+      const session = await getSession();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const role = (session?.user as any)?.role;
+      router.push(role === "ADMIN" ? "/admin" : redirectTo);
       router.refresh();
     } catch {
       setError("Could not connect. Check your connection and try again.");

@@ -47,7 +47,16 @@ function LoginForm() {
       setError("Incorrect email or password.");
       return;
     }
-    router.push(redirectTo);
+    // Fetch the session to check role and redirect accordingly
+    const { getSession } = await import("next-auth/react");
+    const session = await getSession();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const role = (session?.user as any)?.role;
+    if (role === "ADMIN") {
+      router.push("/admin");
+    } else {
+      router.push(redirectTo === "/account" ? "/account" : redirectTo);
+    }
     router.refresh();
   };
 

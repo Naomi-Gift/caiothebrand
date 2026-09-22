@@ -66,7 +66,7 @@ function LoginForm() {
           {/* Google */}
           <button
             type="button"
-            onClick={() => signIn("google", { callbackUrl })}
+            onClick={() => signIn("google", { callbackUrl: "/auth/redirect" })}
             className="mt-6 flex w-full items-center justify-center gap-3 rounded-full py-2.5 text-sm font-medium text-bone/70 transition-all hover:text-cream"
             style={{ background: "rgba(235,226,207,0.08)", border: "1px solid rgba(235,226,207,0.15)" }}
           >
