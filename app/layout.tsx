@@ -9,6 +9,8 @@ import { BranchProvider } from "@/context/BranchContext";
 import { CartProvider } from "@/context/CartContext";
 import { OrderMethodProvider } from "@/context/OrderMethodContext";
 import AccountCartBridge from "@/components/AccountCartBridge";
+import HideOnAdmin from "@/components/HideOnAdmin";
+import FeedbackWidget from "@/components/feedback/FeedbackWidget";
 
 // Display / headlines — editorial Italian elegance
 const cormorant = Cormorant_Garamond({
@@ -68,9 +70,14 @@ export default function RootLayout({
             <CartProvider>
               <AccountCartBridge>
                 <OrderMethodProvider>
-                  <Header />
+                  <HideOnAdmin>
+                    <Header />
+                  </HideOnAdmin>
                   <main className="flex-1">{children}</main>
-                  <Footer />
+                  <HideOnAdmin>
+                    <Footer />
+                  </HideOnAdmin>
+                  <FeedbackWidget />
                   <OrderMethodModal />
                 </OrderMethodProvider>
               </AccountCartBridge>

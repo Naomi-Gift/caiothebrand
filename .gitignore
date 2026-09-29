@@ -46,3 +46,6 @@ lib/generated/prisma
 prisma/*.db
 prisma/*.db-journal
 .env*.local
+
+# local script with plaintext secrets — never commit
+set_vercel_env.py

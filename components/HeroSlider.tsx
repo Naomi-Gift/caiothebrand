@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useOrderMethod } from "@/context/OrderMethodContext";
 import type { FulfillmentMode } from "@/lib/types";
 
@@ -75,154 +75,190 @@ const OPTIONS: { mode: FulfillmentMode; label: string; desc: string; icon: React
   { mode: "delivery", label: "Delivery", desc: "Delivered to your door",     icon: <DeliveryIcon /> },
 ];
 
-export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
-  const { startOrder } = useOrderMethod();
-  const [active, setActive] = useState(0);
-  const startX  = useRef<number>(0);
-  const dragging = useRef(false);
+function ArrowIcon({ dir }: { dir: "left" | "right" }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d={dir === "left" ? "M10 3 5 8l5 5" : "M6 3l5 5-5 5"}
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
-  // Touch / mouse swipe handlers
-  const onStart = (x: number) => { startX.current = x; dragging.current = true; };
-  const onEnd   = (x: number) => {
-    if (!dragging.current) return;
-    dragging.current = false;
-    const diff = startX.current - x;
-    if (diff > 40)  setActive((a) => Math.min(a + 1, COMBOS.length - 1));
-    if (diff < -40) setActive((a) => Math.max(a - 1, 0));
+const AUTOPLAY_MS = 5500;
+
+export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
+  const { startOrder, openPrompt } = useOrderMethod();
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  const cardStep = () => {
+    const track = trackRef.current;
+    const card = track?.children[0] as HTMLElement | undefined;
+    if (!track || !card) return 0;
+    return card.offsetWidth + parseFloat(getComputedStyle(track).columnGap || "0");
   };
 
-  return (
-    <div>
-      {/* ── Swipeable combo deals banner ─────────────────────────────────── */}
-      <div
-        className="relative overflow-hidden select-none"
-        style={{ height: "120px", background: "#1a0e08" }}
-        onTouchStart={(e) => onStart(e.touches[0].clientX)}
-        onTouchEnd={(e)   => onEnd(e.changedTouches[0].clientX)}
-        onMouseDown={(e)  => onStart(e.clientX)}
-        onMouseUp={(e)    => onEnd(e.clientX)}
-      >
-        {/* Slides */}
-        <div
-          className="flex h-full transition-transform duration-350 ease-out"
-          style={{ width: `${COMBOS.length * 100}%`, transform: `translateX(-${(active / COMBOS.length) * 100}%)` }}
-        >
-          {COMBOS.map((combo) => (
-            <div
-              key={combo.id}
-              className="relative flex h-full shrink-0 items-center gap-4 px-5"
-              style={{ width: `${100 / COMBOS.length}%` }}
-            >
-              {/* Background photo — no overlay */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={combo.img}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 h-full w-full object-cover"
-                style={{ transform: "scale(1.06)" }}
-                draggable={false}
-              />
-              {/* Dark gradient only on left so text is legible */}
-              <div className="absolute inset-0"
-                style={{ background: "linear-gradient(90deg, rgba(20,10,4,0.88) 0%, rgba(20,10,4,0.55) 55%, transparent 100%)" }}
-              />
+  const goTo = useCallback((i: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const step = cardStep();
+    const max = track.scrollWidth - track.clientWidth;
+    track.scrollTo({ left: Math.min(i * step, max), behavior: "smooth" });
+  }, []);
 
-              {/* Content */}
-              <div className="relative flex flex-col gap-0.5">
-                <span className="label-uppercase text-[0.55rem] tracking-widest text-bone/50">
+  // Active dot follows the native swipe/scroll position.
+  const onScroll = () => {
+    const track = trackRef.current;
+    const step = cardStep();
+    if (!track || !step) return;
+    const atEnd = track.scrollLeft >= track.scrollWidth - track.clientWidth - 4;
+    setActive(atEnd ? COMBOS.length - 1 : Math.round(track.scrollLeft / step));
+  };
+
+  // Gentle autoplay; stops on hover/touch and for reduced-motion users.
+  useEffect(() => {
+    if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = window.setTimeout(() => goTo(active >= COMBOS.length - 1 ? 0 : active + 1), AUTOPLAY_MS);
+    return () => window.clearTimeout(t);
+  }, [active, paused, goTo]);
+
+  return (
+    <section
+      aria-label="Deals"
+      className="relative overflow-hidden"
+      style={{ background: "linear-gradient(160deg, #1a0e08 0%, #281710 55%, #3a2418 100%)" }}
+    >
+      {/* Soft warm glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 -top-32 h-80 w-80 rounded-full opacity-20"
+        style={{ background: "radial-gradient(circle, #8b6f4f 0%, transparent 70%)" }}
+      />
+
+      <div className="relative mx-auto max-w-6xl px-4 pb-5 pt-6 sm:px-6 sm:pb-7 sm:pt-9">
+        {/* Heading row */}
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="font-heading text-[0.65rem] font-bold uppercase tracking-[0.3em] text-bone/55">
+              Combo deals
+            </p>
+            <h2 className="mt-1 font-display text-[1.9rem] font-bold leading-none text-cream sm:text-[2.6rem]">
+              More pizza, <em className="not-italic text-bone-dark">less spend.</em>
+            </h2>
+          </div>
+          <div className="hidden gap-2 sm:flex">
+            {(["left", "right"] as const).map((dir) => (
+              <button
+                key={dir}
+                type="button"
+                onClick={() => goTo(dir === "left" ? Math.max(active - 1, 0) : Math.min(active + 1, COMBOS.length - 1))}
+                disabled={dir === "left" ? active === 0 : active === COMBOS.length - 1}
+                aria-label={dir === "left" ? "Previous deal" : "Next deal"}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-bone/20 text-cream transition-colors hover:bg-cream hover:text-brown disabled:pointer-events-none disabled:opacity-30"
+              >
+                <ArrowIcon dir={dir} />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Cards — native swipe with scroll-snap */}
+        <div
+          ref={trackRef}
+          onScroll={onScroll}
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onTouchStart={() => setPaused(true)}
+          className="-mx-4 mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-4 px-4 pb-1 [scrollbar-width:none] sm:-mx-6 sm:gap-4 sm:scroll-px-6 sm:px-6 [&::-webkit-scrollbar]:hidden"
+        >
+          {COMBOS.map((combo, i) => (
+            <article
+              key={combo.id}
+              aria-roledescription="slide"
+              aria-label={`${i + 1} of ${COMBOS.length}: ${combo.name}`}
+              className="relative flex w-[86%] shrink-0 snap-start items-center gap-4 overflow-hidden rounded-3xl border border-bone/10 p-5 sm:w-[calc(50%-0.5rem)] sm:gap-6 sm:p-7"
+              style={{ background: `linear-gradient(135deg, ${combo.color} 0%, rgba(26,14,8,0.9) 100%)` }}
+            >
+              <div className="relative z-10 flex min-w-0 flex-1 flex-col items-start">
+                <span className="rounded-full bg-cream/10 px-2.5 py-1 font-heading text-[0.58rem] font-bold uppercase tracking-[0.2em] text-bone">
                   {combo.tag}
                 </span>
-                <p className="font-display text-xl font-black italic leading-tight text-cream">
+                <p className="mt-3 font-display text-[1.7rem] font-bold leading-none text-cream sm:text-[2.2rem]">
                   {combo.name}
                 </p>
-                <p className="text-[0.7rem] text-bone/60">{combo.desc}</p>
+                <p className="mt-1.5 text-[0.85rem] leading-snug text-bone/70 sm:text-[0.95rem]">{combo.desc}</p>
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <span className="font-heading text-xl font-extrabold text-cream sm:text-2xl">{combo.price}</span>
+                  <button
+                    type="button"
+                    onClick={openPrompt}
+                    className="label-uppercase rounded-full bg-cream px-4 py-2 text-[0.62rem] text-brown transition-colors hover:bg-crisp sm:text-[0.68rem]"
+                  >
+                    Order this deal
+                  </button>
+                </div>
               </div>
 
-              {/* Price pill — right side */}
-              <div className="relative ml-auto shrink-0">
-                <span
-                  className="label-uppercase rounded-full px-4 py-2 text-sm font-black text-cream shadow-soft"
-                  style={{ background: combo.color }}
-                >
-                  {combo.price}
-                </span>
+              {/* Pizza photo, cropped to a circle */}
+              <div className="relative h-28 w-28 shrink-0 sm:h-40 sm:w-40">
+                <div aria-hidden="true" className="absolute inset-0 scale-110 rounded-full bg-bone/10" />
+                {/* eslint-disable-next-line @next/next/no-img-element -- small fixed asset */}
+                <img
+                  src={combo.img}
+                  alt=""
+                  aria-hidden="true"
+                  draggable={false}
+                  className="relative h-full w-full rounded-full object-cover shadow-brown-lg ring-2 ring-bone/20"
+                  style={{ objectPosition: "50% 45%" }}
+                />
               </div>
-            </div>
+            </article>
           ))}
         </div>
 
-        {/* Dot indicators */}
-        <div className="absolute bottom-2.5 left-1/2 flex -translate-x-1/2 gap-1.5">
-          {COMBOS.map((_, i) => (
+        {/* Dots */}
+        <div className="mt-4 flex justify-center gap-1.5">
+          {COMBOS.map((c, i) => (
             <button
-              key={i}
-              onClick={() => setActive(i)}
-              aria-label={`Combo ${i + 1}`}
-              className="h-1 rounded-full transition-all duration-200"
-              style={{
-                width: active === i ? "20px" : "6px",
-                background: active === i ? "#ebe2cf" : "rgba(235,226,207,0.3)",
-              }}
+              key={c.id}
+              type="button"
+              onClick={() => goTo(i)}
+              aria-label={`Show deal ${i + 1}`}
+              aria-current={active === i ? "true" : undefined}
+              className={`h-1.5 rounded-full transition-all duration-300 ${active === i ? "w-6 bg-bone" : "w-1.5 bg-bone/30"}`}
             />
           ))}
         </div>
-
-        {/* Arrow buttons — desktop only */}
-        <button
-          onClick={() => setActive((a) => Math.max(a - 1, 0))}
-          disabled={active === 0}
-          className="absolute left-3 top-1/2 -translate-y-1/2 hidden sm:flex h-7 w-7 items-center justify-center rounded-full text-cream/50 transition-colors hover:text-cream disabled:opacity-20"
-          style={{ background: "rgba(235,226,207,0.1)" }}
-          aria-label="Previous"
-        >
-          ‹
-        </button>
-        <button
-          onClick={() => setActive((a) => Math.min(a + 1, COMBOS.length - 1))}
-          disabled={active === COMBOS.length - 1}
-          className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:flex h-7 w-7 items-center justify-center rounded-full text-cream/50 transition-colors hover:text-cream disabled:opacity-20"
-          style={{ background: "rgba(235,226,207,0.1)" }}
-          aria-label="Next"
-        >
-          ›
-        </button>
       </div>
 
-      {/* ── Order method selector — compact bar ──────────────────────────── */}
-      <div
-        className="border-b"
-        style={{ background: "linear-gradient(180deg, #281710 0%, #3a2418 100%)", borderColor: "rgba(235,226,207,0.08)" }}
-      >
-        <div className="mx-auto flex max-w-5xl items-center justify-center gap-3 px-4 py-4 sm:gap-5">
-          <p className="font-display text-sm italic text-cream/60 hidden sm:block">
-            How would you like to order?
-          </p>
-          <div className="flex gap-3">
+      {/* ── Order method selector ─────────────────────────────────────────── */}
+      <div className="relative border-t border-bone/10 bg-black/15">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 py-4 sm:flex-row sm:justify-center sm:gap-5 sm:px-6">
+          <p className="font-display text-[0.95rem] italic text-cream/65">How would you like to order?</p>
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:gap-3">
             {OPTIONS.map((opt) => (
               <button
                 key={opt.mode}
                 type="button"
                 onClick={() => startOrder(opt.mode)}
-                className="group flex items-center gap-2.5 rounded-full px-5 py-2.5 transition-all duration-200 hover:scale-[1.02]"
-                style={{ background: "rgba(235,226,207,0.08)", border: "1px solid rgba(235,226,207,0.15)" }}
+                className="group flex min-w-0 items-center gap-2.5 rounded-full border border-bone/15 bg-bone/[0.08] px-4 py-2.5 text-left transition-colors duration-200 hover:border-bone/40 hover:bg-bone/15 sm:px-5"
               >
-                <span className="text-cream/60 group-hover:text-cream transition-colors">
-                  {opt.icon}
-                </span>
-                <span>
-                  <span className="font-display block text-sm font-bold italic text-cream">
-                    {opt.label}
-                  </span>
-                  <span className="label-uppercase block text-[0.55rem] text-bone/40">
-                    {opt.desc}
-                  </span>
+                <span className="shrink-0 text-cream/60 transition-colors group-hover:text-cream">{opt.icon}</span>
+                <span className="min-w-0">
+                  <span className="block font-display text-[0.95rem] font-bold italic text-cream">{opt.label}</span>
+                  <span className="label-uppercase hidden truncate text-[0.52rem] text-bone/45 sm:block">{opt.desc}</span>
                 </span>
               </button>
             ))}
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

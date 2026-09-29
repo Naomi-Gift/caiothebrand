@@ -1,88 +1,59 @@
-"use client";
+import type { Metadata } from "next";
+import { InfoCard, InfoHero, InfoShell, PillLink } from "@/components/InfoPage";
+import { branchList, mapsUrl, whatsappUrl } from "@/lib/data/branches";
+import ContactForm from "./ContactForm";
 
-import { useState } from "react";
-import { useBranch } from "@/context/BranchContext";
-import Button from "@/components/Button";
+export const metadata: Metadata = {
+  title: "Contact us — Caio Pizza",
+  description: "Call, WhatsApp or message Caio Pizza in Owerri and Lagos.",
+};
 
 export default function ContactPage() {
-  const { branch } = useBranch();
-  const [name, setName] = useState("");
-  const [message, setMessage] = useState("");
-  const [sent, setSent] = useState(false);
-
-  const whatsappHref = branch
-    ? `https://wa.me/2348137550148?text=${encodeURIComponent(
-        `Hi Caio Pizza ${branch.name}, I have a question.`
-      )}`
-    : "https://wa.me/2348137550148";
-
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-      <p className="label-uppercase text-xs text-brown-light">Get in touch</p>
-      <h1 className="mt-2 font-display text-5xl font-black italic text-brown">
-        Contact
-      </h1>
-      <p className="mt-3 text-sm text-brown-light">
-        Questions about an order, catering, or just want to say hi — we&apos;re
-        around.
-      </p>
+    <InfoShell>
+      <InfoHero
+        kicker="Get in touch"
+        title="Contact"
+        titleEm="us."
+        intro="Questions about an order, catering, or just want to say hi — we're around. The quickest way to reach us is to call or WhatsApp your branch."
+        actions={[{ href: "#message", label: "Send a message" }]}
+      />
 
-      <div className="mt-6 flex items-center gap-3">
-        <a
-          href="tel:08137550148"
-          className="label-uppercase flex items-center gap-2 rounded-full bg-bone px-5 py-2.5 text-xs text-brown transition-all hover:bg-brown hover:text-cream"
-        >
-          📞 0813 755 0148
-        </a>
-      </div>
+      <InfoCard title="How to reach us">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {branchList.map((b) => (
+            <div key={b.id} className="rounded-2xl border border-bone-dark/60 bg-cream p-5">
+              <p className="flex items-center gap-2 font-display text-2xl font-bold text-brown-darkest">
+                {b.name}
+                {b.comingSoon && (
+                  <span className="label-uppercase rounded-full bg-brown px-2.5 py-0.5 text-[0.55rem] text-cream">
+                    Coming soon
+                  </span>
+                )}
+              </p>
+              <p className="mt-1 text-[0.9rem]">{b.address}</p>
+              <p className="text-[0.9rem]">{b.hours}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <PillLink href={`tel:${b.phone}`} label={`Call ${b.phone}`} primary />
+                <PillLink href={whatsappUrl(b.whatsapp)} label="WhatsApp" external />
+                <PillLink href={mapsUrl(b)} label="Directions" external />
+              </div>
+            </div>
+          ))}
+        </div>
+      </InfoCard>
 
-      <a
-        href={whatsappHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="label-uppercase mt-8 flex w-full items-center justify-center rounded-full bg-brown px-6 py-3 text-xs text-cream shadow-soft transition-all duration-200 hover:scale-[1.02] hover:bg-brown-deep hover:shadow-soft-lg sm:w-auto"
-      >
-        Message us on WhatsApp{branch ? ` — ${branch.name}` : ""}
-      </a>
+      <InfoCard title="Helpful details to include">
+        <ul className="list-disc space-y-2 pl-5">
+          <li>Your order reference, if it&apos;s about an order — it&apos;s on your confirmation screen.</li>
+          <li>Which branch you ordered from, and whether it was delivery or pickup.</li>
+          <li>The best way to reach you — email or phone.</li>
+        </ul>
+      </InfoCard>
 
-      <div className="mt-10 rounded-2xl bg-crisp p-6 shadow-soft">
-        <p className="label-uppercase text-xs text-brown-light">
-          Or send a note
-        </p>
-        {sent ? (
-          <p className="mt-4 font-display text-lg italic text-brown">
-            Got it — thanks. We&apos;ll be in touch soon.
-          </p>
-        ) : (
-          <form
-            className="mt-4 flex flex-col gap-3"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (name.trim() && message.trim()) setSent(true);
-            }}
-          >
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
-              className="rounded-2xl bg-cream px-4 py-2.5 text-sm text-brown placeholder:text-brown-light focus:outline-none"
-            />
-            <textarea
-              required
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Your message"
-              rows={4}
-              className="rounded-2xl bg-cream px-4 py-2.5 text-sm text-brown placeholder:text-brown-light focus:outline-none"
-            />
-            <Button type="submit" variant="outline" className="self-start">
-              Send
-            </Button>
-          </form>
-        )}
-      </div>
-    </div>
+      <InfoCard title="Send a message" id="message">
+        <ContactForm />
+      </InfoCard>
+    </InfoShell>
   );
 }

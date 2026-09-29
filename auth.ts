@@ -39,7 +39,27 @@ const config: NextAuthConfig = {
   ],
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user, profile }) {
+    async jwt({ token, user, profile, account }) {
+      // Google sign-in/sign-up: make sure the person has a User row, so their
+      // orders, role and account page work the same as email sign-ups.
+      if (account?.provider === "google" && profile?.email) {
+        try {
+          const email = profile.email.toLowerCase();
+          await prisma.user.upsert({
+            where: { email },
+            update: {},
+            create: {
+              email,
+              name: profile.name ?? null,
+              image: (profile as { picture?: string }).picture ?? null,
+              emailVerified: new Date(),
+            },
+          });
+        } catch (err) {
+          console.error("[auth] could not save Google user", err);
+        }
+      }
+
       if (user) {
         token.id    = user.id;
         token.name  = user.name;

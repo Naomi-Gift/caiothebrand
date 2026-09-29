@@ -1,155 +1,79 @@
-"use client";
-
 import Link from "next/link";
 import Logo from "@/components/Logo";
-import { useBranch } from "@/context/BranchContext";
-import { branchList } from "@/lib/data/branches";
+import { categoryLabels, categoryOrder } from "@/lib/data/menu";
 
-/**
- * Glint effect — a shimmer sweep that runs on hover/active.
- * Applied via inline style + a CSS class defined in the <style> tag below.
- */
-const GLINT =
-  "footer-glint text-bone/55 transition-all duration-200 cursor-pointer select-none";
+const HEADING =
+  "mb-4 font-heading text-[0.75rem] font-bold uppercase tracking-[0.2em] text-cream";
+const LINK = "text-[0.95rem] text-bone/65 transition-colors duration-200 hover:text-cream";
+
+const columns: { title: string; links: { href: string; label: string }[] }[] = [
+  {
+    title: "Explore",
+    links: [
+      { href: "/#menu", label: "Order online" },
+      ...categoryOrder.map((id) => ({ href: `/#${id}`, label: categoryLabels[id] })),
+      { href: "/about", label: "Our story" },
+    ],
+  },
+  {
+    title: "Help",
+    links: [
+      { href: "/track", label: "Track an order" },
+      { href: "/faqs", label: "FAQs" },
+      { href: "/contact", label: "Contact us" },
+      { href: "#feedback", label: "Share feedback" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { href: "/privacy", label: "Privacy policy" },
+      { href: "/terms", label: "Terms of use" },
+      { href: "/accessibility", label: "Accessibility" },
+    ],
+  },
+];
 
 export default function Footer() {
-  const { branch } = useBranch();
-  const activeBranch = branch ?? branchList[0];
-
   return (
-    <footer
-      className="relative overflow-hidden"
-      style={{ background: "linear-gradient(160deg, #1a0e08 0%, #281710 60%, #3a2418 100%)" }}
-    >
-      {/* Top glow line */}
-      <div
-        aria-hidden="true"
-        className="absolute left-0 right-0 top-0 h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(139,111,79,0.7) 30%, rgba(235,226,207,0.5) 50%, rgba(139,111,79,0.7) 70%, transparent)",
-        }}
-      />
-      {/* Warm glow blob */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute right-[-4rem] top-[-4rem] h-64 w-64 rounded-full opacity-10"
-        style={{ background: "radial-gradient(circle, #8b6f4f 0%, transparent 70%)" }}
-      />
-
-      {/* ── Content ──────────────────────────────────────────────────────── */}
-      <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-
-        <div className="flex flex-wrap items-start justify-between gap-6">
-
+    <footer className="bg-brown-darkest">
+      <div className="mx-auto max-w-7xl px-4 pb-26 pt-14 sm:px-6 sm:pb-10 sm:pt-16">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
           {/* Brand */}
-          <div className="flex flex-col gap-1.5">
-            <Logo variant="reversed" />
-            <p className={`font-display text-sm italic ${GLINT}`}>
-              Bold, not loud.
+          <div className="col-span-2 flex flex-col items-start gap-4 md:col-span-1">
+            <Logo variant="reversed" className="[&_img]:h-[58px]" />
+            <p className="max-w-xs text-[0.92rem] leading-relaxed text-bone/65">
+              Chef-driven Nigerian–Italian fusion pizza. Italian technique, Nigerian
+              flavour — made to delight your taste buds.
             </p>
           </div>
 
-          {/* Nav */}
-          <nav className="hidden sm:flex flex-col gap-1.5" aria-label="Footer navigation">
-            <p className="label-uppercase text-[0.55rem] tracking-widest text-bone/30 mb-1">
-              Navigate
-            </p>
-            {[
-              { href: "/menu",     label: "Menu" },
-              { href: "/branches", label: "Branches" },
-              { href: "/account",  label: "Account" },
-              { href: "/contact",  label: "Contact" },
-            ].map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`text-xs ${GLINT}`}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Branch */}
-          <div className="flex flex-col gap-1.5">
-            <p className="label-uppercase text-[0.55rem] tracking-widest text-bone/30 mb-1">
-              {activeBranch.name}
-            </p>
-            <p className={`text-xs ${GLINT}`}>{activeBranch.hours}</p>
-            <a
-              href={`tel:${activeBranch.phone}`}
-              className={`text-xs ${GLINT}`}
-            >
-              {activeBranch.phone}
-            </a>
-            <a
-              href={`https://wa.me/${activeBranch.whatsapp.replace(/\D/g, "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`text-xs ${GLINT}`}
-            >
-              WhatsApp ↗
-            </a>
-          </div>
-
-          {/* CTA */}
-          <div className="flex flex-col items-start sm:items-end">
-            <Link
-              href="/menu"
-              className="footer-glint rounded-full border border-bone/20 px-4 py-2 label-uppercase text-[0.65rem] text-bone/60 transition-all hover:border-bone/40"
-            >
-              Order now →
-            </Link>
-          </div>
+          {columns.map((col) => (
+            <nav key={col.title} aria-label={col.title}>
+              <p className={HEADING}>{col.title}</p>
+              <ul className="flex flex-col gap-2.5">
+                {col.links.map((l) => (
+                  <li key={l.href}>
+                    {l.href.startsWith("#") ? (
+                      // Plain anchor so the browser fires hashchange (opens the survey).
+                      <a href={l.href} className={LINK}>{l.label}</a>
+                    ) : (
+                      <Link href={l.href} className={LINK}>{l.label}</Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
         </div>
 
-        {/* Bottom bar */}
-        <div
-          className="mt-6 flex flex-col items-center gap-1 border-t pt-4 sm:flex-row sm:justify-between"
-          style={{ borderColor: "rgba(235,226,207,0.08)" }}
-        >
-          <p className={`text-[0.65rem] text-bone/25 ${GLINT}`}>
+        <div className="mt-12 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[0.8rem] text-bone/50">
             © {new Date().getFullYear()} Caio Pizza. All rights reserved.
           </p>
-          <p className={`font-display text-[0.65rem] italic text-bone/20 ${GLINT}`}>
-            Caio for now.
-          </p>
+          <p className="font-display text-lg text-bone/70">Caio for now.</p>
         </div>
       </div>
-
-      {/* ── Glint keyframe + class ─────────────────────────────────────────
-          On hover/active a bright shimmer sweeps left→right across the text.
-          Uses background-clip so only the text catches the light.
-      ──────────────────────────────────────────────────────────────────── */}
-      <style>{`
-        @keyframes glintSweep {
-          0%   { background-position: -200% center; }
-          100% { background-position:  200% center; }
-        }
-
-        .footer-glint {
-          background: linear-gradient(
-            90deg,
-            rgba(235,226,207,0.55) 0%,
-            rgba(235,226,207,0.55) 40%,
-            rgba(255,245,220,1)    50%,
-            rgba(235,226,207,0.55) 60%,
-            rgba(235,226,207,0.55) 100%
-          );
-          background-size: 200% auto;
-          background-clip: text;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-position: 0% center;
-          transition: background-position 0s;
-        }
-
-        .footer-glint:hover,
-        .footer-glint:active {
-          animation: glintSweep 0.6s ease forwards;
-        }
-      `}</style>
     </footer>
   );
 }

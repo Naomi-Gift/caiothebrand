@@ -149,3 +149,27 @@ model Setting {
   value     String
   updatedAt DateTime @updatedAt
 }
+
+enum FeedbackKind {
+  SURVEY
+  CONTACT
+}
+
+model Feedback {
+  id         String       @id @default(cuid())
+  kind       FeedbackKind @default(SURVEY)
+  rating     Int?
+  recommend  Int?
+  highlights String[]     @default([])
+  branchId   String?
+  channel    String?
+  message    String?
+  orderRef   String?
+  name       String?
+  email      String?
+  phone      String?
+  page       String?
+  createdAt  DateTime     @default(now())
+
+  @@index([kind, createdAt])
+}

@@ -22,6 +22,15 @@ function EyeIcon({ open }: { open: boolean }) {
   );
 }
 
+// Error codes NextAuth appends as ?error= when sign-in fails (e.g. from Google).
+const AUTH_ERRORS: Record<string, string> = {
+  Configuration: "Google sign-in isn't available right now. Please use email and password, or try again later.",
+  AccessDenied: "That account doesn't have access here.",
+  OAuthCallbackError: "Google sign-in was cancelled or didn't finish. Please try again.",
+  OAuthSignin: "We couldn't start Google sign-in. Please try again.",
+  CredentialsSignin: "Incorrect email or password.",
+};
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,7 +40,10 @@ function LoginForm() {
   const [password,     setPassword]     = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading,      setLoading]      = useState(false);
-  const [error,        setError]        = useState<string | null>(null);
+  const errorParam = searchParams.get("error");
+  const [error,        setError]        = useState<string | null>(
+    errorParam ? AUTH_ERRORS[errorParam] ?? "Sign-in didn't work. Please try again." : null
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

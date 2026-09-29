@@ -32,25 +32,33 @@ export async function POST(req: NextRequest) {
 
   const normalised = email.trim().toLowerCase();
 
-  const existing = await prisma.user.findUnique({ where: { email: normalised } });
-  if (existing) {
+  try {
+    const existing = await prisma.user.findUnique({ where: { email: normalised } });
+    if (existing) {
+      return NextResponse.json(
+        { error: "An account with this email already exists — log in instead." },
+        { status: 409 }
+      );
+    }
+
+    const hashed = await bcrypt.hash(password, 12);
+
+    const user = await prisma.user.create({
+      data: {
+        name:     name.trim(),
+        email:    normalised,
+        password: hashed,
+        phone:    typeof phone === "string" && phone.trim() ? phone.trim() : null,
+      },
+      select: { id: true, name: true, email: true },
+    });
+
+    return NextResponse.json(user, { status: 201 });
+  } catch (err) {
+    console.error("[api/auth/register] failed", err);
     return NextResponse.json(
-      { error: "An account with this email already exists — log in instead." },
-      { status: 409 }
+      { error: "We couldn't create your account just now — please try again in a moment." },
+      { status: 503 }
     );
   }
-
-  const hashed = await bcrypt.hash(password, 12);
-
-  const user = await prisma.user.create({
-    data: {
-      name:     name.trim(),
-      email:    normalised,
-      password: hashed,
-      phone:    typeof phone === "string" && phone.trim() ? phone.trim() : null,
-    },
-    select: { id: true, name: true, email: true },
-  });
-
-  return NextResponse.json(user, { status: 201 });
 }

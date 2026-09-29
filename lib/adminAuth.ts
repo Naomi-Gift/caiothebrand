@@ -5,6 +5,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { redirect } from "next/navigation";
 
 export async function requireAdmin(): Promise<
   | { ok: true; userId: string; email: string }
@@ -31,4 +32,21 @@ export async function requireAdmin(): Promise<
   }
 
   return { ok: true, userId: user.id, email: session.user.email };
+}
+
+/**
+ * Server-component guard for admin pages. Runs before any data query:
+ * signed out → /admin/login, signed in without the ADMIN role → /403.
+ */
+export async function requireAdminPage(): Promise<{ userId: string; email: string }> {
+  const session = await auth();
+  if (!session?.user?.email) redirect("/admin/login");
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { id: true, role: true },
+  });
+  if (!user || user.role !== "ADMIN") redirect("/403");
+
+  return { userId: user.id, email: session.user.email };
 }

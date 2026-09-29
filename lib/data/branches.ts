@@ -29,3 +29,13 @@ export const branches: Record<BranchId, Branch> = {
 };
 
 export const branchList: Branch[] = [branches.owerri, branches.lagos];
+
+/** wa.me needs the international number without "+" (Nigerian 0-prefix → 234). */
+export function whatsappUrl(number: string): string {
+  const digits = number.replace(/\D/g, "");
+  return `https://wa.me/${digits.startsWith("0") ? `234${digits.slice(1)}` : digits}`;
+}
+
+export function mapsUrl(branch: Branch): string {
+  return `https://www.google.com/maps/search/?api=1&query=${branch.mapsQuery}`;
+}
