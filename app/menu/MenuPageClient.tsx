@@ -12,6 +12,9 @@ const HEADER_H = 81;
 
 const GRID = "grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-10 lg:gap-y-12";
 const LIST = "grid grid-cols-1 gap-9 md:grid-cols-2 md:gap-x-10 md:gap-y-8";
+// Drinks are small products — denser grid, smaller tiles.
+const GRID_COMPACT = "grid grid-cols-3 gap-x-3 gap-y-6 sm:grid-cols-4 sm:gap-x-5 lg:grid-cols-6 lg:gap-x-8 lg:gap-y-10";
+const LIST_COMPACT = "grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-x-10 md:gap-y-6";
 
 function GridIcon() {
   return (
@@ -101,17 +104,17 @@ export default function MenuPageClient({ items }: { items: MenuItem[] }) {
 
   const closeItem = useCallback(() => setOpenItem(null), []);
 
-  const renderItems = (list: MenuItem[]) =>
+  const renderItems = (list: MenuItem[], compact = false) =>
     view === "grid" ? (
-      <div className={GRID}>
+      <div className={compact ? GRID_COMPACT : GRID}>
         {list.map((item) => (
-          <MenuGridCard key={item.id} item={item} onOpen={setOpenItem} />
+          <MenuGridCard key={item.id} item={item} onOpen={setOpenItem} compact={compact} />
         ))}
       </div>
     ) : (
-      <div className={LIST}>
+      <div className={compact ? LIST_COMPACT : LIST}>
         {list.map((item) => (
-          <MenuListRow key={item.id} item={item} onOpen={setOpenItem} />
+          <MenuListRow key={item.id} item={item} onOpen={setOpenItem} compact={compact} />
         ))}
       </div>
     );
@@ -174,7 +177,7 @@ export default function MenuPageClient({ items }: { items: MenuItem[] }) {
               <h2 id={`${s.id}-title`} className="mb-6 font-display text-3xl font-bold text-brown-darkest sm:text-4xl">
                 {s.label}
               </h2>
-              {renderItems(s.items)}
+              {renderItems(s.items, s.id === "drinks")}
             </section>
           ))}
         </div>
