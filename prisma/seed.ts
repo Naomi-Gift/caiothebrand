@@ -5,9 +5,9 @@
  *   npx prisma db seed
  */
 
-import { PrismaClient } from "../lib/generated/prisma/client";
+import { createPrismaClient } from "../lib/createPrismaClient";
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 const pizzaAddOns = [
   { id: "cheese",             label: "Cheese",             price: 3000 },

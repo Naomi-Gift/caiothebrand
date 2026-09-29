@@ -4,8 +4,9 @@
 generator client {
   provider      = "prisma-client"
   output        = "../lib/generated/prisma"
-  // Vercel functions run on Amazon Linux (rhel-openssl-3.0.x).
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  // Engine-free client + node-postgres adapter (see lib/createPrismaClient.ts):
+  // no native binary to lose when Turbopack bundles for Vercel.
+  engineType    = "client"
 }
 
 datasource db {
