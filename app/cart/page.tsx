@@ -140,7 +140,7 @@ export default function CartPage() {
               type="text"
               value={codeInput}
               onChange={(e) => setCodeInput(e.target.value)}
-              placeholder="e.g. CAIO10"
+              placeholder="Promo code"
               className="flex-1 rounded-full bg-cream px-4 py-2 text-sm text-brown placeholder:text-brown-light focus:outline-none"
             />
             <Button type="submit" variant="outline" size="sm">
