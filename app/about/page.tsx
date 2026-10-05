@@ -35,7 +35,7 @@ export default function AboutPage() {
           caramelised onions — on a hot crust.
         </p>
         <p>
-          Our name is a warm hello, and we&apos;re now bringing it to Owerri too.
+          Our name is a warm hello, and we&apos;re bringing it to Owerri soon.
           Caio for now.
         </p>
       </InfoCard>

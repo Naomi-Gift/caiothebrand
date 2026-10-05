@@ -221,6 +221,7 @@ export default function CheckoutPage() {
             discount,
             total,
             promoCode: promoCode ?? undefined,
+            deliveryAddress: orderPayload.deliveryAddress,
             status: "received",
           };
           saveOrder(order);

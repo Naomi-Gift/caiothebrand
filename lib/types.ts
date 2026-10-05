@@ -84,5 +84,6 @@ export interface OrderRecord {
   discount: number;
   total: number;
   promoCode?: string;
+  deliveryAddress?: string | null;
   status: "received" | "kitchen" | "out-for-delivery" | "delivered";
 }

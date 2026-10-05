@@ -6,9 +6,9 @@ export const revalidate = 60;
 
 const HERO_SLIDES: HeroSlide[] = [
   {
-    eyebrow: "Owerri & Lagos",
+    eyebrow: "Lagos · Owerri coming soon",
     headline: "Made to delight your taste buds.",
-    sub: "Italian technique, Nigerian flavour. Chef driven, from Lagos, now in Owerri too.",
+    sub: "Italian technique, Nigerian flavour. Chef driven, from Lagos, and coming soon to Owerri.",
   },
 ];
 
@@ -18,7 +18,7 @@ export default async function HomePage() {
   return (
     <div>
       {/* ── Hero with order method selector ─────────────────────────────── */}
-      <HeroSlider slides={HERO_SLIDES} />
+      <HeroSlider slides={HERO_SLIDES} items={items} />
 
       {/* ── Full menu — directly below the hero ─────────────────────────── */}
       <MenuPageClient items={items} />

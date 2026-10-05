@@ -6,6 +6,8 @@ import { formatNaira } from "@/lib/format";
 import Button from "@/components/Button";
 import Reveal from "@/components/Reveal";
 import type { OrderRecord } from "@/lib/types";
+import { branches, whatsappUrl } from "@/lib/data/branches";
+import { orderMessage } from "@/lib/orderMessage";
 
 const LAST_ORDER_KEY = "caio-last-order-id";
 
@@ -70,6 +72,36 @@ export default function ConfirmationPage() {
           <span>{formatNaira(order.total)}</span>
         </div>
       </div>
+
+      {branches[order.branchId] && (
+        <div className="mt-8 rounded-2xl bg-bone/60 p-5 text-center">
+          <p className="text-sm text-brown">
+            Want the branch to have your order on WhatsApp too? One tap sends it.
+          </p>
+          <a
+            href={`${whatsappUrl(branches[order.branchId].whatsapp)}?text=${encodeURIComponent(
+              orderMessage({
+                id: order.id,
+                branchName: branches[order.branchId].name,
+                fulfillment: order.fulfillment,
+                lines: order.lines.map((l) => ({
+                  quantity: l.quantity,
+                  name: l.name,
+                  sizeLabel: l.size.label,
+                  addOns: l.addOns.map((a) => a.label),
+                })),
+                total: order.total,
+                deliveryAddress: order.deliveryAddress,
+              })
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="label-uppercase mt-3 inline-flex items-center gap-2 rounded-full bg-[#1f8f4e] px-6 py-3 text-xs text-white shadow-soft transition-colors hover:bg-[#187540]"
+          >
+            Send order to Caio on WhatsApp
+          </a>
+        </div>
+      )}
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Button href={`/track/${encodeURIComponent(order.id)}`}>Track order</Button>

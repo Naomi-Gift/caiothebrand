@@ -1,54 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useOrderMethod } from "@/context/OrderMethodContext";
-import type { FulfillmentMode } from "@/lib/types";
+import { categoryLabels } from "@/lib/data/menu";
+import { formatNaira } from "@/lib/format";
+import type { FulfillmentMode, MenuItem } from "@/lib/types";
 
 export interface HeroSlide {
   eyebrow: string;
   headline: string;
   sub: string;
 }
-
-// ── Combo deals data ──────────────────────────────────────────────────────────
-const COMBOS = [
-  {
-    id: 1,
-    tag:   "Combo Deal",
-    name:  "Suya Box",
-    desc:  "Chicken Suya pizza + any drink",
-    price: "₦7,500",
-    color: "#8B5A25",
-    img:   "/images/menu/chicken-suya-experience.jpg",
-  },
-  {
-    id: 2,
-    tag:   "Family Deal",
-    name:  "The Works",
-    desc:  "Large pizza + 2 sides + 2 drinks",
-    price: "₦14,000",
-    color: "#3a2418",
-    img:   "/images/menu/bbq-beef.jpg",
-  },
-  {
-    id: 3,
-    tag:   "Lunch Special",
-    name:  "Midday Pick",
-    desc:  "Any medium pizza + a drink",
-    price: "₦5,500",
-    color: "#6b4f38",
-    img:   "/images/menu/margherita.jpg",
-  },
-  {
-    id: 4,
-    tag:   "Date Night",
-    name:  "Two & Two",
-    desc:  "2 medium pizzas + 2 drinks",
-    price: "₦11,000",
-    color: "#281710",
-    img:   "/images/menu/bbq-chicken.jpg",
-  },
-];
 
 function PickupIcon() {
   return (
@@ -91,8 +54,19 @@ function ArrowIcon({ dir }: { dir: "left" | "right" }) {
 
 const AUTOPLAY_MS = 5500;
 
-export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
-  const { startOrder, openPrompt } = useOrderMethod();
+// Card colours cycle through the brand browns.
+const CARD_COLORS = ["#8B5A25", "#3a2418", "#6b4f38", "#281710"];
+
+/** Chef's picks (items marked "featured" in the menu), else the first few pizzas. */
+function pickProducts(items: MenuItem[]) {
+  const available = items.filter((i) => !i.soldOut && i.available !== false);
+  const featured = available.filter((i) => i.featured);
+  return (featured.length >= 2 ? featured : available.filter((i) => i.category === "pizzas")).slice(0, 6);
+}
+
+export default function HeroSlider({ items }: { slides?: HeroSlide[]; items: MenuItem[] }) {
+  const { startOrder } = useOrderMethod();
+  const products = pickProducts(items);
   const trackRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -118,22 +92,23 @@ export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
     const step = cardStep();
     if (!track || !step) return;
     const atEnd = track.scrollLeft >= track.scrollWidth - track.clientWidth - 4;
-    setActive(atEnd ? COMBOS.length - 1 : Math.round(track.scrollLeft / step));
+    setActive(atEnd ? products.length - 1 : Math.round(track.scrollLeft / step));
   };
 
   // Gentle autoplay; stops on hover/touch and for reduced-motion users.
   useEffect(() => {
     if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = window.setTimeout(() => goTo(active >= COMBOS.length - 1 ? 0 : active + 1), AUTOPLAY_MS);
+    const t = window.setTimeout(() => goTo(active >= products.length - 1 ? 0 : active + 1), AUTOPLAY_MS);
     return () => window.clearTimeout(t);
-  }, [active, paused, goTo]);
+  }, [active, paused, goTo, products.length]);
 
   return (
     <section
-      aria-label="Deals"
+      aria-label="Chef's picks"
       className="relative overflow-hidden"
       style={{ background: "linear-gradient(160deg, #1a0e08 0%, #281710 55%, #3a2418 100%)" }}
     >
+      {products.length > 0 && (<>
       {/* Soft warm glow */}
       <div
         aria-hidden="true"
@@ -146,10 +121,10 @@ export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="font-heading text-[0.65rem] font-bold uppercase tracking-[0.3em] text-bone/55">
-              Combo deals
+              Chef&apos;s picks
             </p>
             <h2 className="mt-1 font-display text-[1.9rem] font-bold leading-none text-cream sm:text-[2.6rem]">
-              More pizza, <em className="not-italic text-bone-dark">less spend.</em>
+              Made to delight, <em className="not-italic text-bone-dark">fresh from the oven.</em>
             </h2>
           </div>
           <div className="hidden gap-2 sm:flex">
@@ -157,9 +132,9 @@ export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
               <button
                 key={dir}
                 type="button"
-                onClick={() => goTo(dir === "left" ? Math.max(active - 1, 0) : Math.min(active + 1, COMBOS.length - 1))}
-                disabled={dir === "left" ? active === 0 : active === COMBOS.length - 1}
-                aria-label={dir === "left" ? "Previous deal" : "Next deal"}
+                onClick={() => goTo(dir === "left" ? Math.max(active - 1, 0) : Math.min(active + 1, products.length - 1))}
+                disabled={dir === "left" ? active === 0 : active === products.length - 1}
+                aria-label={dir === "left" ? "Previous" : "Next"}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-bone/20 text-cream transition-colors hover:bg-cream hover:text-brown disabled:pointer-events-none disabled:opacity-30"
               >
                 <ArrowIcon dir={dir} />
@@ -177,31 +152,33 @@ export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
           onTouchStart={() => setPaused(true)}
           className="-mx-4 mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-4 px-4 pb-1 [scrollbar-width:none] sm:-mx-6 sm:gap-4 sm:scroll-px-6 sm:px-6 [&::-webkit-scrollbar]:hidden"
         >
-          {COMBOS.map((combo, i) => (
+          {products.map((item, i) => (
             <article
-              key={combo.id}
+              key={item.id}
               aria-roledescription="slide"
-              aria-label={`${i + 1} of ${COMBOS.length}: ${combo.name}`}
+              aria-label={`${i + 1} of ${products.length}: ${item.name}`}
               className="relative flex w-[86%] shrink-0 snap-start items-center gap-4 overflow-hidden rounded-3xl border border-bone/10 p-5 sm:w-[calc(50%-0.5rem)] sm:gap-6 sm:p-7"
-              style={{ background: `linear-gradient(135deg, ${combo.color} 0%, rgba(26,14,8,0.9) 100%)` }}
+              style={{ background: `linear-gradient(135deg, ${CARD_COLORS[i % CARD_COLORS.length]} 0%, rgba(26,14,8,0.9) 100%)` }}
             >
               <div className="relative z-10 flex min-w-0 flex-1 flex-col items-start">
                 <span className="rounded-full bg-cream/10 px-2.5 py-1 font-heading text-[0.58rem] font-bold uppercase tracking-[0.2em] text-bone">
-                  {combo.tag}
+                  {item.isNew ? "New" : item.featured ? "Chef's pick" : categoryLabels[item.category]}
                 </span>
                 <p className="mt-3 font-display text-[1.7rem] font-bold leading-none text-cream sm:text-[2.2rem]">
-                  {combo.name}
+                  {item.name}
                 </p>
-                <p className="mt-1.5 text-[0.85rem] leading-snug text-bone/70 sm:text-[0.95rem]">{combo.desc}</p>
+                <p className="mt-1.5 line-clamp-2 text-[0.85rem] leading-snug text-bone/70 sm:text-[0.95rem]">{item.descriptor}</p>
                 <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <span className="font-heading text-xl font-extrabold text-cream sm:text-2xl">{combo.price}</span>
-                  <button
-                    type="button"
-                    onClick={openPrompt}
+                  <span className="font-heading text-lg font-extrabold text-cream sm:text-xl">
+                    <span className="mr-1 text-[0.7em] font-bold text-bone/60">From</span>
+                    {formatNaira(item.basePrice)}
+                  </span>
+                  <Link
+                    href={`/menu/${item.slug}`}
                     className="label-uppercase rounded-full bg-cream px-4 py-2 text-[0.62rem] text-brown transition-colors hover:bg-crisp sm:text-[0.68rem]"
                   >
-                    Order this deal
-                  </button>
+                    Order now
+                  </Link>
                 </div>
               </div>
 
@@ -210,7 +187,7 @@ export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
                 <div aria-hidden="true" className="absolute inset-0 scale-110 rounded-full bg-bone/10" />
                 {/* eslint-disable-next-line @next/next/no-img-element -- small fixed asset */}
                 <img
-                  src={combo.img}
+                  src={`/images/menu/${item.slug}.jpg`}
                   alt=""
                   aria-hidden="true"
                   draggable={false}
@@ -224,18 +201,20 @@ export default function HeroSlider({ slides: _ }: { slides: HeroSlide[] }) {
 
         {/* Dots */}
         <div className="mt-4 flex justify-center gap-1.5">
-          {COMBOS.map((c, i) => (
+          {products.map((c, i) => (
             <button
               key={c.id}
               type="button"
               onClick={() => goTo(i)}
-              aria-label={`Show deal ${i + 1}`}
+              aria-label={`Show ${c.name}`}
               aria-current={active === i ? "true" : undefined}
               className={`h-1.5 rounded-full transition-all duration-300 ${active === i ? "w-6 bg-bone" : "w-1.5 bg-bone/30"}`}
             />
           ))}
         </div>
       </div>
+
+      </>)}
 
       {/* ── Order method selector ─────────────────────────────────────────── */}
       <div className="relative border-t border-bone/10 bg-black/15">

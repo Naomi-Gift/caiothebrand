@@ -1,11 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/adminAuth";
 import { auth } from "@/auth";
 import { branches } from "@/lib/data/branches";
+import type { BranchId } from "@/lib/types";
 import { priceLines, PricingError, type IncomingLine } from "@/lib/orderPricing";
 import { findPromo } from "@/lib/promo";
 import { verifyPaystackTransaction } from "@/lib/paystack";
+import { sendOrderAlert } from "@/lib/whatsappAlert";
 
 /**
  * POST /api/orders — create an order after payment.
@@ -44,6 +46,9 @@ export async function POST(req: NextRequest) {
   const fulfillment = body.fulfillment === "DELIVERY" || body.fulfillment === "PICKUP" ? body.fulfillment : null;
   const paystackRef = typeof body.paystackRef === "string" ? body.paystackRef.trim().slice(0, 100) : "";
   if (!branchId || !fulfillment || !paystackRef) return fail("Missing required fields.", 400);
+  if (branches[branchId as BranchId].comingSoon) {
+    return fail(`Caio ${branches[branchId as BranchId].name} isn't open yet, so we can't take orders there.`, 400);
+  }
 
   const deliveryAddress =
     fulfillment === "DELIVERY" && typeof body.deliveryAddress === "string"
@@ -104,9 +109,28 @@ export async function POST(req: NextRequest) {
           })),
         },
       },
-      select: { id: true, createdAt: true, total: true },
+      select: { id: true, createdAt: true, total: true, customerName: true },
     });
-    return NextResponse.json(order);
+
+    // Tell the branch on WhatsApp once the response has gone out (no-op until configured).
+    after(() =>
+      sendOrderAlert(branchId, {
+        id: order.id,
+        branchName: branches[branchId as BranchId].name,
+        fulfillment: fulfillment === "DELIVERY" ? "delivery" : "pickup",
+        lines: priced.lines.map((l) => ({
+          quantity: l.quantity,
+          name: l.name,
+          sizeLabel: l.sizeLabel,
+          addOns: l.addOns.map((a) => a.label),
+        })),
+        total,
+        deliveryAddress,
+        customerName: order.customerName,
+      })
+    );
+
+    return NextResponse.json({ id: order.id, createdAt: order.createdAt, total: order.total });
   } catch (err) {
     // Two requests for the same payment at once: return the one that won.
     const again = await prisma.order.findUnique({ where: { paystackRef }, select: { id: true, createdAt: true } });

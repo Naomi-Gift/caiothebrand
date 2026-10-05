@@ -5,7 +5,7 @@ import ContactForm from "./ContactForm";
 
 export const metadata: Metadata = {
   title: "Contact us — Caio Pizza",
-  description: "Call, WhatsApp or message Caio Pizza in Owerri and Lagos.",
+  description: "Call, WhatsApp or message Caio Pizza in Lagos. Owerri coming soon.",
 };
 
 export default function ContactPage() {

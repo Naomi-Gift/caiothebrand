@@ -7,7 +7,7 @@ export default function BranchesPage() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <p className="label-uppercase text-xs text-brown-light">Find us</p>
       <h1 className="mt-2 font-display text-5xl font-black italic text-brown">
-        Owerri &amp; Lagos
+        Lagos &amp; Owerri
       </h1>
 
       <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">

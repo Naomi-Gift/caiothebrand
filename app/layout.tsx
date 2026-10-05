@@ -39,10 +39,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.caiopizza.com"),
   title: "Caio Pizza — Made to delight your taste buds",
   description:
-    "Chef driven Nigerian Italian fusion pizza. Owerri and Lagos. Order online for delivery or pickup.",
+    "Chef driven Nigerian Italian fusion pizza in Lagos, with Owerri coming soon. Order online for delivery or pickup.",
   openGraph: {
     title: "Caio Pizza",
-    description: "Chef driven Nigerian Italian fusion pizza. Owerri and Lagos.",
+    description: "Chef driven Nigerian Italian fusion pizza in Lagos. Owerri coming soon.",
     url: "https://www.caiopizza.com",
     siteName: "Caio Pizza",
     type: "website",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Caio Pizza",
-    description: "Chef driven Nigerian Italian fusion pizza. Owerri and Lagos.",
+    description: "Chef driven Nigerian Italian fusion pizza in Lagos. Owerri coming soon.",
   },
 };
 
