@@ -32,6 +32,7 @@ export default function CheckoutPage() {
     }
   }, [hydrated, account, branch, openPrompt]);
 
+  const [priceConfirmed, setPriceConfirmed] = useState<number | null>(null);
   const [fulfillment, setFulfillment] = useState<FulfillmentMode>(
     chosenFulfillment ?? "delivery"
   );
@@ -114,8 +115,40 @@ export default function CheckoutPage() {
       .slice(2, 8)
       .toUpperCase()}`;
 
+    // Charge the server's total (prices from the menu database), not the
+    // browser's — the order is re-checked against this amount after payment.
+    let quotedTotal: number;
+    try {
+      const q = await fetch("/api/orders/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lines, promoCode: promoCode ?? null }),
+      });
+      const quote = (await q.json()) as { total?: number; error?: string };
+      if (!q.ok || typeof quote.total !== "number") {
+        setPayError(quote.error ?? "Couldn't price your order. Please try again.");
+        setPaying(false);
+        return;
+      }
+      quotedTotal = quote.total;
+    } catch {
+      setPayError("Couldn't reach the server. Check your connection and try again.");
+      setPaying(false);
+      return;
+    }
+    // Menu prices changed since these items were added: show the real total
+    // first, and charge it when they tap pay again.
+    if (quotedTotal !== total && priceConfirmed !== quotedTotal) {
+      setPayError(
+        `Prices have changed since you added these items — your total is now ${formatNaira(quotedTotal)}. Tap pay again to continue.`
+      );
+      setPriceConfirmed(quotedTotal);
+      setPaying(false);
+      return;
+    }
+
     // Paystack amount is in kobo (smallest currency unit) — multiply by 100
-    const amountKobo = Math.round(total * 100);
+    const amountKobo = Math.round(quotedTotal * 100);
 
     // Lazily import the Paystack popup (client-only)
     let PaystackPop: Awaited<typeof import("@paystack/inline-js")>["default"];
@@ -142,31 +175,13 @@ export default function CheckoutPage() {
       },
 
       onSuccess: async (response: { reference: string }) => {
-        // Verify the payment server-side before saving the order
+        // The server confirms the payment with Paystack, re-prices the cart
+        // from the menu and only then saves the order.
         try {
-          const res = await fetch("/api/paystack/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ reference: response.reference }),
-          });
-
-          if (!res.ok) {
-            const err = (await res.json()) as { error?: string };
-            setPayError(
-              err.error ?? "Payment verification failed. Contact support."
-            );
-            setPaying(false);
-            return;
-          }
-
-          // Payment confirmed — persist order to DB then clear the cart
           const orderPayload = {
             branchId: branch.id,
             fulfillment: fulfillment.toUpperCase(),
             lines,
-            subtotal,
-            discount,
-            total,
             promoCode: promoCode ?? null,
             paystackRef: response.reference,
             deliveryAddress:
@@ -177,25 +192,23 @@ export default function CheckoutPage() {
                     ? `${addressLine.trim()}${addressCity.trim() ? `, ${addressCity.trim()}` : ""}`
                     : null
                 : null,
-            customerEmail: account.email,
-            customerName: account.name ?? null,
           };
 
-          let orderId = response.reference;
-          try {
-            const orderRes = await fetch("/api/orders", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(orderPayload),
-            });
-            if (orderRes.ok) {
-              const saved = await orderRes.json() as { id: string };
-              orderId = saved.id;
-            }
-          } catch {
-            // Non-fatal — order is verified, just couldn't persist to DB
-            console.error("Failed to save order to DB");
+          const orderRes = await fetch("/api/orders", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orderPayload),
+          });
+          const saved = (await orderRes.json().catch(() => ({}))) as { id?: string; error?: string };
+          if (!orderRes.ok || !saved.id) {
+            setPayError(
+              saved.error ??
+                `Your payment reference is ${response.reference}. We couldn't confirm the order — please contact the branch with this reference.`
+            );
+            setPaying(false);
+            return;
           }
+          const orderId = saved.id;
 
           // Also keep local record for confirmation page fallback
           const order: OrderRecord = {
@@ -215,7 +228,9 @@ export default function CheckoutPage() {
           clearCart();
           router.push("/checkout/confirmation");
         } catch {
-          setPayError("Something went wrong verifying your payment. Contact support.");
+          setPayError(
+            `Your payment reference is ${response.reference}. Something went wrong confirming the order — please contact the branch with this reference.`
+          );
           setPaying(false);
         }
       },

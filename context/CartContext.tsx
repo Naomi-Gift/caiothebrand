@@ -10,9 +10,6 @@ import {
 import type { CartLine, CartLineAddOn, SizeOption } from "@/lib/types";
 
 const STORAGE_KEY = "caio-cart";
-const PROMO_CODES: Record<string, number> = {
-  CAIO10: 0.1,
-};
 
 interface AddLineInput {
   itemId: string;
@@ -46,6 +43,8 @@ const CartContext = createContext<CartContextValue | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [promoCode, setPromoCode] = useState<string | null>(null);
+  // Checked by /api/promo; the server re-checks it when the order is placed.
+  const [promoRate, setPromoRate] = useState(0);
   const [promoError, setPromoError] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
@@ -59,9 +58,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const parsed = JSON.parse(stored) as {
           lines: CartLine[];
           promoCode: string | null;
+          promoRate?: number;
         };
         setLines(parsed.lines ?? []);
         setPromoCode(parsed.promoCode ?? null);
+        setPromoRate(parsed.promoCode ? parsed.promoRate ?? 0 : 0);
       } catch {
         // ignore corrupt cart data
       }
@@ -74,9 +75,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (!hydrated) return;
     window.localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ lines, promoCode })
+      JSON.stringify({ lines, promoCode, promoRate })
     );
-  }, [lines, promoCode, hydrated]);
+  }, [lines, promoCode, promoRate, hydrated]);
 
   const addLine = (input: AddLineInput) => {
     setLines((prev) => [
@@ -111,23 +112,37 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const applyPromoCode = (code: string) => {
-    const normalized = code.trim().toUpperCase();
-    if (PROMO_CODES[normalized]) {
-      setPromoCode(normalized);
-      setPromoError(null);
-    } else {
-      setPromoError("That code doesn't ring a bell. Try again?");
-    }
+    void (async () => {
+      try {
+        const res = await fetch("/api/promo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        });
+        const data = (await res.json()) as { code?: string; rate?: number; error?: string };
+        if (!res.ok || !data.code) {
+          setPromoError(data.error ?? "That code doesn't ring a bell. Try again?");
+          return;
+        }
+        setPromoCode(data.code);
+        setPromoRate(data.rate ?? 0);
+        setPromoError(null);
+      } catch {
+        setPromoError("Couldn't check that code just now. Try again?");
+      }
+    })();
   };
 
   const clearPromoCode = () => {
     setPromoCode(null);
+    setPromoRate(0);
     setPromoError(null);
   };
 
   const clearCart = () => {
     setLines([]);
     setPromoCode(null);
+    setPromoRate(0);
     setPromoError(null);
   };
 
@@ -135,7 +150,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     () => lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0),
     [lines]
   );
-  const discountRate = promoCode ? PROMO_CODES[promoCode] ?? 0 : 0;
+  const discountRate = promoCode ? promoRate : 0;
   const discount = Math.round(subtotal * discountRate);
   const total = subtotal - discount;
   const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);

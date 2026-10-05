@@ -72,7 +72,7 @@ export default function ConfirmationPage() {
       </div>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <Button href="/account">Track order</Button>
+        <Button href={`/track/${encodeURIComponent(order.id)}`}>Track order</Button>
         <Button href="/menu" variant="outline">
           Order again
         </Button>
