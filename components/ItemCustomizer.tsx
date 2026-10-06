@@ -286,7 +286,7 @@ export default function ItemCustomizer({ item }: { item: MenuItem }) {
             Complete your order
           </h2>
           <p className="mt-1 font-display text-sm italic text-brown-light">
-            Add sides or drinks and they'll go straight into your cart.
+            Add sides or drinks and they&apos;ll go straight into your cart.
           </p>
 
           <div className="mt-8 flex flex-col gap-8">

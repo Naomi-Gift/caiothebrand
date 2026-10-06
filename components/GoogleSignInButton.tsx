@@ -25,11 +25,10 @@ function GoogleIcon() {
   );
 }
 
-export default function GoogleSignInButton({
-  callbackUrl: _callbackUrl,
-}: {
-  callbackUrl: string;
-}) {
+// Google always returns via /auth/redirect, which sends admins to /admin and
+// everyone else to /account, so callers' callbackUrl isn't needed here.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function GoogleSignInButton(_props: { callbackUrl?: string }) {
   return (
     <button
       type="button"

@@ -248,10 +248,12 @@ export default function OrderMethodModal() {
 
   // Reset local step whenever the modal transitions from closed → open
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- resets local step on the closed → open transition */
     if (isPromptOpen && !wasOpen) {
       setExplicitStep(null); // let derived logic below decide the starting step
     }
     setWasOpen(isPromptOpen);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [isPromptOpen, wasOpen]);
 
   if (!isPromptOpen) return null;
