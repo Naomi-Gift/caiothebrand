@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useOrderMethod } from "@/context/OrderMethodContext";
 import { useBranch } from "@/context/BranchContext";
-import { branchList } from "@/lib/data/branches";
 import type { FulfillmentMode } from "@/lib/types";
 import type { BranchId } from "@/lib/types";
 
@@ -173,7 +172,7 @@ function DeliveryLocationStep({ onBack }: { onBack: () => void }) {
 
 function PickupBranchStep({ onBack }: { onBack: () => void }) {
   const { confirmLocation } = useOrderMethod();
-  const { setBranch } = useBranch();
+  const { setBranch, branchList } = useBranch();
 
   const choose = (branchId: BranchId) => {
     setBranch(branchId);

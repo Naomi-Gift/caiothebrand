@@ -25,6 +25,9 @@ export function createPrismaClient() {
     // Supabase's pooler presents its own CA; encrypt without verifying the chain,
     // matching Prisma's previous default (sslmode=prefer).
     ssl: { rejectUnauthorized: false },
+    // Small pool per process: serverless functions and parallel build workers
+    // each open their own, and Supabase's pooler caps total clients.
+    max: Number(process.env.DB_POOL_MAX) || 3,
   });
   return new PrismaClient({ adapter });
 }

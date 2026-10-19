@@ -9,7 +9,7 @@ import { requireAdmin } from "@/lib/adminAuth";
 type Params = { params: Promise<{ id: string }> };
 
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const adminAuth = await requireAdmin();
+  const adminAuth = await requireAdmin({ fullAdmin: true });
   if (!adminAuth.ok) return adminAuth.response;
 
   const { id } = await params;
@@ -27,7 +27,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
-  const adminAuth = await requireAdmin();
+  const adminAuth = await requireAdmin({ fullAdmin: true });
   if (!adminAuth.ok) return adminAuth.response;
 
   const { id } = await params;

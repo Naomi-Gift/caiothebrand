@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useBranch } from "@/context/BranchContext";
-import { branchList } from "@/lib/data/branches";
 import { FIELD_LIMITS } from "@/lib/feedback";
 
 const INPUT =
@@ -10,7 +9,7 @@ const INPUT =
 const LABEL = "mb-1.5 block font-heading text-[0.7rem] font-bold uppercase tracking-[0.15em] text-brown";
 
 export default function ContactForm() {
-  const { branchId } = useBranch();
+  const { branchId, branchList } = useBranch();
   const [pickedBranch, setPickedBranch] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);

@@ -6,12 +6,14 @@ import { formatNaira } from "@/lib/format";
 import Button from "@/components/Button";
 import Reveal from "@/components/Reveal";
 import type { OrderRecord } from "@/lib/types";
-import { branches, whatsappUrl } from "@/lib/data/branches";
+import { whatsappUrl } from "@/lib/data/branches";
+import { useBranch } from "@/context/BranchContext";
 import { orderMessage } from "@/lib/orderMessage";
 
 const LAST_ORDER_KEY = "caio-last-order-id";
 
 export default function ConfirmationPage() {
+  const { branches } = useBranch();
   const [order, setOrder] = useState<OrderRecord | null | undefined>(
     undefined
   );

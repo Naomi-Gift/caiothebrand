@@ -4,7 +4,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/adminAuth";
+import { requireAdmin, scopedBranch } from "@/lib/adminAuth";
 import { branches } from "@/lib/data/branches";
 import { CHANNELS, FIELD_LIMITS, HIGHLIGHTS } from "@/lib/feedback";
 
@@ -100,11 +100,13 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true });
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const adminAuth = await requireAdmin();
   if (!adminAuth.ok) return adminAuth.response;
 
+  const branch = scopedBranch(adminAuth, req.nextUrl.searchParams.get("branch"));
   const feedback = await prisma.feedback.findMany({
+    where: branch ? { branchId: branch } : undefined,
     orderBy: { createdAt: "desc" },
     take: 500,
   });

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InfoCard, InfoHero, InfoShell } from "@/components/InfoPage";
-import { branchList } from "@/lib/data/branches";
+import { getBranchList } from "@/lib/branchSettings";
 
 export const metadata: Metadata = {
   title: "Our story — Caio Pizza",
@@ -14,7 +14,8 @@ const STEPS = [
   { name: "Round it out", text: "Add sides and drinks, then choose delivery or branch pickup." },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const branchList = await getBranchList();
   return (
     <InfoShell>
       <InfoHero

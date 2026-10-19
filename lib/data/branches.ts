@@ -1,5 +1,11 @@
 import type { Branch, BranchId } from "@/lib/types";
 
+/**
+ * Defaults only. Live values (open / coming soon, address, hours, phone,
+ * WhatsApp, delivery time, ERPNext outlet) come from Admin → Settings via
+ * lib/branchSettings.ts — use getBranches() on the server, useBranch() in
+ * the browser, not this object directly.
+ */
 export const branches: Record<BranchId, Branch> = {
   owerri: {
     id: "owerri",
@@ -23,6 +29,7 @@ export const branches: Record<BranchId, Branch> = {
     whatsapp: "08137550148",
     mapsQuery: "5A+Ojaja+Mall+Ogombo+Road+Ajah+Lagos",
     deliveryEstimate: "30–45 min",
+    erpPosProfile: "POS-CAIO",
     lat: 6.466,
     lng: 3.587,
   },

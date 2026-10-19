@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InfoCard, InfoHero, InfoShell } from "@/components/InfoPage";
-import { branchList } from "@/lib/data/branches";
+import { getBranchList } from "@/lib/branchSettings";
+import type { Branch } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "FAQs — Caio Pizza",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 
 type QA = { q: string; a: React.ReactNode };
 
-const SECTIONS: { id: string; title: string; items: QA[] }[] = [
+const buildSections = (branchList: Branch[]): { id: string; title: string; items: QA[] }[] => [
   {
     id: "ordering",
     title: "Ordering",
@@ -106,7 +107,8 @@ const SECTIONS: { id: string; title: string; items: QA[] }[] = [
   },
 ];
 
-export default function FaqsPage() {
+export default async function FaqsPage() {
+  const SECTIONS = buildSections(await getBranchList());
   return (
     <InfoShell>
       <InfoHero

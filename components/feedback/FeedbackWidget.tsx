@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useBranch } from "@/context/BranchContext";
-import { branches, branchList } from "@/lib/data/branches";
 import { CHANNELS, FIELD_LIMITS, HIGHLIGHTS, RATING_LABELS } from "@/lib/feedback";
 import type { BranchId } from "@/lib/types";
 
@@ -99,7 +98,7 @@ export default function FeedbackWidget() {
 
 function FeedbackDialog({ onClose }: { onClose: () => void }) {
   const titleId = useId();
-  const { branchId: currentBranch } = useBranch();
+  const { branchId: currentBranch, branches, branchList } = useBranch();
   const panelRef = useRef<HTMLDivElement>(null);
 
   const [step, setStep] = useState(1);

@@ -1,3 +1,4 @@
+import { requireAdminPage } from "@/lib/adminAuth";
 import { getCategories } from "@/lib/api";
 import CategoryActions from "./CategoryActions";
 import NewCategoryForm from "./NewCategoryForm";
@@ -5,6 +6,7 @@ import NewCategoryForm from "./NewCategoryForm";
 export const dynamic = "force-dynamic";
 
 export default async function CategoriesPage() {
+  await requireAdminPage({ fullAdmin: true });
   const categories = await getCategories().catch(() => []);
 
   return (

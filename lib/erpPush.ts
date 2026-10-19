@@ -5,6 +5,8 @@
  */
 import { prisma } from "@/lib/prisma";
 import { createOnlineOrder, erpConfig, type ErpOrderInput } from "@/lib/erp";
+import { getBranches } from "@/lib/branchSettings";
+import type { BranchId } from "@/lib/types";
 
 type LineAddOn = { label: string; price: number; itemCode?: string };
 
@@ -17,6 +19,13 @@ export async function pushOrderToErp(orderId: string): Promise<{ ok: boolean; sk
 
   const record = (data: { erpError?: string | null; erpOrderName?: string; erpTicketNo?: number; erpStatus?: string; erpEstReadyAt?: string | null; erpSyncedAt?: Date }) =>
     prisma.order.update({ where: { id: order.id }, data: { ...data, erpAttempts: { increment: 1 } } });
+
+  const branch = (await getBranches())[order.branchId as BranchId];
+  if (!branch?.erpPosProfile) {
+    const error = `No ERPNext outlet set for ${branch?.name ?? order.branchId}. Add it in Admin → Settings, then retry.`;
+    await record({ erpError: error });
+    return { ok: false, error };
+  }
 
   // ERPNext has no discount field: spread any promo discount across the
   // line rates so its grand total equals what the customer actually paid.
@@ -56,7 +65,7 @@ export async function pushOrderToErp(orderId: string): Promise<{ ok: boolean; sk
       },
       payment: { mode_of_payment: "Paystack", reference_no: order.paystackRef || order.id },
       items,
-    });
+    }, branch.erpPosProfile);
     const erp = res.orders[0];
     await record({
       erpError: null,

@@ -83,11 +83,13 @@ export interface ErpOutlet {
   items: ErpItem[];
 }
 
-export async function getCatalog(): Promise<ErpOutlet | null> {
+/** The menu comes from the main (Lagos) outlet unless another is given. */
+export async function getCatalog(posProfile?: string): Promise<ErpOutlet | null> {
   const cfg = erpConfig();
   if (!cfg) throw new ErpError("ERPNext is not configured.");
-  const data = await call<{ outlets: ErpOutlet[] }>(`get_catalog?pos_profile=${encodeURIComponent(cfg.posProfile)}`);
-  return data.outlets.find((o) => o.pos_profile === cfg.posProfile) ?? data.outlets[0] ?? null;
+  const profile = posProfile || cfg.posProfile;
+  const data = await call<{ outlets: ErpOutlet[] }>(`get_catalog?pos_profile=${encodeURIComponent(profile)}`);
+  return data.outlets.find((o) => o.pos_profile === profile) ?? data.outlets[0] ?? null;
 }
 
 // ── Orders ─────────────────────────────────────────────────────────────────────
@@ -111,13 +113,13 @@ export interface ErpOrderResult {
   est_ready_at?: string | null;
 }
 
-export async function createOnlineOrder(input: ErpOrderInput) {
-  const cfg = erpConfig();
-  if (!cfg) throw new ErpError("ERPNext is not configured.");
+/** posProfile: the branch's ERPNext outlet (Admin → Settings). */
+export async function createOnlineOrder(input: ErpOrderInput, posProfile: string) {
+  if (!erpConfig()) throw new ErpError("ERPNext is not configured.");
   // Idempotent on external_order_id: a retry returns status "already_exists".
   return call<{ status: "created" | "already_exists"; orders: ErpOrderResult[] }>("create_online_order", {
     method: "POST",
-    body: JSON.stringify({ ...input, pos_profile: cfg.posProfile }),
+    body: JSON.stringify({ ...input, pos_profile: posProfile }),
   });
 }
 

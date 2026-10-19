@@ -6,7 +6,7 @@ import { erpConfig } from "@/lib/erp";
 import { syncMenuFromErp } from "@/lib/erpSync";
 
 export async function POST(req: NextRequest) {
-  const admin = await requireAdmin();
+  const admin = await requireAdmin({ fullAdmin: true });
   if (!admin.ok) return admin.response;
   if (!erpConfig()) return NextResponse.json({ error: "ERPNext isn't connected yet (ERP_* settings missing)." }, { status: 503 });
   const { dryRun = true } = (await req.json().catch(() => ({}))) as { dryRun?: boolean };

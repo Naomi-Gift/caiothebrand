@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getOrders, getMenuItems, getUsers } from "@/lib/api";
 import { auth } from "@/auth";
+import { requireAdminPage } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +15,12 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; label: string }>
 
 export default async function AdminDashboard() {
   const session = await auth();
+  const admin = await requireAdminPage();
+  const manager = !!admin.branchId;
   const [orders, items, users] = await Promise.all([
-    getOrders().catch(() => []),
-    getMenuItems().catch(() => []),
-    getUsers().catch(() => []),
+    getOrders(undefined, admin.branchId).catch(() => []),
+    manager ? Promise.resolve([]) : getMenuItems().catch(() => []),
+    manager ? Promise.resolve([]) : getUsers().catch(() => []),
   ]);
 
   const pending = orders.filter(o => ["RECEIVED", "KITCHEN"].includes(o.status)).length;
@@ -29,8 +32,10 @@ export default async function AdminDashboard() {
     { label: "Total revenue",   value: `₦${revenue.toLocaleString("en-NG")}`, href: "/admin/analytics",  color: "#fcd34d", sub: "All time" },
     { label: "Active orders",   value: pending,                                href: "/admin/orders",      color: "#93c5fd", sub: "Awaiting action" },
     { label: "Orders today",    value: today,                                  href: "/admin/orders",      color: "#86efac", sub: "Since midnight" },
+    ...(manager ? [] : [
     { label: "Menu items",      value: items.length,                           href: "/admin/menu",        color: "#c4b5fd", sub: "Published" },
     { label: "Registered users",value: users.length,                           href: "/admin/users",       color: "#f9a8d4", sub: "All time" },
+    ]),
   ];
 
   return (
@@ -128,12 +133,19 @@ export default async function AdminDashboard() {
       <div className="mt-10">
         <h2 className="mb-4 font-display text-xl font-bold italic text-cream">Quick actions</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[
-            { href: "/admin/menu/new",   label: "Add menu item",  desc: "Publish a new pizza" },
-            { href: "/admin/orders",     label: "Manage orders",  desc: "Update order status" },
-            { href: "/admin/users",      label: "Manage users",   desc: "Promote or revoke admins" },
-            { href: "/admin/settings",   label: "Settings",       desc: "Store config & hours" },
-          ].map(({ href, label, desc }) => (
+          {(manager
+            ? [
+                { href: "/admin/orders",   label: "Manage orders",  desc: "Your branch's orders" },
+                { href: "/admin/feedback", label: "Feedback",       desc: "What your customers said" },
+                { href: "/admin/analytics", label: "Analytics",     desc: "Your branch's sales" },
+              ]
+            : [
+                { href: "/admin/menu/new",   label: "Add menu item",  desc: "Publish a new pizza" },
+                { href: "/admin/orders",     label: "Manage orders",  desc: "Update order status" },
+                { href: "/admin/users",      label: "Manage users",   desc: "Admins and branch managers" },
+                { href: "/admin/settings",   label: "Settings",       desc: "Branches, hours, promo codes" },
+              ]
+          ).map(({ href, label, desc }) => (
             <Link key={href} href={href}
               className="group rounded-2xl p-5 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/5"
               style={{ background: "rgba(255,252,248,0.03)", border: "1px solid rgba(235,226,207,0.08)" }}

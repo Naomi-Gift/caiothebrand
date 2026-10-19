@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { InfoCard, InfoHero, InfoShell, PillLink } from "@/components/InfoPage";
-import { branchList, mapsUrl, whatsappUrl } from "@/lib/data/branches";
+import { mapsUrl, whatsappUrl } from "@/lib/data/branches";
+import { getBranchList } from "@/lib/branchSettings";
 import ContactForm from "./ContactForm";
 
 export const metadata: Metadata = {
@@ -8,7 +9,8 @@ export const metadata: Metadata = {
   description: "Call, WhatsApp or message Caio Pizza in Lagos. Owerri coming soon.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const branchList = await getBranchList();
   return (
     <InfoShell>
       <InfoHero

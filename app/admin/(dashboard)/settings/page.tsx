@@ -1,29 +1,80 @@
 import { getSettings } from "@/lib/api";
-import SettingsForm from "./SettingsForm";
+import { requireAdminPage } from "@/lib/adminAuth";
+import { getBranches, BRANCH_IDS } from "@/lib/branchSettings";
+import SettingsForm, { type SettingsSection } from "./SettingsForm";
 
 export const dynamic = "force-dynamic";
 
-const SETTING_FIELDS = [
-  { key: "branch_owerri_address",   label: "Owerri Branch Address",   placeholder: "3 Douglas Road, Owerri" },
-  { key: "branch_owerri_hours",     label: "Owerri Opening Hours",    placeholder: "Mon–Sun: 11am – 11pm" },
-  { key: "branch_owerri_phone",     label: "Owerri Phone",            placeholder: "+234 800 000 0000" },
-  { key: "branch_lagos_address",    label: "Lagos Branch Address",    placeholder: "14 Admiralty Way, Lekki" },
-  { key: "branch_lagos_hours",      label: "Lagos Opening Hours",     placeholder: "Mon–Sun: 11am – 11pm" },
-  { key: "branch_lagos_phone",      label: "Lagos Phone",             placeholder: "+234 800 000 0001" },
-  { key: "delivery_estimate_owerri",label: "Owerri Delivery ETA",     placeholder: "30–45 min" },
-  { key: "delivery_estimate_lagos", label: "Lagos Delivery ETA",      placeholder: "30–45 min" },
-  { key: "promo_codes",             label: "Active Promo Codes (JSON)",placeholder: '[{"code":"CAIO10","discount":10,"type":"percent"}]' },
-];
-
 export default async function SettingsPage() {
-  const settings = await getSettings().catch(() => ({} as Record<string, string>));
+  await requireAdminPage({ fullAdmin: true });
+  const [settings, branches] = await Promise.all([
+    getSettings().catch(() => ({}) as Record<string, string>),
+    getBranches(),
+  ]);
+
+  // Show what's live now: saved setting, else the built-in default.
+  const initial: Record<string, string> = { ...settings };
+  const sections: SettingsSection[] = BRANCH_IDS.map((id) => {
+    const b = branches[id];
+    const fill = (key: string, value: string | undefined) => {
+      if (!initial[key]) initial[key] = value ?? "";
+    };
+    fill(`branch_${id}_status`, b.comingSoon ? "coming_soon" : "open");
+    fill(`branch_${id}_address`, b.address);
+    fill(`branch_${id}_hours`, b.hours);
+    fill(`branch_${id}_phone`, b.phone);
+    fill(`branch_${id}_whatsapp`, b.whatsapp);
+    fill(`delivery_estimate_${id}`, b.deliveryEstimate);
+    fill(`erp_pos_profile_${id}`, b.erpPosProfile);
+    fill(`branch_${id}_alert_to`, b.alertWhatsapp);
+    return {
+      title: `${b.name} branch`,
+      description: b.comingSoon
+        ? "Coming soon: customers can see it but can't order from it."
+        : "Open: customers can order for delivery or pickup.",
+      fields: [
+        {
+          key: `branch_${id}_status`,
+          label: "Status",
+          type: "select",
+          options: [
+            { value: "open", label: "Open — taking orders" },
+            { value: "coming_soon", label: "Coming soon — no orders yet" },
+          ],
+        },
+        { key: `delivery_estimate_${id}`, label: "Delivery time", placeholder: "30–45 min" },
+        { key: `branch_${id}_address`, label: "Address", placeholder: "Street, area, city", wide: true },
+        { key: `branch_${id}_hours`, label: "Opening hours", placeholder: "10am – 10pm" },
+        { key: `branch_${id}_phone`, label: "Phone (for customers)", placeholder: "0813 755 0148" },
+        { key: `branch_${id}_whatsapp`, label: "WhatsApp (for customers)", placeholder: "0813 755 0148" },
+        {
+          key: `branch_${id}_alert_to`,
+          label: "Order alert WhatsApp (staff)",
+          placeholder: "e.g. 08031234567, 08098765432",
+          help: "Gets an automatic message for each new order (once WhatsApp Business is connected).",
+        },
+        {
+          key: `erp_pos_profile_${id}`,
+          label: "ERPNext outlet (POS profile)",
+          placeholder: id === "lagos" ? "POS-CAIO" : "Ask Cudrock Group, e.g. POS-CAIO-OWERRI",
+          help: "Orders for this branch go to this outlet's kitchen screen. Leave empty if it has none yet.",
+        },
+      ],
+    };
+  });
+
+  sections.push({
+    title: "Promo codes",
+    description: 'One entry per code, e.g. [{"code":"CAIO10","discount":10,"type":"percent"}] — discount is a percentage.',
+    fields: [{ key: "promo_codes", label: "Active promo codes (JSON)", type: "textarea", placeholder: '[{"code":"CAIO10","discount":10,"type":"percent"}]', wide: true }],
+  });
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-      <p className="mt-1 text-sm text-gray-500">Branch information and promo codes. Changes go live immediately.</p>
-      <div className="mt-6 max-w-2xl">
-        <SettingsForm fields={SETTING_FIELDS} initial={settings} />
+      <p className="mt-1 text-sm text-gray-500">Branches and promo codes. Changes show on the website within a few seconds.</p>
+      <div className="mt-6 max-w-3xl">
+        <SettingsForm sections={sections} initial={initial} />
       </div>
     </div>
   );

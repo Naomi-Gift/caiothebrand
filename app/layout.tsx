@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import OrderMethodModal from "@/components/OrderMethodModal";
 import { BranchProvider } from "@/context/BranchContext";
+import { getBranches } from "@/lib/branchSettings";
 import { CartProvider } from "@/context/CartContext";
 import { OrderMethodProvider } from "@/context/OrderMethodContext";
 import AccountCartBridge from "@/components/AccountCartBridge";
@@ -54,11 +55,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const branches = await getBranches();
   return (
     <html
       lang="en"
@@ -66,7 +68,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-cream text-brown-darkest">
         <SessionProvider>
-          <BranchProvider>
+          <BranchProvider branches={branches}>
             <CartProvider>
               <AccountCartBridge>
                 <OrderMethodProvider>

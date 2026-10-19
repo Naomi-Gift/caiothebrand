@@ -5,9 +5,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/adminAuth";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { SETTINGS_TAG } from "@/lib/branchSettings";
 
 export async function GET() {
-  const adminAuth = await requireAdmin();
+  const adminAuth = await requireAdmin({ fullAdmin: true });
   if (!adminAuth.ok) return adminAuth.response;
 
   const rows = await prisma.setting.findMany();
@@ -17,7 +19,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const adminAuth = await requireAdmin();
+  const adminAuth = await requireAdmin({ fullAdmin: true });
   if (!adminAuth.ok) return adminAuth.response;
 
   let body: unknown;
@@ -37,5 +39,8 @@ export async function POST(req: NextRequest) {
     )
   );
 
+  // Branch details, promo codes etc. show up on the site straight away.
+  revalidateTag(SETTINGS_TAG, "max");
+  revalidatePath("/", "layout");
   return NextResponse.json({ ok: true });
 }

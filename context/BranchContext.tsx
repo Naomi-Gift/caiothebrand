@@ -9,11 +9,14 @@ import {
   useState,
 } from "react";
 import type { Branch, BranchId } from "@/lib/types";
-import { branches } from "@/lib/data/branches";
+import { branches as defaultBranches } from "@/lib/data/branches";
 
 const STORAGE_KEY = "caio-branch";
 
 interface BranchContextValue {
+  /** Live branch details (from Admin → Settings). */
+  branches: Record<BranchId, Branch>;
+  branchList: Branch[];
   branchId: BranchId | null;
   branch: Branch | null;
   hasChosenBranch: boolean;
@@ -27,7 +30,13 @@ const BranchContext = createContext<BranchContextValue | undefined>(
   undefined
 );
 
-export function BranchProvider({ children }: { children: React.ReactNode }) {
+export function BranchProvider({
+  children,
+  branches = defaultBranches,
+}: {
+  children: React.ReactNode;
+  branches?: Record<BranchId, Branch>;
+}) {
   const [branchId, setBranchId] = useState<BranchId | null>(null);
   const [hasChosenBranch, setHasChosenBranch] = useState(false);
   const [isPromptOpen, setIsPromptOpen] = useState(false);
@@ -62,6 +71,8 @@ export function BranchProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<BranchContextValue>(
     () => ({
+      branches,
+      branchList: Object.values(branches),
       branchId,
       branch: branchId ? branches[branchId] : null,
       hasChosenBranch,
@@ -70,7 +81,7 @@ export function BranchProvider({ children }: { children: React.ReactNode }) {
       openPrompt,
       closePrompt,
     }),
-    [branchId, hasChosenBranch, hydrated, isPromptOpen, setBranch, openPrompt, closePrompt]
+    [branches, branchId, hasChosenBranch, hydrated, isPromptOpen, setBranch, openPrompt, closePrompt]
   );
 
   return (

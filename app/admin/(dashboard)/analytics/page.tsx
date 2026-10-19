@@ -1,4 +1,6 @@
 import { getAnalytics } from "@/lib/api";
+import { requireAdminPage, scopedBranch } from "@/lib/adminAuth";
+import BranchFilter from "@/components/admin/BranchFilter";
 
 export const dynamic = "force-dynamic";
 
@@ -39,8 +41,10 @@ function RevenueChart({ daily }: { daily: Array<{ date: string; revenue: number 
   );
 }
 
-export default async function AnalyticsPage() {
-  const data = await getAnalytics().catch(() => null);
+export default async function AnalyticsPage({ searchParams }: { searchParams: Promise<{ branch?: string }> }) {
+  const admin = await requireAdminPage();
+  const branch = scopedBranch(admin, (await searchParams).branch);
+  const data = await getAnalytics(branch).catch(() => null);
 
   if (!data) {
     return (
@@ -63,6 +67,9 @@ export default async function AnalyticsPage() {
     <div>
       <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
       <p className="mt-1 text-sm text-gray-500">All-time performance overview.</p>
+      <div className="mt-4">
+        <BranchFilter basePath="/admin/analytics" current={branch} locked={!!admin.branchId} />
+      </div>
 
       {/* KPI row */}
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">

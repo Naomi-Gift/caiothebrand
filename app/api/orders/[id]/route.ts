@@ -4,7 +4,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/adminAuth";
+import { canSeeBranch, requireAdmin } from "@/lib/adminAuth";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -23,7 +23,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
       user: { select: { id: true, name: true, email: true } },
     },
   });
-  if (!order) return NextResponse.json({ error: "Not found." }, { status: 404 });
+  if (!order || !canSeeBranch(adminAuth, order.branchId)) return NextResponse.json({ error: "Not found." }, { status: 404 });
   return NextResponse.json(order);
 }
 
@@ -43,6 +43,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       { error: `status must be one of: ${VALID_STATUSES.join(", ")}` },
       { status: 400 }
     );
+  }
+
+  const current = await prisma.order.findUnique({ where: { id }, select: { branchId: true } });
+  if (!current || !canSeeBranch(adminAuth, current.branchId)) {
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
   }
 
   const order = await prisma.order.update({

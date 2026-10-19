@@ -2,18 +2,21 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { requireAdminPage } from "@/lib/adminAuth";
+import { branches } from "@/lib/data/branches";
 
 export const metadata = { title: "Caio Admin — Super Dashboard" };
 
-const NAV = [
-  { href: "/admin",            label: "Dashboard",  icon: "⬛" },
-  { href: "/admin/orders",     label: "Orders",     icon: "📋" },
-  { href: "/admin/menu",       label: "Menu",       icon: "🍕" },
-  { href: "/admin/categories", label: "Categories", icon: "📂" },
-  { href: "/admin/analytics",  label: "Analytics",  icon: "📊" },
-  { href: "/admin/feedback",   label: "Feedback",   icon: "💬" },
-  { href: "/admin/users",      label: "Users",      icon: "👥" },
-  { href: "/admin/settings",   label: "Settings",   icon: "⚙️" },
+// fullAdmin: hidden from branch managers (they only see their branch's activity).
+const ALL_NAV = [
+  { href: "/admin",            label: "Dashboard",  icon: "⬛", fullAdmin: false },
+  { href: "/admin/orders",     label: "Orders",     icon: "📋", fullAdmin: false },
+  { href: "/admin/menu",       label: "Menu",       icon: "🍕", fullAdmin: true },
+  { href: "/admin/categories", label: "Categories", icon: "📂", fullAdmin: true },
+  { href: "/admin/analytics",  label: "Analytics",  icon: "📊", fullAdmin: false },
+  { href: "/admin/feedback",   label: "Feedback",   icon: "💬", fullAdmin: false },
+  { href: "/admin/users",      label: "Users",      icon: "👥", fullAdmin: true },
+  { href: "/admin/settings",   label: "Settings",   icon: "⚙️", fullAdmin: true },
 ];
 
 export default async function AdminDashboardLayout({ children }: { children: ReactNode }) {
@@ -21,6 +24,9 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const role = (session?.user as any)?.role;
   if (!session?.user || role !== "ADMIN") redirect("/admin/login");
+  const admin = await requireAdminPage();
+  const NAV = ALL_NAV.filter((n) => !n.fullAdmin || !admin.branchId);
+  const roleLabel = admin.branchId ? `${branches[admin.branchId].name} manager` : "Admin";
 
   return (
     <div className="flex min-h-screen"
@@ -62,7 +68,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
           <p className="text-[0.65rem] text-bone/30 truncate">
             {session.user.name ?? session.user.email}
           </p>
-          <p className="label-uppercase mt-0.5 text-[0.55rem] text-bone/20">Admin</p>
+          <p className="label-uppercase mt-0.5 text-[0.55rem] text-bone/20">{roleLabel}</p>
           <form action="/api/auth/signout" method="POST" className="mt-3">
             <button
               type="submit"

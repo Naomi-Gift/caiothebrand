@@ -16,7 +16,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireAdmin();
+  const auth = await requireAdmin({ fullAdmin: true });
   if (!auth.ok) return auth.response;
 
   let body: Record<string, unknown>;

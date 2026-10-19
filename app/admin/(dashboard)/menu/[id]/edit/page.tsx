@@ -1,8 +1,10 @@
+import { requireAdminPage } from "@/lib/adminAuth";
 import { getMenuItem, getCategories } from "@/lib/api";
 import { notFound } from "next/navigation";
 import MenuItemForm from "../../MenuItemForm";
 export const dynamic = "force-dynamic";
 export default async function EditPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdminPage({ fullAdmin: true });
   const { id } = await params;
   const [item, categories] = await Promise.all([
     getMenuItem(id).catch(() => null),

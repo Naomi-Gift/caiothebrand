@@ -1,8 +1,9 @@
-import { branchList } from "@/lib/data/branches";
+import { getBranchList } from "@/lib/branchSettings";
 import Reveal from "@/components/Reveal";
 import PlaceholderImage from "@/components/PlaceholderImage";
 
-export default function BranchesPage() {
+export default async function BranchesPage() {
+  const branchList = await getBranchList();
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <p className="label-uppercase text-xs text-brown-light">Find us</p>

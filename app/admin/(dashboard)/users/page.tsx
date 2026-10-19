@@ -1,10 +1,13 @@
+import { requireAdminPage } from "@/lib/adminAuth";
 import { getUsers } from "@/lib/api";
 import { auth } from "@/auth";
 import UserRoleToggle from "./UserRoleToggle";
+import BranchAccessSelect from "./BranchAccessSelect";
 
 export const dynamic = "force-dynamic";
 
 export default async function UsersPage() {
+  await requireAdminPage({ fullAdmin: true });
   const [session, users] = await Promise.all([auth(), getUsers().catch(() => [])]);
 
   return (
@@ -18,6 +21,7 @@ export default async function UsersPage() {
             <tr>
               <th className="px-5 py-3 text-left">User</th>
               <th className="px-5 py-3 text-left">Role</th>
+              <th className="px-5 py-3 text-left">Access</th>
               <th className="px-5 py-3 text-left">Orders</th>
               <th className="px-5 py-3 text-right">Actions</th>
             </tr>
@@ -33,6 +37,13 @@ export default async function UsersPage() {
                   <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${u.role === "ADMIN" ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-500"}`}>
                     {u.role}
                   </span>
+                </td>
+                <td className="px-5 py-3">
+                  {u.role === "ADMIN" ? (
+                    <BranchAccessSelect userId={u.id} branchId={u.branchId} isSelf={u.email === session?.user?.email} />
+                  ) : (
+                    <span className="text-xs text-gray-400">Customer</span>
+                  )}
                 </td>
                 <td className="px-5 py-3 text-gray-600">{u._count.orders}</td>
                 <td className="px-5 py-3 text-right">

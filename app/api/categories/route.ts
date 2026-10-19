@@ -12,7 +12,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const adminAuth = await requireAdmin();
+  const adminAuth = await requireAdmin({ fullAdmin: true });
   if (!adminAuth.ok) return adminAuth.response;
 
   let body: Record<string, unknown>;

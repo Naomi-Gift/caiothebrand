@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { branches } from "@/lib/data/branches";
+import { getBranches } from "@/lib/branchSettings";
 import { formatNaira } from "@/lib/format";
 import { InfoCard, InfoHero, InfoShell } from "@/components/InfoPage";
 import type { BranchId } from "@/lib/types";
@@ -82,7 +82,7 @@ export default async function TrackOrderPage({ params }: { params: Promise<{ ref
   }
 
   const pickup = order.fulfillment === "PICKUP";
-  const branch = branches[order.branchId as BranchId];
+  const branch = (await getBranches())[order.branchId as BranchId];
   const cancelled = order.status === "CANCELLED" || erpStatus === "Cancelled";
   const current = STAGES.indexOf(order.status as (typeof STAGES)[number]);
 

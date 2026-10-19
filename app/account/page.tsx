@@ -6,7 +6,7 @@ import { useAccount } from "@/context/AccountContext";
 import { getOrders } from "@/lib/orders";
 import { deriveOrderStatus } from "@/lib/orderStatus";
 import { formatNaira } from "@/lib/format";
-import { branches } from "@/lib/data/branches";
+import { useBranch } from "@/context/BranchContext";
 import Button from "@/components/Button";
 import Badge from "@/components/Badge";
 import type { OrderRecord } from "@/lib/types";
@@ -15,6 +15,7 @@ type Tab = "profile" | "addresses" | "orders";
 
 export default function AccountPage() {
   const router = useRouter();
+  const { branches } = useBranch();
   const { account, hydrated, logout, addAddress, removeAddress } =
     useAccount();
   const [tab, setTab] = useState<Tab>("profile");

@@ -1,4 +1,6 @@
 import { getOrders } from "@/lib/api";
+import { requireAdminPage, scopedBranch } from "@/lib/adminAuth";
+import BranchFilter from "@/components/admin/BranchFilter";
 import OrderStatusSelect from "./OrderStatusSelect";
 import ErpCell from "./ErpCell";
 
@@ -6,10 +8,13 @@ export const dynamic = "force-dynamic";
 const FILTERS = ["ALL","RECEIVED","KITCHEN","OUT_FOR_DELIVERY","DELIVERED","CANCELLED"] as const;
 type Filter = typeof FILTERS[number];
 
-export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
-  const { status } = await searchParams;
+export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ status?: string; branch?: string }> }) {
+  const admin = await requireAdminPage();
+  const { status, branch: requested } = await searchParams;
   const filter = (FILTERS.includes(status as Filter) ? status : "ALL") as Filter;
-  const orders = await getOrders(filter).catch(() => []);
+  const branch = scopedBranch(admin, requested);
+  const orders = await getOrders(filter, branch).catch(() => []);
+  const withBranch = (href: string) => (branch && !admin.branchId ? `${href}${href.includes("?") ? "&" : "?"}branch=${branch}` : href);
 
   return (
     <div>
@@ -18,11 +23,12 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
           <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
           <p className="mt-1 text-sm text-gray-500">{orders.length} order{orders.length !== 1 ? "s" : ""}</p>
         </div>
+        <BranchFilter basePath="/admin/orders" current={branch} locked={!!admin.branchId} extraParams={{ status: filter === "ALL" ? undefined : filter }} />
       </div>
 
       <div className="mt-5 flex flex-wrap gap-2">
         {FILTERS.map(f => (
-          <a key={f} href={f === "ALL" ? "/admin/orders" : `/admin/orders?status=${f}`}
+          <a key={f} href={withBranch(f === "ALL" ? "/admin/orders" : `/admin/orders?status=${f}`)}
             className={`rounded-full border px-4 py-1.5 text-xs font-medium transition-colors ${filter === f ? "border-amber-700 bg-amber-700 text-white" : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"}`}>
             {f === "ALL" ? "All" : f.replace(/_/g," ").toLowerCase().replace(/^\w/,c=>c.toUpperCase())}
           </a>

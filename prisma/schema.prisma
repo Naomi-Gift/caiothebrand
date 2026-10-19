@@ -28,6 +28,8 @@ model User {
   password      String?   // bcrypt hash — null for OAuth-only accounts
   phone         String?
   role          Role      @default(USER)
+  // Set on an ADMIN = branch manager: sees only this branch (lagos | owerri).
+  branchId      String?
   accounts      Account[]
   sessions      Session[]
   orders        Order[]

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/adminAuth";
+import { requireAdmin, scopedBranch } from "@/lib/adminAuth";
 import { auth } from "@/auth";
 import type { IncomingLine } from "@/lib/orderPricing";
 import { placePaidOrder } from "@/lib/placeOrder";
@@ -64,6 +64,8 @@ export async function GET(req: NextRequest) {
     if (status && status !== "ALL") {
       where.status = status;
     }
+    const branch = scopedBranch(adminAuth, searchParams.get("branch"));
+    if (branch) where.branchId = branch;
     const orders = await prisma.order.findMany({
       where,
       include: {

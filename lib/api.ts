@@ -53,6 +53,7 @@ export interface AdminUser {
   name: string | null;
   email: string | null;
   role: string;
+  branchId: string | null;
   _count: { orders: number };
 }
 
@@ -117,12 +118,13 @@ export async function getCategories(): Promise<Category[]> {
 
 // ── Orders ────────────────────────────────────────────────────────────────
 
-export async function getOrders(status?: string): Promise<AdminOrder[]> {
+export async function getOrders(status?: string, branchId?: string | null): Promise<AdminOrder[]> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = {};
   if (status && status !== "ALL") {
     where.status = status;
   }
+  if (branchId) where.branchId = branchId;
   const orders = await prisma.order.findMany({
     where,
     include: {
@@ -157,6 +159,7 @@ export async function getUsers(): Promise<AdminUser[]> {
       name: true,
       email: true,
       role: true,
+      branchId: true,
       _count: { select: { orders: true } },
     },
   });
@@ -175,13 +178,15 @@ export async function updateUserRole(id: string, role: string): Promise<AdminUse
 
 // ── Analytics ─────────────────────────────────────────────────────────────
 
-export async function getAnalytics(): Promise<AnalyticsData> {
+export async function getAnalytics(branchId?: string | null): Promise<AnalyticsData> {
   const [orders, lines] = await Promise.all([
     prisma.order.findMany({
+      where: branchId ? { branchId } : undefined,
       select: { status: true, total: true, discount: true, createdAt: true },
       orderBy: { createdAt: "asc" },
     }),
     prisma.orderLine.findMany({
+      where: branchId ? { order: { branchId } } : undefined,
       select: { name: true, quantity: true, unitPrice: true },
     }),
   ]);

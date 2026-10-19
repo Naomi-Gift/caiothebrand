@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { requireAdminPage } from "@/lib/adminAuth";
+import { requireAdminPage, scopedBranch } from "@/lib/adminAuth";
+import BranchFilter from "@/components/admin/BranchFilter";
 import { branches } from "@/lib/data/branches";
 import { HIGHLIGHTS, channelLabel, highlightLabel } from "@/lib/feedback";
 import type { BranchId } from "@/lib/types";
@@ -13,9 +14,9 @@ const FILTERS = [
   { key: "contact", label: "Messages" },
 ] as const;
 
-async function loadFeedback() {
+async function loadFeedback(branch: string | null) {
   try {
-    const rows = await prisma.feedback.findMany({ orderBy: { createdAt: "desc" }, take: 500 });
+    const rows = await prisma.feedback.findMany({ where: branch ? { branchId: branch } : undefined, orderBy: { createdAt: "desc" }, take: 500 });
     return { rows, error: false };
   } catch (err) {
     console.error("[admin/feedback] load failed", err);
@@ -26,13 +27,14 @@ async function loadFeedback() {
 export default async function AdminFeedbackPage({
   searchParams,
 }: {
-  searchParams: Promise<{ kind?: string }>;
+  searchParams: Promise<{ kind?: string; branch?: string }>;
 }) {
-  await requireAdminPage();
-  const { kind } = await searchParams;
+  const admin = await requireAdminPage();
+  const { kind, branch: requested } = await searchParams;
+  const branch = scopedBranch(admin, requested);
   const filter = kind === "survey" || kind === "contact" ? kind : "";
 
-  const { rows, error } = await loadFeedback();
+  const { rows, error } = await loadFeedback(branch);
 
   if (error) {
     return (
@@ -68,6 +70,9 @@ export default async function AdminFeedbackPage({
     <div>
       <h1 className="text-2xl font-bold text-gray-900">Feedback</h1>
       <p className="mt-1 text-sm text-gray-500">Survey responses and contact messages, newest first.</p>
+      <div className="mt-4">
+        <BranchFilter basePath="/admin/feedback" current={branch} locked={!!admin.branchId} extraParams={{ kind: filter || undefined }} />
+      </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
@@ -102,7 +107,7 @@ export default async function AdminFeedbackPage({
         {FILTERS.map((f) => (
           <Link
             key={f.key}
-            href={f.key ? `/admin/feedback?kind=${f.key}` : "/admin/feedback"}
+            href={`/admin/feedback?${new URLSearchParams({ ...(f.key ? { kind: f.key } : {}), ...(branch && !admin.branchId ? { branch } : {}) }).toString()}`}
             className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
               filter === f.key ? "bg-amber-500 text-white" : "bg-white text-gray-600 hover:bg-gray-100"
             }`}

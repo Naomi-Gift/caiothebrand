@@ -8,7 +8,7 @@
  */
 import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { branches } from "@/lib/data/branches";
+import { getBranches } from "@/lib/branchSettings";
 import type { BranchId } from "@/lib/types";
 import { priceLines, PricingError, type IncomingLine } from "@/lib/orderPricing";
 import { findPromo } from "@/lib/promo";
@@ -40,6 +40,7 @@ export function cleanPhone(v: unknown): string | null {
 }
 
 export async function placePaidOrder(input: PlaceOrderInput): Promise<Result> {
+  const branches = await getBranches();
   const branchId = typeof input.branchId === "string" && input.branchId in branches ? (input.branchId as BranchId) : null;
   const fulfillment = input.fulfillment === "DELIVERY" || input.fulfillment === "PICKUP" ? input.fulfillment : null;
   const paystackRef = typeof input.paystackRef === "string" ? input.paystackRef.trim().slice(0, 100) : "";
@@ -138,7 +139,7 @@ export async function placePaidOrder(input: PlaceOrderInput): Promise<Result> {
       total,
       deliveryAddress,
       customerName: order.customerName,
-    });
+    }, branches[branchId].alertWhatsapp);
   });
 
   return { ok: true, order: { id: order.id, createdAt: order.createdAt, total: order.total } };

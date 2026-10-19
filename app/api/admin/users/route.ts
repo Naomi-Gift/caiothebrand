@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/adminAuth";
 
 export async function GET() {
-  const adminAuth = await requireAdmin();
+  const adminAuth = await requireAdmin({ fullAdmin: true });
   if (!adminAuth.ok) return adminAuth.response;
 
   const users = await prisma.user.findMany({

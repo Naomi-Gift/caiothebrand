@@ -4,7 +4,8 @@
  *
  *   WHATSAPP_TOKEN            permanent access token (System User)
  *   WHATSAPP_PHONE_NUMBER_ID  the sending business number's ID
- *   WHATSAPP_ALERT_TO         who gets alerts, e.g. 2348137550148
+ *   WHATSAPP_ALERT_TO         who gets alerts, e.g. 2348137550148 — or set
+ *                             "Order alert WhatsApp" per branch in Admin → Settings
  *                             (comma-separate several; WHATSAPP_ALERT_TO_LAGOS
  *                             etc. overrides it for one branch)
  *   WHATSAPP_TEMPLATE         approved template name with ONE body variable
@@ -16,10 +17,11 @@
  */
 import { orderSummaryLines, type OrderSummaryInput } from "@/lib/orderMessage";
 
-export async function sendOrderAlert(branchId: string, order: OrderSummaryInput): Promise<void> {
+export async function sendOrderAlert(branchId: string, order: OrderSummaryInput, branchAlertTo?: string): Promise<void> {
   const token = process.env.WHATSAPP_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  const toRaw = process.env[`WHATSAPP_ALERT_TO_${branchId.toUpperCase()}`] ?? process.env.WHATSAPP_ALERT_TO;
+  // Admin → Settings ("order alert number") first, then env fallbacks.
+  const toRaw = branchAlertTo || process.env[`WHATSAPP_ALERT_TO_${branchId.toUpperCase()}`] || process.env.WHATSAPP_ALERT_TO;
   if (!token || !phoneId || !toRaw) return; // not set up yet
 
   const summary = [`New order ${order.id} — Caio ${order.branchName}`, ...(order.customerName ? [`Customer: ${order.customerName}`] : []), ...orderSummaryLines(order)];

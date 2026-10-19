@@ -12,6 +12,10 @@ export interface Branch {
   lat: number;
   lng: number;
   comingSoon?: boolean;
+  /** ERPNext outlet (pos_profile) this branch's orders go to. */
+  erpPosProfile?: string;
+  /** Staff WhatsApp number(s) for automatic new-order alerts. */
+  alertWhatsapp?: string;
 }
 
 export type MenuCategory = "pizzas" | "sides" | "drinks";

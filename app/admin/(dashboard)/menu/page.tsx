@@ -1,3 +1,4 @@
+import { requireAdminPage } from "@/lib/adminAuth";
 import Link from "next/link";
 import { getMenuItems } from "@/lib/api";
 import MenuActions from "./MenuActions";
@@ -6,6 +7,7 @@ import ErpSyncPanel from "./ErpSyncPanel";
 export const dynamic = "force-dynamic";
 
 export default async function AdminMenuPage() {
+  await requireAdminPage({ fullAdmin: true });
   const items = await getMenuItems().catch(() => []);
 
   return (

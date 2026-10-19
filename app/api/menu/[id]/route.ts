@@ -20,7 +20,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const auth = await requireAdmin();
+  const auth = await requireAdmin({ fullAdmin: true });
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
@@ -45,7 +45,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
-  const auth = await requireAdmin();
+  const auth = await requireAdmin({ fullAdmin: true });
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
