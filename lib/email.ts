@@ -8,8 +8,15 @@ export function emailConfigured() {
   return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
 }
 
+export type SendResult = { ok: true; id?: string } | { ok: false; error: string };
+
 export async function sendEmail(opts: { to: string; subject: string; html: string; text: string }): Promise<boolean> {
-  if (!emailConfigured()) return false;
+  return (await sendEmailDetailed(opts)).ok;
+}
+
+/** Same as sendEmail, but returns Resend's own error message (for the admin test button). */
+export async function sendEmailDetailed(opts: { to: string; subject: string; html: string; text: string }): Promise<SendResult> {
+  if (!emailConfigured()) return { ok: false, error: "Email isn't configured (RESEND_API_KEY and EMAIL_FROM are both needed)." };
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -17,14 +24,16 @@ export async function sendEmail(opts: { to: string; subject: string; html: strin
       body: JSON.stringify({ from: process.env.EMAIL_FROM, to: [opts.to], subject: opts.subject, html: opts.html, text: opts.text }),
       signal: AbortSignal.timeout(15_000),
     });
+    const body = (await res.json().catch(() => ({}))) as { id?: string; message?: string; name?: string };
     if (!res.ok) {
-      console.error("[email] send failed", res.status, (await res.text()).slice(0, 300));
-      return false;
+      const error = `Resend ${res.status}${body.name ? ` (${body.name})` : ""}: ${body.message ?? "unknown error"}`;
+      console.error("[email] send failed", error);
+      return { ok: false, error };
     }
-    return true;
+    return { ok: true, id: body.id };
   } catch (err) {
     console.error("[email] send error", err);
-    return false;
+    return { ok: false, error: `Couldn't reach Resend: ${(err as Error).message}` };
   }
 }
 

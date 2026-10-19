@@ -2,6 +2,7 @@ import { getSettings } from "@/lib/api";
 import { requireAdminPage } from "@/lib/adminAuth";
 import { getBranches, BRANCH_IDS } from "@/lib/branchSettings";
 import SettingsForm, { type SettingsSection } from "./SettingsForm";
+import TestEmailButton from "./TestEmailButton";
 
 export const dynamic = "force-dynamic";
 
@@ -75,6 +76,9 @@ export default async function SettingsPage() {
       <p className="mt-1 text-sm text-brown-light">Branches and promo codes. Changes show on the website within a few seconds.</p>
       <div className="mt-6 max-w-3xl">
         <SettingsForm sections={sections} initial={initial} />
+        <div className="mt-6">
+          <TestEmailButton />
+        </div>
       </div>
     </div>
   );
