@@ -74,6 +74,11 @@ function LoginForm() {
               placeholder="Password"
               className="w-full rounded-full bg-cream px-4 py-2.5 text-sm text-brown placeholder:text-brown-light/70 focus:outline-none focus:ring-2 focus:ring-brown/20"
             />
+            <div className="-mt-1 text-right">
+              <Link href="/forgot-password" className="text-xs text-brown-light underline underline-offset-2 hover:text-brown">
+                Forgot password?
+              </Link>
+            </div>
             <button
               type="submit" disabled={loading}
               className="label-uppercase mt-2 w-full rounded-full bg-brown py-3 text-xs text-cream shadow-soft transition-colors hover:bg-brown-deep disabled:opacity-50"

@@ -130,6 +130,21 @@ function LoginForm() {
               </button>
             </div>
 
+            <div className="-mt-1 text-right">
+              <Link
+                href={`/forgot-password${email ? `?email=${encodeURIComponent(email.trim())}` : ""}`}
+                className="text-xs text-brown-light underline underline-offset-2 hover:text-brown"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
+            {searchParams.get("reset") === "1" && !error && (
+              <p role="status" className="rounded-xl bg-bone/60 px-4 py-2 text-xs text-brown">
+                Password updated — log in with your new password.
+              </p>
+            )}
+
             {error && (
               <p className="rounded-xl bg-bone/60 px-4 py-2 text-xs text-brown">
                 {error}
