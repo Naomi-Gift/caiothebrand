@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { menuImageSrc } from "@/lib/menuImage";
 import { useRouter } from "next/navigation";
 import type { MenuItem } from "@/lib/types";
 import { formatNaira } from "@/lib/format";
@@ -33,7 +34,7 @@ function BundleCard({
     >
       <PlaceholderImage
         label={item.name}
-        src={`/images/menu/${item.slug}.jpg`}
+        src={menuImageSrc(item)}
         category={item.category}
         fit={item.category === "drinks" ? "contain" : "cover"}
         className="h-28 w-full bg-bone"
@@ -183,7 +184,7 @@ export default function ItemCustomizer({
         {/* Image */}
         <PlaceholderImage
           label={item.name}
-          src={`/images/menu/${item.slug}.jpg`}
+          src={menuImageSrc(item)}
           category={item.category}
           fit={item.category === "drinks" ? "contain" : "cover"}
           className="h-72 w-full rounded-2xl shadow-soft sm:h-96"

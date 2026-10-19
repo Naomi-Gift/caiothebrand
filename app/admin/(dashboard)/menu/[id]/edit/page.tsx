@@ -13,7 +13,7 @@ export default async function EditPage({ params }: { params: Promise<{ id: strin
   if (!item) notFound();
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold text-gray-900">Edit — {item.name}</h1>
+      <h1 className="font-display text-4xl font-bold text-brown-darkest">Edit — {item.name}</h1>
       <div className="mt-8">
         <MenuItemForm categories={categories} initial={{
           id: item.id, name: item.name, slug: item.slug,

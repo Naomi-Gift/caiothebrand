@@ -13,14 +13,14 @@ export default async function CategoriesPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
-          <p className="mt-1 text-sm text-gray-500">{categories.length} categories. Drag to reorder or rename below.</p>
+          <h1 className="font-display text-4xl font-bold text-brown-darkest">Categories</h1>
+          <p className="mt-1 text-sm text-brown-light">{categories.length} categories. Drag to reorder or rename below.</p>
         </div>
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="mt-6 overflow-hidden rounded-2xl border border-bone-dark/70 bg-crisp shadow-soft">
         <table className="w-full text-sm">
-          <thead className="border-b border-gray-100 bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+          <thead className="border-b border-bone bg-cream text-xs uppercase tracking-wider text-brown-light">
             <tr>
               <th className="px-5 py-3 text-left">Name</th>
               <th className="px-5 py-3 text-left">Slug</th>
@@ -28,12 +28,12 @@ export default async function CategoriesPage() {
               <th className="px-5 py-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-bone">
             {categories.map(c => (
-              <tr key={c.id} className="hover:bg-gray-50">
-                <td className="px-5 py-3 font-medium text-gray-900">{c.name}</td>
-                <td className="px-5 py-3 font-mono text-xs text-gray-400">{c.slug}</td>
-                <td className="px-5 py-3 text-gray-600">{c.order}</td>
+              <tr key={c.id} className="hover:bg-cream">
+                <td className="px-5 py-3 font-medium text-brown-darkest">{c.name}</td>
+                <td className="px-5 py-3 font-mono text-xs text-brown-light/80">{c.slug}</td>
+                <td className="px-5 py-3 text-brown-muted">{c.order}</td>
                 <td className="px-5 py-3 text-right">
                   <CategoryActions id={c.id} name={c.name} order={c.order} />
                 </td>
@@ -44,7 +44,7 @@ export default async function CategoriesPage() {
       </div>
 
       <div className="mt-8 max-w-md">
-        <h2 className="text-lg font-semibold text-gray-900">Add Category</h2>
+        <h2 className="font-display text-xl font-bold text-brown-darkest">Add Category</h2>
         <div className="mt-4">
           <NewCategoryForm />
         </div>

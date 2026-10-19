@@ -10,7 +10,7 @@ export default function BranchAccessSelect({ userId, branchId, isSelf }: { userI
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (isSelf) return <span className="text-xs text-gray-500">{branchId ? `${branchId} manager` : "All branches"}</span>;
+  if (isSelf) return <span className="text-xs text-brown-light">{branchId ? `${branchId} manager` : "All branches"}</span>;
 
   const change = async (next: string) => {
     setBusy(true);
@@ -35,7 +35,7 @@ export default function BranchAccessSelect({ userId, branchId, isSelf }: { userI
         value={value}
         disabled={busy}
         onChange={(e) => change(e.target.value)}
-        className="rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs disabled:opacity-50"
+        className="rounded-lg border border-bone-dark/70 bg-crisp px-2 py-1.5 text-xs disabled:opacity-50"
         aria-label="Branch access"
       >
         <option value="">All branches (full admin)</option>

@@ -22,7 +22,7 @@ export default function ErpCell({
   if (ticketNo || status) {
     return (
       <div className="text-xs">
-        {ticketNo && <div className="font-semibold text-gray-800">Ticket #{ticketNo}</div>}
+        {ticketNo && <div className="font-semibold text-brown-darkest">Ticket #{ticketNo}</div>}
         <span className="inline-block rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-800">{status ?? "Paid"}</span>
       </div>
     );
@@ -42,7 +42,7 @@ export default function ErpCell({
     else setMsg(data.error ?? data.skipped ?? "Failed");
   };
 
-  if (!error) return <span className="text-xs text-gray-400">Not sent</span>;
+  if (!error) return <span className="text-xs text-brown-light/80">Not sent</span>;
   return (
     <div className="max-w-[180px] text-xs">
       <span className="inline-block rounded-full bg-red-100 px-2 py-0.5 font-medium text-red-700" title={error}>
@@ -51,7 +51,7 @@ export default function ErpCell({
       <button type="button" onClick={retry} disabled={busy} className="ml-2 underline disabled:opacity-50">
         {busy ? "Retrying…" : "Retry"}
       </button>
-      <p className="mt-1 line-clamp-2 text-gray-500" title={msg ?? error}>{msg ?? error}</p>
+      <p className="mt-1 line-clamp-2 text-brown-light" title={msg ?? error}>{msg ?? error}</p>
     </div>
   );
 }

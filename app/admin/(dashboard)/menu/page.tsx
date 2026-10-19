@@ -2,6 +2,8 @@ import { requireAdminPage } from "@/lib/adminAuth";
 import Link from "next/link";
 import { getMenuItems } from "@/lib/api";
 import MenuActions from "./MenuActions";
+import PlaceholderImage from "@/components/PlaceholderImage";
+import { menuImageSrc } from "@/lib/menuImage";
 import ErpSyncPanel from "./ErpSyncPanel";
 
 export const dynamic = "force-dynamic";
@@ -14,19 +16,19 @@ export default async function AdminMenuPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Menu</h1>
-          <p className="mt-1 text-sm text-gray-500">{items.length} items</p>
+          <h1 className="font-display text-4xl font-bold text-brown-darkest">Menu</h1>
+          <p className="mt-1 text-sm text-brown-light">{items.length} items</p>
         </div>
-        <Link href="/admin/menu/new" className="rounded-xl bg-amber-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-800">
+        <Link href="/admin/menu/new" className="rounded-full bg-brown px-4 py-2.5 text-sm font-semibold text-cream hover:bg-brown-deep">
           + Add Item
         </Link>
       </div>
 
       <ErpSyncPanel />
 
-      <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="mt-6 overflow-hidden rounded-2xl border border-bone-dark/70 bg-crisp shadow-soft">
         <table className="w-full text-sm">
-          <thead className="border-b border-gray-100 bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+          <thead className="border-b border-bone bg-cream text-xs uppercase tracking-wider text-brown-light">
             <tr>
               <th className="px-4 py-3 text-left">Item</th>
               <th className="px-4 py-3 text-left">Category</th>
@@ -36,14 +38,24 @@ export default async function AdminMenuPage() {
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-bone">
             {items.map(item => (
-              <tr key={item.id} className={`hover:bg-gray-50 ${!item.available ? "opacity-50" : ""}`}>
+              <tr key={item.id} className={`hover:bg-cream ${!item.available ? "opacity-50" : ""}`}>
                 <td className="px-4 py-3">
-                  <div className="font-medium text-gray-900">{item.name}</div>
-                  <div className="text-xs text-gray-400">{item.slug}</div>
+                  <div className="flex items-center gap-3">
+                    <PlaceholderImage
+                      label={item.name}
+                      src={menuImageSrc(item)}
+                      category={item.category.slug}
+                      className="h-12 w-12 shrink-0 rounded-lg [&_span.label-uppercase]:hidden [&_span.text-3xl]:text-base"
+                    />
+                    <div>
+                      <div className="font-medium text-brown-darkest">{item.name}</div>
+                      <div className="text-xs text-brown-light/80">{item.slug}</div>
+                    </div>
+                  </div>
                 </td>
-                <td className="px-4 py-3 capitalize text-gray-600">{item.category.name}</td>
+                <td className="px-4 py-3 capitalize text-brown-muted">{item.category.name}</td>
                 <td className="px-4 py-3 font-medium">₦{item.basePrice.toLocaleString()}</td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
@@ -70,6 +82,6 @@ export default async function AdminMenuPage() {
 }
 
 function Tag({ color, children }: { color: string; children: React.ReactNode }) {
-  const c: Record<string,string> = { amber:"bg-amber-100 text-amber-700", red:"bg-red-100 text-red-700", green:"bg-green-100 text-green-700", gray:"bg-gray-100 text-gray-500" };
+  const c: Record<string,string> = { amber:"bg-bone text-brown", red:"bg-red-100 text-red-700", green:"bg-green-100 text-green-700", gray:"bg-bone/70 text-brown-light" };
   return <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${c[color]??c.gray}`}>{children}</span>;
 }

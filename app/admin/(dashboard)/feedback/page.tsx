@@ -39,10 +39,10 @@ export default async function AdminFeedbackPage({
   if (error) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Feedback</h1>
-        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+        <h1 className="font-display text-4xl font-bold text-brown-darkest">Feedback</h1>
+        <div className="mt-6 rounded-2xl border border-bone-dark bg-cream p-5 text-sm text-brown-darkest">
           Couldn&apos;t load feedback. If this is a fresh deploy, the table may not exist yet — run{" "}
-          <code className="rounded bg-amber-100 px-1.5 py-0.5">npx prisma db push</code> against the database.
+          <code className="rounded bg-bone px-1.5 py-0.5">npx prisma db push</code> against the database.
         </div>
       </div>
     );
@@ -68,36 +68,36 @@ export default async function AdminFeedbackPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900">Feedback</h1>
-      <p className="mt-1 text-sm text-gray-500">Survey responses and contact messages, newest first.</p>
+      <h1 className="font-display text-4xl font-bold text-brown-darkest">Feedback</h1>
+      <p className="mt-1 text-sm text-brown-light">Survey responses and contact messages, newest first.</p>
       <div className="mt-4">
         <BranchFilter basePath="/admin/feedback" current={branch} locked={!!admin.branchId} extraParams={{ kind: filter || undefined }} />
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
-          { label: "Survey responses", value: surveys.length, color: "text-amber-700" },
+          { label: "Survey responses", value: surveys.length, color: "text-brown" },
           { label: "Average rating", value: avgRating === null ? "—" : `${avgRating.toFixed(1)} / 5`, color: "text-green-700" },
           { label: "NPS", value: nps === null ? "—" : nps, color: "text-blue-700" },
-          { label: "Contact messages", value: contacts.length, color: "text-gray-700" },
+          { label: "Contact messages", value: contacts.length, color: "text-brown" },
         ].map((k) => (
-          <div key={k.label} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-            <p className="text-sm text-gray-500">{k.label}</p>
+          <div key={k.label} className="rounded-2xl border border-bone bg-crisp p-5 shadow-soft">
+            <p className="text-sm text-brown-light">{k.label}</p>
             <p className={`mt-1 text-2xl font-bold ${k.color}`}>{k.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="mt-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-base font-semibold text-gray-900">What stood out</h2>
+      <div className="mt-6 rounded-2xl border border-bone bg-crisp p-6 shadow-soft">
+        <h2 className="mb-4 font-display text-xl font-bold text-brown-darkest">What stood out</h2>
         <div className="flex flex-col gap-3">
           {highlightCounts.map((h) => (
             <div key={h.id} className="flex items-center gap-3">
-              <span className="w-36 truncate text-right text-xs text-gray-600">{h.label}</span>
-              <div className="flex-1 overflow-hidden rounded-full bg-gray-100">
-                <div className="h-3 rounded-full bg-amber-500" style={{ width: `${(h.count / maxCount) * 100}%` }} />
+              <span className="w-36 truncate text-right text-xs text-brown-muted">{h.label}</span>
+              <div className="flex-1 overflow-hidden rounded-full bg-bone/70">
+                <div className="h-3 rounded-full bg-brown-light" style={{ width: `${(h.count / maxCount) * 100}%` }} />
               </div>
-              <span className="w-8 text-xs text-gray-500">{h.count}</span>
+              <span className="w-8 text-xs text-brown-light">{h.count}</span>
             </div>
           ))}
         </div>
@@ -109,7 +109,7 @@ export default async function AdminFeedbackPage({
             key={f.key}
             href={`/admin/feedback?${new URLSearchParams({ ...(f.key ? { kind: f.key } : {}), ...(branch && !admin.branchId ? { branch } : {}) }).toString()}`}
             className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
-              filter === f.key ? "bg-amber-500 text-white" : "bg-white text-gray-600 hover:bg-gray-100"
+              filter === f.key ? "bg-brown text-cream" : "bg-crisp text-brown-muted hover:bg-bone"
             }`}
           >
             {f.label}
@@ -119,16 +119,16 @@ export default async function AdminFeedbackPage({
 
       <ul className="mt-4 flex flex-col gap-3">
         {list.length === 0 && (
-          <li className="rounded-2xl border border-gray-100 bg-white p-6 text-sm text-gray-500">Nothing here yet.</li>
+          <li className="rounded-2xl border border-bone bg-crisp p-6 text-sm text-brown-light">Nothing here yet.</li>
         )}
         {list.map((r) => {
           const branch = r.branchId ? branches[r.branchId as BranchId] : undefined;
           return (
-            <li key={r.id} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+            <li key={r.id} className="rounded-2xl border border-bone bg-crisp p-5 shadow-soft">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-brown-light">
                 <span
                   className={`rounded-full px-2.5 py-0.5 font-semibold ${
-                    r.kind === "SURVEY" ? "bg-amber-100 text-amber-800" : "bg-blue-100 text-blue-800"
+                    r.kind === "SURVEY" ? "bg-bone text-brown" : "bg-blue-100 text-blue-800"
                   }`}
                 >
                   {r.kind === "SURVEY" ? "Survey" : "Message"}
@@ -139,25 +139,25 @@ export default async function AdminFeedbackPage({
               </div>
 
               {r.kind === "SURVEY" && (
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-700">
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-brown">
                   {r.rating !== null && (
-                    <span className="tracking-widest text-amber-600" aria-label={`${r.rating} of 5`}>
+                    <span className="tracking-widest text-brown-light" aria-label={`${r.rating} of 5`}>
                       {"●".repeat(r.rating)}
-                      <span className="text-gray-300">{"○".repeat(5 - r.rating)}</span>
+                      <span className="text-bone-dark">{"○".repeat(5 - r.rating)}</span>
                     </span>
                   )}
                   {r.recommend !== null && <span>Recommend: {r.recommend}/10</span>}
                   {r.highlights.length > 0 && (
-                    <span className="text-gray-500">{r.highlights.map(highlightLabel).join(" · ")}</span>
+                    <span className="text-brown-light">{r.highlights.map(highlightLabel).join(" · ")}</span>
                   )}
                 </div>
               )}
 
-              {r.message && <p className="mt-3 whitespace-pre-line text-sm text-gray-900">{r.message}</p>}
+              {r.message && <p className="mt-3 whitespace-pre-line text-sm text-brown-darkest">{r.message}</p>}
 
               {(r.name || r.email || r.phone || r.orderRef) && (
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-                  {r.name && <span className="font-semibold text-gray-700">{r.name}</span>}
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-brown-light">
+                  {r.name && <span className="font-semibold text-brown">{r.name}</span>}
                   {r.email && <a href={`mailto:${r.email}`} className="underline">{r.email}</a>}
                   {r.phone && <a href={`tel:${r.phone}`} className="underline">{r.phone}</a>}
                   {r.orderRef && (

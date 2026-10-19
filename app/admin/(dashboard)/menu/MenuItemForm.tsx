@@ -2,8 +2,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Category } from "@/lib/api";
+import ImageUpload from "@/components/admin/ImageUpload";
 
-const inp = "w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500";
+const inp = "w-full rounded-xl border border-bone-dark/70 bg-crisp px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brown/25";
 
 interface InitialValues {
   id?: string; name: string; slug: string; descriptor: string;
@@ -38,7 +39,7 @@ export default function MenuItemForm({ categories, initial }: { categories: Cate
   };
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-5">
+    <form onSubmit={submit} className="flex flex-col gap-5 rounded-2xl border border-bone-dark/60 bg-crisp p-6 shadow-soft sm:p-8">
       {error && <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
       <Field label="Name" required><input value={form.name} onChange={e => handleName(e.target.value)} required className={inp} /></Field>
       <Field label="Slug" required><input value={form.slug} onChange={e => set("slug", e.target.value)} required pattern="[a-z0-9\-]+" className={inp} /></Field>
@@ -52,22 +53,28 @@ export default function MenuItemForm({ categories, initial }: { categories: Cate
           </select>
         </Field>
       </div>
-      <Field label="Image path" hint="e.g. /images/menu/bbq-chicken.jpg"><input value={form.image} onChange={e => set("image", e.target.value)} className={inp} /></Field>
-      <fieldset className="rounded-xl border border-gray-200 p-4">
-        <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Flags</legend>
+      <Field label="Photo" hint="Shown on the menu, product page and banner.">
+        <ImageUpload
+          value={form.image}
+          fallback={form.slug ? `/images/menu/${form.slug}.jpg` : undefined}
+          onChange={(url) => set("image", url)}
+        />
+      </Field>
+      <fieldset className="rounded-xl border border-bone-dark/70 p-4">
+        <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-brown-light">Flags</legend>
         <div className="flex flex-wrap gap-6">
-          {(["spicy","vegetarian","featured"] as const).map(f => (
-            <label key={f} className="flex cursor-pointer items-center gap-2 text-sm capitalize text-gray-700">
-              <input type="checkbox" checked={form[f] as boolean} onChange={e => set(f, e.target.checked)} className="h-4 w-4 accent-amber-700" />{f}
+          {([["spicy","Spicy"],["vegetarian","Vegetarian"],["featured","Chef's pick (home banner)"]] as const).map(([f, label]) => (
+            <label key={f} className="flex cursor-pointer items-center gap-2 text-sm text-brown">
+              <input type="checkbox" checked={form[f] as boolean} onChange={e => set(f, e.target.checked)} className="h-4 w-4 accent-[#3a2418]" />{label}
             </label>
           ))}
         </div>
       </fieldset>
       <div className="flex gap-3 pt-2">
-        <button type="submit" disabled={saving} className="rounded-xl bg-amber-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-amber-800 disabled:opacity-50">
+        <button type="submit" disabled={saving} className="rounded-full bg-brown px-6 py-2.5 text-sm font-semibold text-cream hover:bg-brown-deep disabled:opacity-50">
           {saving ? "Saving…" : isEdit ? "Save changes" : "Create item"}
         </button>
-        <button type="button" onClick={() => router.push("/admin/menu")} className="rounded-xl border border-gray-200 px-6 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100">Cancel</button>
+        <button type="button" onClick={() => router.push("/admin/menu")} className="rounded-full border border-bone-dark/70 px-6 py-2.5 text-sm font-medium text-brown-muted hover:bg-bone">Cancel</button>
       </div>
     </form>
   );
@@ -76,9 +83,9 @@ export default function MenuItemForm({ categories, initial }: { categories: Cate
 function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}{required && <span className="ml-0.5 text-red-500">*</span>}</label>
+      <label className="text-xs font-semibold uppercase tracking-wide text-brown-light">{label}{required && <span className="ml-0.5 text-red-500">*</span>}</label>
       {children}
-      {hint && <p className="text-xs text-gray-400">{hint}</p>}
+      {hint && <p className="text-xs text-brown-light/80">{hint}</p>}
     </div>
   );
 }

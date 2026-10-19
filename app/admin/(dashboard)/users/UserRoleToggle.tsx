@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 export default function UserRoleToggle({ userId, currentRole, isSelf }: { userId: string; currentRole: string; isSelf: boolean }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  if (isSelf) return <span className="text-xs italic text-gray-400">You</span>;
+  if (isSelf) return <span className="text-xs italic text-brown-light/80">You</span>;
 
   const toggle = async () => {
     const next = currentRole === "ADMIN" ? "USER" : "ADMIN";
@@ -18,7 +18,7 @@ export default function UserRoleToggle({ userId, currentRole, isSelf }: { userId
 
   return (
     <button onClick={toggle} disabled={loading}
-      className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40 ${currentRole === "ADMIN" ? "border-red-100 text-red-600 hover:bg-red-50" : "border-amber-200 text-amber-700 hover:bg-amber-50"}`}>
+      className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40 ${currentRole === "ADMIN" ? "border-red-100 text-red-600 hover:bg-red-50" : "border-bone-dark text-brown hover:bg-cream"}`}>
       {loading ? "…" : currentRole === "ADMIN" ? "Remove admin" : "Make admin"}
     </button>
   );

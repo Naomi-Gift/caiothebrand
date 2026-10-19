@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { menuImageSrc } from "@/lib/menuImage";
 import type { MenuItem } from "@/lib/types";
 import { formatNaira } from "@/lib/format";
 import PlaceholderImage from "@/components/PlaceholderImage";
@@ -29,7 +30,7 @@ function ImageTile({ item, className = "" }: { item: MenuItem; className?: strin
     <div className={`relative aspect-square overflow-hidden rounded-md ${isDrink ? "bg-crisp" : "bg-bone"} ${className}`}>
       <PlaceholderImage
         label={item.name}
-        src={`/images/menu/${item.slug}.jpg`}
+        src={menuImageSrc(item)}
         category={item.category}
         fit={isDrink ? "contain" : "cover"}
         className={`h-full w-full ${isDrink ? "bg-crisp!" : ""}`}

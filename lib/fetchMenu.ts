@@ -32,7 +32,11 @@ function toMenuItem(raw: ApiMenuItem): MenuItem {
     descriptor: raw.descriptor ?? "",
     description: raw.description ?? "",
     basePrice: raw.basePrice,
-    sizes: Array.isArray(raw.sizes) ? raw.sizes as MenuItem["sizes"] : [],
+    // Items added in the admin may have no sizes yet: give them one.
+    sizes:
+      Array.isArray(raw.sizes) && raw.sizes.length
+        ? (raw.sizes as MenuItem["sizes"])
+        : [{ id: "regular", label: "Regular", priceDelta: 0 }],
     addOns: Array.isArray(raw.addOns) ? raw.addOns as MenuItem["addOns"] : [],
     category: raw.category.slug as MenuItem["category"],
     spicy: raw.spicy,
@@ -40,6 +44,7 @@ function toMenuItem(raw: ApiMenuItem): MenuItem {
     featured: raw.featured,
     soldOut: raw.soldOut,
     available: !raw.available ? false : undefined,
+    image: raw.image,
   };
 }
 

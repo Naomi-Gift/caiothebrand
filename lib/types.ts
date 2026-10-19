@@ -54,6 +54,8 @@ export interface MenuItem {
   available?: boolean;
   /** ERPNext item_code for single-size items (sides, drinks). */
   erpItemCode?: string | null;
+  /** Uploaded photo URL (Admin → Menu); falls back to /images/menu/<slug>.jpg. */
+  image?: string | null;
 
 }
 

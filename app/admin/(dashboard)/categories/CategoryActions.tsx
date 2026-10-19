@@ -29,17 +29,17 @@ export default function CategoryActions({ id, name, order }: { id: string; name:
   if (editing) {
     return (
       <div className="flex items-center justify-end gap-2">
-        <input value={newName} onChange={e => setNewName(e.target.value)} className="rounded-lg border border-gray-200 px-2 py-1 text-sm w-28" />
-        <input type="number" value={newOrder} onChange={e => setNewOrder(Number(e.target.value))} className="rounded-lg border border-gray-200 px-2 py-1 text-sm w-16" />
-        <button onClick={save} disabled={loading} className="rounded-lg bg-amber-700 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-amber-800 disabled:opacity-40">Save</button>
-        <button onClick={() => setEditing(false)} className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100">Cancel</button>
+        <input value={newName} onChange={e => setNewName(e.target.value)} className="rounded-lg border border-bone-dark/70 px-2 py-1 text-sm w-28" />
+        <input type="number" value={newOrder} onChange={e => setNewOrder(Number(e.target.value))} className="rounded-lg border border-bone-dark/70 px-2 py-1 text-sm w-16" />
+        <button onClick={save} disabled={loading} className="rounded-lg bg-brown px-2.5 py-1.5 text-xs font-medium text-cream hover:bg-brown-deep disabled:opacity-40">Save</button>
+        <button onClick={() => setEditing(false)} className="rounded-lg border border-bone-dark/70 px-2.5 py-1.5 text-xs font-medium text-brown-muted hover:bg-bone">Cancel</button>
       </div>
     );
   }
 
   return (
     <div className="flex items-center justify-end gap-2">
-      <button onClick={() => setEditing(true)} className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-50">Rename</button>
+      <button onClick={() => setEditing(true)} className="rounded-lg border border-bone-dark/70 px-2.5 py-1.5 text-xs font-medium text-brown hover:bg-cream">Rename</button>
       <button onClick={del} disabled={loading} className="rounded-lg border border-red-100 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-40">Delete</button>
     </div>
   );

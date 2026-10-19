@@ -71,8 +71,8 @@ export default async function SettingsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-      <p className="mt-1 text-sm text-gray-500">Branches and promo codes. Changes show on the website within a few seconds.</p>
+      <h1 className="font-display text-4xl font-bold text-brown-darkest">Settings</h1>
+      <p className="mt-1 text-sm text-brown-light">Branches and promo codes. Changes show on the website within a few seconds.</p>
       <div className="mt-6 max-w-3xl">
         <SettingsForm sections={sections} initial={initial} />
       </div>

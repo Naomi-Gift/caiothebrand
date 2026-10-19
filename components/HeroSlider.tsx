@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { menuImageSrc } from "@/lib/menuImage";
 import Link from "next/link";
 import { useOrderMethod } from "@/context/OrderMethodContext";
 import { categoryLabels } from "@/lib/data/menu";
@@ -187,7 +188,7 @@ export default function HeroSlider({ items }: { slides?: HeroSlide[]; items: Men
                 <div aria-hidden="true" className="absolute inset-0 scale-110 rounded-full bg-bone/10" />
                 {/* eslint-disable-next-line @next/next/no-img-element -- small fixed asset */}
                 <img
-                  src={`/images/menu/${item.slug}.jpg`}
+                  src={menuImageSrc(item)}
                   alt=""
                   aria-hidden="true"
                   draggable={false}

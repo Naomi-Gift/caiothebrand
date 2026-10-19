@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { menuImageSrc } from "@/lib/menuImage";
 import { getMenuItemBySlug, menuItems } from "@/lib/data/menu";
 import { fetchMenuItems } from "@/lib/fetchMenu";
 import ItemCustomizer from "@/components/ItemCustomizer";
@@ -28,7 +29,7 @@ export default async function ItemDetailPage({
       <div className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6">
         <PlaceholderImage
           label={item.name}
-          src={`/images/menu/${item.slug}.jpg`}
+          src={menuImageSrc(item)}
           category={item.category}
           fit={item.category === "drinks" ? "contain" : "cover"}
           className="mx-auto h-56 w-full max-w-md rounded-2xl shadow-soft"

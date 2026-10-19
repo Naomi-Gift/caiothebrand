@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 const STATUSES = ["RECEIVED","KITCHEN","OUT_FOR_DELIVERY","DELIVERED","CANCELLED"] as const;
 type S = typeof STATUSES[number];
 const COLORS: Record<S,string> = {
-  RECEIVED:"bg-blue-100 text-blue-700", KITCHEN:"bg-amber-100 text-amber-700",
+  RECEIVED:"bg-blue-100 text-blue-700", KITCHEN:"bg-bone text-brown",
   OUT_FOR_DELIVERY:"bg-orange-100 text-orange-700", DELIVERED:"bg-green-100 text-green-700", CANCELLED:"bg-red-100 text-red-700",
 };
 
@@ -24,7 +24,7 @@ export default function OrderStatusSelect({ orderId, current }: { orderId: strin
 
   return (
     <select value={value} onChange={e => change(e.target.value as S)} disabled={saving}
-      className={`rounded-full border-0 px-3 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-60 ${COLORS[value]}`}>
+      className={`rounded-full border-0 px-3 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brown/25 disabled:opacity-60 ${COLORS[value]}`}>
       {STATUSES.map(s => <option key={s} value={s}>{s.replace(/_/g," ").toLowerCase().replace(/^\w/,c=>c.toUpperCase())}</option>)}
     </select>
   );

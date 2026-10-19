@@ -20,7 +20,7 @@ export default function BranchFilter({
   const name = (id: BranchId) => branchList.find((b) => b.id === id)?.name ?? id;
   if (locked && current) {
     return (
-      <span className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+      <span className="inline-flex rounded-full bg-bone px-3 py-1 text-xs font-semibold text-brown">
         {name(current)} branch only
       </span>
     );
@@ -39,7 +39,7 @@ export default function BranchFilter({
           key={o.label}
           href={href(o.id)}
           className={`rounded-full border px-4 py-1.5 text-xs font-medium transition-colors ${
-            current === o.id ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+            current === o.id ? "border-brown bg-brown text-cream" : "border-bone-dark/70 bg-crisp text-brown-muted hover:bg-cream"
           }`}
         >
           {o.label}

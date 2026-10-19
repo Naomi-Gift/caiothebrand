@@ -24,13 +24,13 @@ export default function MenuActions({ id, soldOut, available }: { id: string; so
 
   return (
     <div className="flex items-center justify-end gap-2">
-      <button onClick={() => patch({ soldOut: !soldOut })} disabled={loading} className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-40">
+      <button onClick={() => patch({ soldOut: !soldOut })} disabled={loading} className="rounded-lg border border-bone-dark/70 px-2.5 py-1.5 text-xs font-medium text-brown-muted hover:bg-bone disabled:opacity-40">
         {soldOut ? "Mark available" : "Sold out"}
       </button>
-      <button onClick={() => patch({ available: !available })} disabled={loading} className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-40">
+      <button onClick={() => patch({ available: !available })} disabled={loading} className="rounded-lg border border-bone-dark/70 px-2.5 py-1.5 text-xs font-medium text-brown-muted hover:bg-bone disabled:opacity-40">
         {available ? "Hide" : "Show"}
       </button>
-      <Link href={`/admin/menu/${id}/edit`} className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-50">Edit</Link>
+      <Link href={`/admin/menu/${id}/edit`} className="rounded-lg border border-bone-dark/70 px-2.5 py-1.5 text-xs font-medium text-brown hover:bg-cream">Edit</Link>
       <button onClick={del} disabled={loading} className="rounded-lg border border-red-100 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-40">Delete</button>
     </div>
   );

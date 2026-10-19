@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const inp = "w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500";
+const inp = "w-full rounded-xl border border-bone-dark/70 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brown/25";
 
 export default function NewCategoryForm() {
   const router = useRouter();
@@ -30,21 +30,21 @@ export default function NewCategoryForm() {
   };
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <form onSubmit={submit} className="flex flex-col gap-4 rounded-2xl border border-bone-dark/70 bg-crisp p-5 shadow-soft">
       {error && <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Name *</label>
+        <label className="text-xs font-semibold uppercase tracking-wide text-brown-light">Name *</label>
         <input value={name} onChange={e => handleName(e.target.value)} required className={inp} placeholder="e.g. Desserts" />
       </div>
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Slug *</label>
+        <label className="text-xs font-semibold uppercase tracking-wide text-brown-light">Slug *</label>
         <input value={slug} onChange={e => setSlug(e.target.value)} required pattern="[a-z0-9\-]+" className={inp} placeholder="e.g. desserts" />
       </div>
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Display order</label>
+        <label className="text-xs font-semibold uppercase tracking-wide text-brown-light">Display order</label>
         <input type="number" value={order} onChange={e => setOrder(Number(e.target.value))} className={inp} />
       </div>
-      <button type="submit" disabled={saving} className="rounded-xl bg-amber-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-800 disabled:opacity-50">
+      <button type="submit" disabled={saving} className="rounded-full bg-brown px-4 py-2.5 text-sm font-semibold text-cream hover:bg-brown-deep disabled:opacity-50">
         {saving ? "Adding…" : "Add category"}
       </button>
     </form>

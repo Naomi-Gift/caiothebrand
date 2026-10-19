@@ -189,3 +189,14 @@ model Feedback {
 
   @@index([kind, createdAt])
 }
+
+// Product photos uploaded from Admin → Menu (resized/compressed in the
+// browser first). Served at /api/images/<id>.
+model MenuImage {
+  id          String   @id @default(cuid())
+  data        Bytes
+  contentType String
+  width       Int?
+  height      Int?
+  createdAt   DateTime @default(now())
+}
