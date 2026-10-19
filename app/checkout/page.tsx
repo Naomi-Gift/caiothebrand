@@ -56,6 +56,18 @@ export default function CheckoutPage() {
   const [addressLine, setAddressLine] = useState(orderAddress?.line1 ?? "");
   const [addressCity, setAddressCity] = useState(orderAddress?.city ?? "");
   const [addressNotes, setAddressNotes] = useState("");
+  // The branch (and ERPNext) needs a number to reach the customer.
+  const [phone, setPhone] = useState("");
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("caio-phone");
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring a saved value from localStorage
+      if (saved) setPhone(saved);
+    } catch {
+      /* storage unavailable */
+    }
+  }, []);
+  const phoneReady = phone.replace(/\D/g, "").length >= 7;
   const [locating, setLocating] = useState(false);
   const [locationNote, setLocationNote] = useState<string | null>(null);
   const [saveThisAddress, setSaveThisAddress] = useState(false);
@@ -92,10 +104,24 @@ export default function CheckoutPage() {
     Boolean(savedAddress) ||
     addressLine.trim().length > 0;
 
-  const canPay = lines.length > 0 && addressReady && branch;
+  const canPay = lines.length > 0 && addressReady && phoneReady && branch;
+
+  const deliveryAddressText = () =>
+    fulfillment === "delivery"
+      ? savedAddress
+        ? `${savedAddress.line1}, ${savedAddress.city}`
+        : addressLine.trim()
+          ? `${addressLine.trim()}${addressCity.trim() ? `, ${addressCity.trim()}` : ""}`
+          : null
+      : null;
 
   const handlePay = async () => {
     if (!canPay || !branch || !account) return;
+    try {
+      window.localStorage.setItem("caio-phone", phone.trim());
+    } catch {
+      /* storage unavailable */
+    }
     setPayError(null);
     setPaying(true);
 
@@ -168,10 +194,25 @@ export default function CheckoutPage() {
       amount: amountKobo,
       currency: "NGN",
       reference,
+      // The cart travels with the payment so the Paystack webhook can still
+      // create the order if this tab is closed right after paying.
       metadata: {
         branchId: branch.id,
         fulfillment,
         promoCode: promoCode ?? undefined,
+        order: {
+          branchId: branch.id,
+          fulfillment: fulfillment.toUpperCase(),
+          promoCode: promoCode ?? null,
+          phone: phone.trim(),
+          deliveryAddress: deliveryAddressText(),
+          lines: lines.map((l) => ({
+            itemId: l.itemId,
+            size: { id: l.size.id, label: l.size.label },
+            addOns: l.addOns.map((a) => ({ id: a.id, label: a.label })),
+            quantity: l.quantity,
+          })),
+        },
       },
 
       onSuccess: async (response: { reference: string }) => {
@@ -184,14 +225,8 @@ export default function CheckoutPage() {
             lines,
             promoCode: promoCode ?? null,
             paystackRef: response.reference,
-            deliveryAddress:
-              fulfillment === "delivery"
-                ? savedAddress
-                  ? `${savedAddress.line1}, ${savedAddress.city}`
-                  : addressLine.trim()
-                    ? `${addressLine.trim()}${addressCity.trim() ? `, ${addressCity.trim()}` : ""}`
-                    : null
-                : null,
+            deliveryAddress: deliveryAddressText(),
+            phone: phone.trim(),
           };
 
           const orderRes = await fetch("/api/orders", {
@@ -273,6 +308,24 @@ export default function CheckoutPage() {
 
       <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-[1.4fr_1fr]">
         <div className="flex flex-col gap-8">
+          <div>
+            <label htmlFor="checkout-phone" className="label-uppercase text-xs text-brown-light">
+              Phone number *
+            </label>
+            <input
+              id="checkout-phone"
+              type="tel"
+              required
+              autoComplete="tel"
+              inputMode="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="e.g. 0803 123 4567"
+              className="mt-3 w-full rounded-full bg-crisp px-5 py-3 text-sm text-brown shadow-soft placeholder:text-brown-light/70 focus:outline-none focus:ring-2 focus:ring-brown/20"
+            />
+            <p className="mt-2 text-xs text-brown-light">So the branch can reach you about your order.</p>
+          </div>
+
           <div>
             <p className="label-uppercase text-xs text-brown-light">
               Delivery or pickup

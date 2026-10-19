@@ -1,5 +1,6 @@
 import { getOrders } from "@/lib/api";
 import OrderStatusSelect from "./OrderStatusSelect";
+import ErpCell from "./ErpCell";
 
 export const dynamic = "force-dynamic";
 const FILTERS = ["ALL","RECEIVED","KITCHEN","OUT_FOR_DELIVERY","DELIVERED","CANCELLED"] as const;
@@ -42,6 +43,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                 <th className="px-4 py-3 text-left">Items</th>
                 <th className="px-4 py-3 text-left">Total</th>
                 <th className="px-4 py-3 text-left">Date</th>
+                <th className="px-4 py-3 text-left">Kitchen (ERPNext)</th>
                 <th className="px-4 py-3 text-left">Status</th>
               </tr>
             </thead>
@@ -52,6 +54,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                   <td className="px-4 py-3">
                     <div className="font-medium text-gray-800">{o.user?.name ?? o.customerName ?? "Guest"}</div>
                     <div className="text-xs text-gray-400">{o.user?.email ?? o.customerEmail ?? ""}</div>
+                    {o.customerPhone && <a href={`tel:${o.customerPhone}`} className="text-xs text-gray-500 underline">{o.customerPhone}</a>}
                   </td>
                   <td className="px-4 py-3 capitalize">{o.branchId}</td>
                   <td className="px-4 py-3">
@@ -68,7 +71,17 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                   <td className="px-4 py-3 text-xs text-gray-400">
                     {new Date(o.createdAt).toLocaleDateString("en-NG",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}
                   </td>
-                  <td className="px-4 py-3"><OrderStatusSelect orderId={o.id} current={o.status} /></td>
+                  <td className="px-4 py-3">
+                    <ErpCell orderId={o.id} ticketNo={o.erpTicketNo} status={o.erpStatus} error={o.erpError} />
+                  </td>
+                  <td className="px-4 py-3">
+                    {/* Once the kitchen has it, ERPNext owns the status. */}
+                    {o.erpOrderName ? (
+                      <span className="text-xs text-gray-500">Managed in ERPNext</span>
+                    ) : (
+                      <OrderStatusSelect orderId={o.id} current={o.status} />
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

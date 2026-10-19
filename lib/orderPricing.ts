@@ -17,7 +17,9 @@ export interface PricedLine {
   name: string;
   descriptor: string | null;
   sizeLabel: string;
-  addOns: { label: string; price: number }[];
+  /** ERPNext item_code for the item/size, when the menu has been synced. */
+  erpItemCode: string | null;
+  addOns: { label: string; price: number; itemCode?: string }[];
   quantity: number;
   unitPrice: number;
 }
@@ -60,7 +62,7 @@ export async function priceLines(lines: IncomingLine[]): Promise<{ lines: Priced
     const addOns = (l.addOns ?? []).map((a) => {
       const match = menuAddOns.find((m) => m.id === a.id) ?? menuAddOns.find((m) => m.label === a.label);
       if (!match) throw new PricingError(`A topping on ${item.name} is no longer available.`);
-      return { label: match.label, price: match.price };
+      return { label: match.label, price: match.price, ...(match.itemCode ? { itemCode: match.itemCode } : {}) };
     });
 
     const unitPrice = item.basePrice + (size?.priceDelta ?? 0) + addOns.reduce((s, a) => s + a.price, 0);
@@ -69,6 +71,7 @@ export async function priceLines(lines: IncomingLine[]): Promise<{ lines: Priced
       name: item.name,
       descriptor: item.descriptor,
       sizeLabel: size?.label ?? "Regular",
+      erpItemCode: size?.itemCode ?? item.erpItemCode ?? null,
       addOns,
       quantity,
       unitPrice,

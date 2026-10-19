@@ -1,8 +1,12 @@
 import { notFound } from "next/navigation";
 import { getMenuItemBySlug, menuItems } from "@/lib/data/menu";
+import { fetchMenuItems } from "@/lib/fetchMenu";
 import ItemCustomizer from "@/components/ItemCustomizer";
 import PlaceholderImage from "@/components/PlaceholderImage";
 import Button from "@/components/Button";
+
+// Live prices (database, synced from ERPNext), refreshed every minute.
+export const revalidate = 60;
 
 export function generateStaticParams() {
   return menuItems.map((item) => ({ slug: item.slug }));
@@ -14,7 +18,8 @@ export default async function ItemDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const item = getMenuItemBySlug(slug);
+  const live = await fetchMenuItems();
+  const item = live.find((i) => i.slug === slug) ?? getMenuItemBySlug(slug);
 
   if (!item) notFound();
 
@@ -41,5 +46,5 @@ export default async function ItemDetailPage({
     );
   }
 
-  return <ItemCustomizer item={item} />;
+  return <ItemCustomizer item={item} menu={live} />;
 }

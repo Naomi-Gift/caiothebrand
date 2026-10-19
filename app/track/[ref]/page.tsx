@@ -5,6 +5,7 @@ import { branches } from "@/lib/data/branches";
 import { formatNaira } from "@/lib/format";
 import { InfoCard, InfoHero, InfoShell } from "@/components/InfoPage";
 import type { BranchId } from "@/lib/types";
+import { ERP_STAGES, erpConfig, getOrderStatus } from "@/lib/erp";
 
 export const metadata: Metadata = { title: "Order status — Caio Pizza", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -28,6 +29,7 @@ async function findOrder(ref: string) {
       // Public page: status and items only — no customer details.
       select: {
         id: true, status: true, fulfillment: true, branchId: true, total: true, createdAt: true,
+        erpOrderName: true, erpTicketNo: true, erpStatus: true, erpEstReadyAt: true,
         lines: { select: { id: true, name: true, sizeLabel: true, quantity: true } },
       },
     });
@@ -61,9 +63,27 @@ export default async function TrackOrderPage({ params }: { params: Promise<{ ref
     );
   }
 
+  // Kitchen status lives in ERPNext: refresh it live (best effort).
+  let erpStatus = order.erpStatus;
+  let estReady = order.erpEstReadyAt;
+  if (order.erpOrderName && erpConfig()) {
+    try {
+      const live = (await getOrderStatus(order.id)).orders[0];
+      if (live?.status) {
+        erpStatus = live.status;
+        estReady = live.est_ready_at ?? estReady;
+        if (live.status !== order.erpStatus) {
+          await prisma.order.update({ where: { id: order.id }, data: { erpStatus: live.status, erpEstReadyAt: estReady } }).catch(() => {});
+        }
+      }
+    } catch {
+      /* show the last known status */
+    }
+  }
+
   const pickup = order.fulfillment === "PICKUP";
   const branch = branches[order.branchId as BranchId];
-  const cancelled = order.status === "CANCELLED";
+  const cancelled = order.status === "CANCELLED" || erpStatus === "Cancelled";
   const current = STAGES.indexOf(order.status as (typeof STAGES)[number]);
 
   return (
@@ -76,7 +96,36 @@ export default async function TrackOrderPage({ params }: { params: Promise<{ ref
         actions={[{ href: "/#menu", label: "Order again" }, { href: "/contact", label: "Contact the branch" }]}
       />
 
-      {!cancelled && (
+      {!cancelled && erpStatus && erpStatus !== "Cancelled" ? (
+        <InfoCard title={order.erpTicketNo ? `Kitchen ticket #${order.erpTicketNo}` : "Progress"}>
+          <ol className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+            {ERP_STAGES.map((s, i) => (
+              <li
+                key={s}
+                className={`rounded-2xl border px-4 py-3 text-[0.9rem] ${
+                  i <= ERP_STAGES.indexOf(erpStatus as (typeof ERP_STAGES)[number])
+                    ? "border-brown bg-brown text-cream"
+                    : "border-bone-dark bg-cream text-brown-light"
+                }`}
+              >
+                <span className="block font-heading text-[0.65rem] font-bold uppercase tracking-[0.2em] opacity-70">
+                  Step {i + 1}
+                </span>
+                {s === "Served" ? (pickup ? "Collected" : "Delivered") : s}
+              </li>
+            ))}
+          </ol>
+          {estReady && erpStatus !== "Ready" && erpStatus !== "Served" && (
+            <p>
+              Estimated ready around{" "}
+              <strong className="text-brown-darkest">
+                {new Date(estReady.replace(" ", "T") + "+01:00").toLocaleTimeString("en-NG", { hour: "numeric", minute: "2-digit", timeZone: "Africa/Lagos" })}
+              </strong>
+              .
+            </p>
+          )}
+        </InfoCard>
+      ) : !cancelled && (
         <InfoCard title="Progress">
           <ol className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {STAGES.map((s, i) => (

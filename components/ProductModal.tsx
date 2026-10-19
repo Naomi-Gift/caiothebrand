@@ -5,7 +5,7 @@ import type { MenuItem } from "@/lib/types";
 import ItemCustomizer from "@/components/ItemCustomizer";
 
 /** The product page's customiser, opened in place over the menu. */
-export default function ProductModal({ item, onClose }: { item: MenuItem; onClose: () => void }) {
+export default function ProductModal({ item, menu, onClose }: { item: MenuItem; menu?: MenuItem[]; onClose: () => void }) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function ProductModal({ item, onClose }: { item: MenuItem; onClos
             </p>
           </div>
         ) : (
-          <ItemCustomizer item={item} />
+          <ItemCustomizer item={item} menu={menu} />
         )}
       </div>
     </div>

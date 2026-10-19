@@ -38,6 +38,11 @@ export interface AdminOrder {
   deliveryAddress: string | null;
   customerEmail: string | null;
   customerName: string | null;
+  customerPhone: string | null;
+  erpOrderName: string | null;
+  erpTicketNo: number | null;
+  erpStatus: string | null;
+  erpError: string | null;
   createdAt: string;
   lines: Array<{ id: string; name: string; sizeLabel: string; quantity: number; unitPrice: number }>;
   user: { name: string | null; email: string | null } | null;

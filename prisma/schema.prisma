@@ -54,8 +54,9 @@ model MenuItem {
   featured    Boolean     @default(false)
   spicy       Boolean     @default(false)
   vegetarian  Boolean     @default(false)
-  sizes       Json        @default("[]")  // SizeOption[]
-  addOns      Json        @default("[]")  // AddOnOption[]
+  sizes       Json        @default("[]")  // SizeOption[] (each may carry an ERPNext itemCode)
+  addOns      Json        @default("[]")  // AddOnOption[] (each may carry an ERPNext itemCode)
+  erpItemCode String?     // ERPNext item_code for single-size items (sides, drinks)
   categoryId  String
   category    Category    @relation(fields: [categoryId], references: [id])
   orderLines  OrderLine[]
@@ -91,6 +92,15 @@ model Order {
   deliveryAddress String?
   customerEmail   String?
   customerName    String?
+  customerPhone   String?
+  // ERPNext (Cudrock Group) sync — see lib/erp.ts
+  erpOrderName    String?
+  erpTicketNo     Int?
+  erpStatus       String?         // Paid | Accepted | Preparing | Ready | Served | Cancelled
+  erpEstReadyAt   String?
+  erpSyncedAt     DateTime?
+  erpError        String?
+  erpAttempts     Int             @default(0)
   lines           OrderLine[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -105,7 +115,8 @@ model OrderLine {
   name       String
   descriptor String?
   sizeLabel  String
-  addOns     Json     @default("[]")  // { label, price }[]
+  erpItemCode String?
+  addOns     Json     @default("[]")  // { label, price, itemCode? }[]
   quantity   Int
   unitPrice  Float
   createdAt  DateTime @default(now())

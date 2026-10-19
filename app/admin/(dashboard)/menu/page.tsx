@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getMenuItems } from "@/lib/api";
 import MenuActions from "./MenuActions";
+import ErpSyncPanel from "./ErpSyncPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,8 @@ export default async function AdminMenuPage() {
           + Add Item
         </Link>
       </div>
+
+      <ErpSyncPanel />
 
       <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <table className="w-full text-sm">

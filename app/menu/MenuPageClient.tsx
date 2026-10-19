@@ -183,7 +183,7 @@ export default function MenuPageClient({ items }: { items: MenuItem[] }) {
         </div>
       )}
 
-      {openItem && <ProductModal item={openItem} onClose={closeItem} />}
+      {openItem && <ProductModal item={openItem} menu={items} onClose={closeItem} />}
     </div>
   );
 }

@@ -20,12 +20,16 @@ export interface SizeOption {
   id: string;
   label: string;
   priceDelta: number;
+  /** ERPNext item_code for this size (set by the ERP menu sync). */
+  itemCode?: string;
 }
 
 export interface AddOnOption {
   id: string;
   label: string;
   price: number;
+  /** ERPNext item_code for this topping (set by the ERP menu sync). */
+  itemCode?: string;
 }
 
 export interface MenuItem {
@@ -44,6 +48,8 @@ export interface MenuItem {
   featured?: boolean;
   isNew?: boolean;
   available?: boolean;
+  /** ERPNext item_code for single-size items (sides, drinks). */
+  erpItemCode?: string | null;
 
 }
 

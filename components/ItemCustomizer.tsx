@@ -8,7 +8,7 @@ import { useCart } from "@/context/CartContext";
 import QuantityStepper from "@/components/QuantityStepper";
 import PlaceholderImage from "@/components/PlaceholderImage";
 import Button from "@/components/Button";
-import { menuItems } from "@/lib/data/menu";
+import { menuItems as staticMenu } from "@/lib/data/menu";
 
 // ─── Bundle suggestion card ───────────────────────────────────────────────────
 
@@ -92,7 +92,15 @@ function BundleSection({
 
 // ─── Main customizer ──────────────────────────────────────────────────────────
 
-export default function ItemCustomizer({ item }: { item: MenuItem }) {
+export default function ItemCustomizer({
+  item,
+  menu = staticMenu,
+}: {
+  item: MenuItem;
+  /** Live menu (database / ERPNext prices) for the "complete your order" picks. */
+  menu?: MenuItem[];
+}) {
+  const menuItems = menu;
   const router = useRouter();
   const { addLine } = useCart();
 
@@ -118,11 +126,11 @@ export default function ItemCustomizer({ item }: { item: MenuItem }) {
   // Bundle items — sides and drinks (exclude current item)
   const bundleSides = useMemo(
     () => menuItems.filter((m) => m.category === "sides" && m.id !== item.id && !m.soldOut),
-    [item.id]
+    [item.id, menuItems]
   );
   const bundleDrinks = useMemo(
     () => menuItems.filter((m) => m.category === "drinks" && m.id !== item.id && !m.soldOut),
-    [item.id]
+    [item.id, menuItems]
   );
   const showBundle = item.category === "pizzas" && (bundleSides.length > 0 || bundleDrinks.length > 0);
 
@@ -130,7 +138,7 @@ export default function ItemCustomizer({ item }: { item: MenuItem }) {
     return menuItems
       .filter((m) => bundleIds.includes(m.id))
       .reduce((sum, m) => sum + m.basePrice, 0);
-  }, [bundleIds]);
+  }, [bundleIds, menuItems]);
 
   const totalWithBundle = unitPrice * quantity + bundleTotal;
 
