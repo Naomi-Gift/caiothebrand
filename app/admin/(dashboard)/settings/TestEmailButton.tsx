@@ -10,11 +10,11 @@ export default function TestEmailButton() {
     setBusy(true);
     setResult(null);
     const res = await fetch("/api/admin/test-email", { method: "POST" });
-    const d = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; to?: string; from?: string | null };
+    const d = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; to?: string; from?: string | null; replyTo?: string | null };
     setBusy(false);
     setResult(
       d.ok
-        ? { ok: true, text: `Sent to ${d.to} from ${d.from}. Check the inbox (and spam).` }
+        ? { ok: true, text: `Sent to ${d.to} from ${d.from}${d.replyTo ? ` (replies go to ${d.replyTo})` : ""}. Check the inbox (and spam).` }
         : { ok: false, text: d.error ?? "Couldn't send." }
     );
   };

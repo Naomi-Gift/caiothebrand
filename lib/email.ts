@@ -1,7 +1,9 @@
 /**
  * Transactional email via Resend (https://resend.com), server-only.
  *   RESEND_API_KEY  API key
- *   EMAIL_FROM      e.g. "Caio Pizza <hello@caiopizza.com>" (domain verified in Resend)
+ *   EMAIL_FROM      e.g. "Caio Pizza <noreply@caiopizza.com>" — must be on a domain
+ *                   verified in Resend; the mailbox itself doesn't need to exist
+ *   EMAIL_REPLY_TO  optional real inbox for customer replies, e.g. tech@cudrockgroup.com
  * Returns false (and sends nothing) until both are set.
  */
 export function emailConfigured() {
@@ -21,7 +23,14 @@ export async function sendEmailDetailed(opts: { to: string; subject: string; htm
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: process.env.EMAIL_FROM, to: [opts.to], subject: opts.subject, html: opts.html, text: opts.text }),
+      body: JSON.stringify({
+        from: process.env.EMAIL_FROM,
+        to: [opts.to],
+        ...(process.env.EMAIL_REPLY_TO ? { reply_to: process.env.EMAIL_REPLY_TO } : {}),
+        subject: opts.subject,
+        html: opts.html,
+        text: opts.text,
+      }),
       signal: AbortSignal.timeout(15_000),
     });
     const body = (await res.json().catch(() => ({}))) as { id?: string; message?: string; name?: string };
