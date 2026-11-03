@@ -82,6 +82,12 @@ export async function placePaidOrder(input: PlaceOrderInput): Promise<Result> {
     );
   }
 
+  // Payment should have settled into this branch's Paystack subaccount.
+  const expectedSub = branches[branchId].paystackSubaccount ?? null;
+  if (expectedSub && payment.subaccount !== expectedSub) {
+    console.error("[orders] payment went to a different Paystack account", { paystackRef, expectedSub, got: payment.subaccount });
+  }
+
   const email = input.customerEmail.toLowerCase();
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true, name: true, phone: true } });
 

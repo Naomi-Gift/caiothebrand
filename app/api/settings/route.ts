@@ -29,6 +29,13 @@ export async function POST(req: NextRequest) {
 
   const pairs = Array.isArray(body) ? body as Array<{ key: string; value: string }> : [body as { key: string; value: string }];
 
+  // Paystack subaccount codes look like ACCT_xxxxxxxx; catch typos before they break checkout.
+  for (const { key, value } of pairs) {
+    if (/^branch_\w+_paystack_subaccount$/.test(key) && value && !/^ACCT_[A-Za-z0-9]{6,}$/.test(String(value).trim())) {
+      return NextResponse.json({ error: `"${value}" doesn't look like a Paystack subaccount code (it should start with ACCT_).` }, { status: 400 });
+    }
+  }
+
   await Promise.all(
     pairs.map(({ key, value }) =>
       prisma.setting.upsert({

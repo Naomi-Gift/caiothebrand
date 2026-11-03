@@ -28,6 +28,8 @@ export default async function SettingsPage() {
     fill(`delivery_estimate_${id}`, b.deliveryEstimate);
     fill(`erp_pos_profile_${id}`, b.erpPosProfile);
     fill(`branch_${id}_alert_to`, b.alertWhatsapp);
+    fill(`branch_${id}_paystack_subaccount`, b.paystackSubaccount);
+    fill(`branch_${id}_paystack_bearer`, b.paystackBearer);
     return {
       title: `${b.name} branch`,
       description: b.comingSoon
@@ -53,6 +55,22 @@ export default async function SettingsPage() {
           label: "Order alert WhatsApp (staff)",
           placeholder: "e.g. 08031234567, 08098765432",
           help: "Gets an automatic message for each new order (once WhatsApp Business is connected).",
+        },
+        {
+          key: `branch_${id}_paystack_subaccount`,
+          label: "Paystack subaccount code",
+          placeholder: "ACCT_xxxxxxxxxx",
+          help: "Payments for this branch settle into this subaccount's bank account. Find it in Paystack → Subaccounts. Leave empty to use the main account.",
+        },
+        {
+          key: `branch_${id}_paystack_bearer`,
+          label: "Who pays Paystack's fee",
+          type: "select",
+          options: [
+            { value: "account", label: "Main account pays the fee" },
+            { value: "subaccount", label: "This branch's subaccount pays the fee" },
+          ],
+          help: "Only applies when a subaccount code is set.",
         },
         {
           key: `erp_pos_profile_${id}`,

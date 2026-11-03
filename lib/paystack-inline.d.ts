@@ -16,8 +16,17 @@ declare module "@paystack/inline-js" {
     onError?: (error: unknown) => void;
   }
 
+  interface PaystackResumeCallbacks {
+    onSuccess?: (response: { id?: number; reference: string; message?: string }) => void;
+    onCancel?: () => void;
+    onLoad?: (response: unknown) => void;
+    onError?: (error: { message?: string }) => void;
+  }
+
   class PaystackPop {
     newTransaction(options: PaystackTransactionOptions): void;
+    /** Continue a payment started on the server (transaction/initialize). */
+    resumeTransaction(accessCode: string, callbacks?: PaystackResumeCallbacks): void;
   }
 
   export default PaystackPop;

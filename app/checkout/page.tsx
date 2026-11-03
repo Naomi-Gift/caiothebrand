@@ -135,46 +135,52 @@ export default function CheckoutPage() {
       });
     }
 
-    // Build a unique reference so the order can be traced back after verification
-    const reference = `CAIO-${Date.now()}-${Math.random()
-      .toString(36)
-      .slice(2, 8)
-      .toUpperCase()}`;
-
-    // Charge the server's total (prices from the menu database), not the
-    // browser's — the order is re-checked against this amount after payment.
-    let quotedTotal: number;
+    // The server prices the cart, picks the branch's Paystack subaccount and
+    // starts the payment; the browser only gets an access code, so the
+    // amount and destination account can't be changed here.
+    let accessCode: string;
     try {
-      const q = await fetch("/api/orders/quote", {
+      const r = await fetch("/api/checkout/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lines, promoCode: promoCode ?? null }),
+        body: JSON.stringify({
+          branchId: branch.id,
+          fulfillment: fulfillment.toUpperCase(),
+          lines,
+          promoCode: promoCode ?? null,
+          phone: phone.trim(),
+          deliveryAddress: deliveryAddressText(),
+          expectedTotal: total,
+          confirmTotal: priceConfirmed,
+        }),
       });
-      const quote = (await q.json()) as { total?: number; error?: string };
-      if (!q.ok || typeof quote.total !== "number") {
-        setPayError(quote.error ?? "Couldn't price your order. Please try again.");
+      const started = (await r.json().catch(() => ({}))) as {
+        accessCode?: string;
+        total?: number;
+        priceChanged?: boolean;
+        error?: string;
+      };
+      if (started.priceChanged && typeof started.total === "number") {
+        // Menu prices changed since these items were added: show the real
+        // total first, and charge it when they tap pay again.
+        setPayError(
+          `Prices have changed since you added these items — your total is now ${formatNaira(started.total)}. Tap pay again to continue.`
+        );
+        setPriceConfirmed(started.total);
         setPaying(false);
         return;
       }
-      quotedTotal = quote.total;
+      if (!r.ok || !started.accessCode) {
+        setPayError(started.error ?? "Payment couldn't start. Please try again.");
+        setPaying(false);
+        return;
+      }
+      accessCode = started.accessCode;
     } catch {
       setPayError("Couldn't reach the server. Check your connection and try again.");
       setPaying(false);
       return;
     }
-    // Menu prices changed since these items were added: show the real total
-    // first, and charge it when they tap pay again.
-    if (quotedTotal !== total && priceConfirmed !== quotedTotal) {
-      setPayError(
-        `Prices have changed since you added these items — your total is now ${formatNaira(quotedTotal)}. Tap pay again to continue.`
-      );
-      setPriceConfirmed(quotedTotal);
-      setPaying(false);
-      return;
-    }
-
-    // Paystack amount is in kobo (smallest currency unit) — multiply by 100
-    const amountKobo = Math.round(quotedTotal * 100);
 
     // Lazily import the Paystack popup (client-only)
     let PaystackPop: Awaited<typeof import("@paystack/inline-js")>["default"];
@@ -188,33 +194,7 @@ export default function CheckoutPage() {
 
     try {
       const popup = new PaystackPop();
-      popup.newTransaction({
-      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY ?? "",
-      email: account.email,
-      amount: amountKobo,
-      currency: "NGN",
-      reference,
-      // The cart travels with the payment so the Paystack webhook can still
-      // create the order if this tab is closed right after paying.
-      metadata: {
-        branchId: branch.id,
-        fulfillment,
-        promoCode: promoCode ?? undefined,
-        order: {
-          branchId: branch.id,
-          fulfillment: fulfillment.toUpperCase(),
-          promoCode: promoCode ?? null,
-          phone: phone.trim(),
-          deliveryAddress: deliveryAddressText(),
-          lines: lines.map((l) => ({
-            itemId: l.itemId,
-            size: { id: l.size.id, label: l.size.label },
-            addOns: l.addOns.map((a) => ({ id: a.id, label: a.label })),
-            quantity: l.quantity,
-          })),
-        },
-      },
-
+      popup.resumeTransaction(accessCode, {
       onSuccess: async (response: { reference: string }) => {
         // The server confirms the payment with Paystack, re-prices the cart
         // from the menu and only then saves the order.
@@ -273,6 +253,11 @@ export default function CheckoutPage() {
 
       onCancel: () => {
         // User closed the popup without paying
+        setPaying(false);
+      },
+
+      onError: (err: { message?: string }) => {
+        setPayError(err?.message ?? "Payment could not be started. Please try again.");
         setPaying(false);
       },
     });

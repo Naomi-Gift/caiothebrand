@@ -16,6 +16,10 @@ export interface Branch {
   erpPosProfile?: string;
   /** Staff WhatsApp number(s) for automatic new-order alerts. */
   alertWhatsapp?: string;
+  /** Paystack subaccount (ACCT_…) this branch's payments settle into. */
+  paystackSubaccount?: string;
+  /** Who pays Paystack's fee when a subaccount is used. */
+  paystackBearer?: "account" | "subaccount";
 }
 
 export type MenuCategory = "pizzas" | "sides" | "drinks";

@@ -9,6 +9,8 @@
  *   delivery_estimate_<id>
  *   erp_pos_profile_<id>      e.g. POS-CAIO
  *   branch_<id>_alert_to      staff WhatsApp number(s) for new-order alerts
+ *   branch_<id>_paystack_subaccount   ACCT_… code (Paystack → Subaccounts)
+ *   branch_<id>_paystack_bearer       "account" | "subaccount" (who pays fees)
  */
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
@@ -43,6 +45,8 @@ function merge(map: Record<string, string>): Record<BranchId, Branch> {
       deliveryEstimate: get(`delivery_estimate_${id}`) ?? d.deliveryEstimate,
       comingSoon: status ? status !== "open" : d.comingSoon,
       alertWhatsapp: get(`branch_${id}_alert_to`),
+      paystackSubaccount: get(`branch_${id}_paystack_subaccount`)?.toUpperCase(),
+      paystackBearer: get(`branch_${id}_paystack_bearer`) === "subaccount" ? "subaccount" : "account",
       erpPosProfile:
         get(`erp_pos_profile_${id}`) ??
         (id === "lagos" ? process.env.ERP_POS_PROFILE || d.erpPosProfile : d.erpPosProfile),
