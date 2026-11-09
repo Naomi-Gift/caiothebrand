@@ -5,11 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useBranch } from "@/context/BranchContext";
-import { CHANNELS, FIELD_LIMITS, HIGHLIGHTS, RATING_LABELS } from "@/lib/feedback";
+import { CHANNELS, FIELD_LIMITS, HEARD_FROM, HIGHLIGHTS, RATING_LABELS } from "@/lib/feedback";
 import type { BranchId } from "@/lib/types";
 
 const HASH = "#feedback";
-const STEPS = 4;
+const STEPS = 5;
 
 const MARK = { src: "/images/logo-mark-primary.png", width: 1082, height: 1106 };
 const MARK_REVERSED = { src: "/images/logo-mark-reversed.png", width: 1082, height: 1106 };
@@ -102,6 +102,7 @@ function FeedbackDialog({ onClose }: { onClose: () => void }) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   const [step, setStep] = useState(1);
+  const [heardFrom, setHeardFrom] = useState<string | null>(null);
   const [rating, setRating] = useState<number | null>(null);
   const [channel, setChannel] = useState<string | null>(null);
   const [branchId, setBranchId] = useState<BranchId | null>(currentBranch);
@@ -146,6 +147,7 @@ function FeedbackDialog({ onClose }: { onClose: () => void }) {
           kind: "SURVEY",
           rating,
           recommend,
+          heardFrom,
           channel,
           branchId,
           highlights,
@@ -240,6 +242,44 @@ function FeedbackDialog({ onClose }: { onClose: () => void }) {
             <>
               {step === 1 && (
                 <div>
+                  <p id={`${titleId}-heard`} className="text-[1.05rem] text-brown-darkest">
+                    How did you first hear about us?
+                  </p>
+                  <div role="radiogroup" aria-labelledby={`${titleId}-heard`} className="mt-4 flex flex-col gap-2">
+                    {HEARD_FROM.map((h) => {
+                      const on = heardFrom === h.id;
+                      return (
+                        <button
+                          key={h.id}
+                          type="button"
+                          role="radio"
+                          aria-checked={on}
+                          onClick={() => {
+                            // Tap again to clear; picking an answer moves on.
+                            if (on) return setHeardFrom(null);
+                            setHeardFrom(h.id);
+                            setStep(2);
+                          }}
+                          className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-[0.92rem] transition-colors ${
+                            on ? "border-brown bg-bone text-brown-darkest" : "border-bone-dark/70 bg-crisp text-brown hover:border-brown"
+                          }`}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${on ? "border-brown" : "border-bone-dark"}`}
+                          >
+                            {on && <span className="h-2 w-2 rounded-full bg-brown" />}
+                          </span>
+                          {h.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {step === 2 && (
+                <div>
                   <p id={`${titleId}-rate`} className="text-[1.05rem] text-brown-darkest">
                     How many slices would you give us?
                   </p>
@@ -273,7 +313,7 @@ function FeedbackDialog({ onClose }: { onClose: () => void }) {
                 </div>
               )}
 
-              {step === 2 && (
+              {step === 3 && (
                 <div className="flex flex-col gap-6">
                   <div>
                     <p className={LABEL}>How did you get it?</p>
@@ -308,7 +348,7 @@ function FeedbackDialog({ onClose }: { onClose: () => void }) {
                 </div>
               )}
 
-              {step === 3 && (
+              {step === 4 && (
                 <div>
                   <p id={`${titleId}-nps`} className="text-[1.05rem] text-brown-darkest">
                     How likely are you to recommend Caio Pizza to a friend?
@@ -338,7 +378,7 @@ function FeedbackDialog({ onClose }: { onClose: () => void }) {
                 </div>
               )}
 
-              {step === 4 && (
+              {step === 5 && (
                 <div className="flex flex-col gap-4">
                   <div>
                     <label htmlFor={`${titleId}-msg`} className={LABEL}>Anything else?</label>
@@ -386,7 +426,7 @@ function FeedbackDialog({ onClose }: { onClose: () => void }) {
                   </button>
                 )}
                 <div className="ml-auto flex items-center gap-2">
-                  {(step === 2 || step === 3) && (
+                  {(step === 1 || step === 3 || step === 4) && (
                     <button
                       type="button"
                       onClick={() => setStep(step + 1)}
@@ -398,7 +438,7 @@ function FeedbackDialog({ onClose }: { onClose: () => void }) {
                   <button
                     type="button"
                     onClick={next}
-                    disabled={(step === 1 && rating === null) || sending}
+                    disabled={(step === 2 && rating === null) || sending}
                     className="label-uppercase rounded-full bg-brown px-6 py-2.5 text-[0.7rem] text-cream transition-colors hover:bg-brown-deep disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {step < STEPS ? "Next" : sending ? "Sending…" : "Send feedback"}

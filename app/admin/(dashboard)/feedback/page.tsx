@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminPage, scopedBranch } from "@/lib/adminAuth";
 import BranchFilter from "@/components/admin/BranchFilter";
 import { branches } from "@/lib/data/branches";
-import { HIGHLIGHTS, channelLabel, highlightLabel } from "@/lib/feedback";
+import { HEARD_FROM, HIGHLIGHTS, channelLabel, heardFromLabel, highlightLabel } from "@/lib/feedback";
 import type { BranchId } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -63,6 +63,13 @@ export default async function AdminFeedbackPage({
   })).sort((a, b) => b.count - a.count);
   const maxCount = Math.max(1, ...highlightCounts.map((h) => h.count));
 
+  const heardCounts = HEARD_FROM.map((h) => ({
+    ...h,
+    count: surveys.filter((r) => r.heardFrom === h.id).length,
+  })).sort((a, b) => b.count - a.count);
+  const heardMax = Math.max(1, ...heardCounts.map((h) => h.count));
+  const heardAnswered = surveys.filter((r) => r.heardFrom).length;
+
   const list =
     filter === "survey" ? surveys : filter === "contact" ? contacts : rows;
 
@@ -88,6 +95,21 @@ export default async function AdminFeedbackPage({
         ))}
       </div>
 
+      <div className="mt-6 rounded-2xl border border-bone-dark/60 bg-crisp p-6 shadow-soft">
+        <h2 className="font-display text-xl font-bold text-brown-darkest">How they first heard about us</h2>
+        <p className="mb-4 mt-1 text-xs text-brown-light">{heardAnswered} of {surveys.length} survey responses answered</p>
+        <div className="flex flex-col gap-3">
+          {heardCounts.map((h) => (
+            <div key={h.id} className="flex items-center gap-3">
+              <span className="w-48 truncate text-right text-xs text-brown-muted" title={h.label}>{h.label}</span>
+              <div className="flex-1 overflow-hidden rounded-full bg-bone/70">
+                <div className="h-3 rounded-full bg-brown" style={{ width: `${(h.count / heardMax) * 100}%` }} />
+              </div>
+              <span className="w-8 text-xs text-brown-light">{h.count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="mt-6 rounded-2xl border border-bone bg-crisp p-6 shadow-soft">
         <h2 className="mb-4 font-display text-xl font-bold text-brown-darkest">What stood out</h2>
         <div className="flex flex-col gap-3">
@@ -147,6 +169,7 @@ export default async function AdminFeedbackPage({
                     </span>
                   )}
                   {r.recommend !== null && <span>Recommend: {r.recommend}/10</span>}
+                  {r.heardFrom && <span>Heard via: {heardFromLabel(r.heardFrom)}</span>}
                   {r.highlights.length > 0 && (
                     <span className="text-brown-light">{r.highlights.map(highlightLabel).join(" · ")}</span>
                   )}

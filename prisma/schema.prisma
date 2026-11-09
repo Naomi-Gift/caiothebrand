@@ -178,6 +178,7 @@ model Feedback {
   rating     Int?
   recommend  Int?
   highlights String[]     @default([])
+  heardFrom  String?      // "How did you first hear about us?" (lib/feedback.ts HEARD_FROM)
   branchId   String?
   channel    String?
   message    String?

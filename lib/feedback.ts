@@ -18,6 +18,23 @@ export const CHANNELS = [
   { id: "browsing", label: "Just browsing" },
 ] as const;
 
+/** "How did you first hear about us?" — first survey question. */
+export const HEARD_FROM = [
+  { id: "instagram", label: "Instagram" },
+  { id: "tiktok", label: "TikTok" },
+  { id: "facebook", label: "Facebook" },
+  { id: "google", label: "Google Search / Google Maps" },
+  { id: "online-ad", label: "Online Advertisement (Instagram, Facebook or TikTok Ads)" },
+  { id: "influencer", label: "Influencer Recommendation" },
+  { id: "word-of-mouth", label: "Friends & Family (Word of Mouth)" },
+  { id: "walk-in", label: "Walk-in / Passing By" },
+  { id: "flyer", label: "Flyer / Poster" },
+] as const;
+
+export function heardFromLabel(id: string) {
+  return HEARD_FROM.find((h) => h.id === id)?.label ?? id;
+}
+
 export const RATING_LABELS = ["Not for me", "It was okay", "Pretty good", "Really good", "Obsessed"];
 
 export const FIELD_LIMITS = {

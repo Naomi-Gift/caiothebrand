@@ -6,11 +6,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, scopedBranch } from "@/lib/adminAuth";
 import { branches } from "@/lib/data/branches";
-import { CHANNELS, FIELD_LIMITS, HIGHLIGHTS } from "@/lib/feedback";
+import { CHANNELS, FIELD_LIMITS, HEARD_FROM, HIGHLIGHTS } from "@/lib/feedback";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const HIGHLIGHT_IDS = new Set<string>(HIGHLIGHTS.map((h) => h.id));
 const CHANNEL_IDS = new Set<string>(CHANNELS.map((c) => c.id));
+const HEARD_FROM_IDS = new Set<string>(HEARD_FROM.map((h) => h.id));
 
 function str(v: unknown, max: number): string | null {
   if (typeof v !== "string") return null;
@@ -46,6 +47,8 @@ export async function POST(req: NextRequest) {
     typeof body.branchId === "string" && body.branchId in branches ? body.branchId : null;
   const channel =
     typeof body.channel === "string" && CHANNEL_IDS.has(body.channel) ? body.channel : null;
+  const heardFrom =
+    typeof body.heardFrom === "string" && HEARD_FROM_IDS.has(body.heardFrom) ? body.heardFrom : null;
   const highlights = Array.isArray(body.highlights)
     ? [...new Set(body.highlights.filter((h): h is string => typeof h === "string" && HIGHLIGHT_IDS.has(h)))]
     : [];
@@ -79,6 +82,7 @@ export async function POST(req: NextRequest) {
         rating,
         recommend,
         highlights: kind === "SURVEY" ? highlights : [],
+        heardFrom: kind === "SURVEY" ? heardFrom : null,
         branchId,
         channel: kind === "SURVEY" ? channel : null,
         message,
