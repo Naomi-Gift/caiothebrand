@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Sans, Lora } from "next/font/google";
+import localFont from "next/font/local";
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -13,27 +13,40 @@ import AccountCartBridge from "@/components/AccountCartBridge";
 import HideOnAdmin from "@/components/HideOnAdmin";
 import FeedbackWidget from "@/components/feedback/FeedbackWidget";
 
+// Fonts are bundled in app/fonts (variable WOFF2, latin) instead of fetched
+// from Google at build time — that download kept failing Vercel builds.
+
 // Display / headlines — editorial Italian elegance
-const cormorant = Cormorant_Garamond({
+const cormorant = localFont({
   variable: "--font-cormorant",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  style: ["normal", "italic"],
+  weight: "300 700",
+  display: "swap",
+  src: [
+    { path: "./fonts/cormorant-garamond-latin-wght-normal.woff2", style: "normal" },
+    { path: "./fonts/cormorant-garamond-latin-wght-italic.woff2", style: "italic" },
+  ],
 });
 
 // Labels, nav, buttons — clean geometric sans
-const dmSans = DM_Sans({
+const dmSans = localFont({
   variable: "--font-dm-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "700", "800"],
+  weight: "100 1000",
+  display: "swap",
+  src: [
+    { path: "./fonts/dm-sans-latin-wght-normal.woff2", style: "normal" },
+    { path: "./fonts/dm-sans-latin-wght-italic.woff2", style: "italic" },
+  ],
 });
 
 // Body copy — warm readable serif
-const lora = Lora({
+const lora = localFont({
   variable: "--font-lora",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  style: ["normal", "italic"],
+  weight: "400 700",
+  display: "swap",
+  src: [
+    { path: "./fonts/lora-latin-wght-normal.woff2", style: "normal" },
+    { path: "./fonts/lora-latin-wght-italic.woff2", style: "italic" },
+  ],
 });
 
 export const metadata: Metadata = {
