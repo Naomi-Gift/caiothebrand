@@ -3,7 +3,7 @@
  * webhook (so an order still lands if the customer closes the page after
  * paying). Everything is checked server-side:
  *   prices from the menu DB · promo looked up here · Paystack confirms the
- *   payment (NGN, ≥ total) · one order per payment reference.
+ *   payment (NGN, ≥ total + Paystack fee) · one order per payment reference.
  * After saving: WhatsApp alert + push to ERPNext, in the background.
  */
 import { after } from "next/server";
@@ -13,6 +13,7 @@ import type { BranchId } from "@/lib/types";
 import { priceLines, PricingError, type IncomingLine } from "@/lib/orderPricing";
 import { findPromo } from "@/lib/promo";
 import { verifyPaystackTransaction } from "@/lib/paystack";
+import { paystackFee } from "@/lib/paystackFee";
 import { sendOrderAlert } from "@/lib/whatsappAlert";
 import { pushOrderToErp } from "@/lib/erpPush";
 
@@ -71,11 +72,13 @@ export async function placePaidOrder(input: PlaceOrderInput): Promise<Result> {
   const promo = await findPromo(typeof input.promoCode === "string" ? input.promoCode : null);
   const discount = promo ? Math.round(priced.subtotal * promo.rate) : 0;
   const total = priced.subtotal - discount;
+  const fee = paystackFee(total);
+  const expectedKobo = Math.round((total + fee) * 100);
 
   const payment = await verifyPaystackTransaction(paystackRef);
   if (!payment.ok) return fail(payment.error, payment.status);
-  if (payment.currency !== "NGN" || payment.amountKobo < Math.round(total * 100)) {
-    console.error("[orders] amount mismatch", { paystackRef, paid: payment.amountKobo, expected: Math.round(total * 100) });
+  if (payment.currency !== "NGN" || payment.amountKobo < expectedKobo) {
+    console.error("[orders] amount mismatch", { paystackRef, paid: payment.amountKobo, expected: expectedKobo });
     return fail(
       `We received your payment (reference ${paystackRef}) but the amount doesn't match your order. Please contact the branch.`,
       409
@@ -100,6 +103,7 @@ export async function placePaidOrder(input: PlaceOrderInput): Promise<Result> {
         subtotal: priced.subtotal,
         discount,
         total,
+        paymentFee: fee,
         promoCode: promo?.code ?? null,
         paystackRef,
         deliveryAddress,

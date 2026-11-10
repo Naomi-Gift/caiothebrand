@@ -71,8 +71,11 @@ export default function ConfirmationPage() {
         </ul>
         <div className="mt-4 flex justify-between border-t border-bone pt-4 font-display text-xl font-black text-brown">
           <span>Total paid</span>
-          <span>{formatNaira(order.total)}</span>
+          <span>{formatNaira(order.total + (order.paymentFee ?? 0))}</span>
         </div>
+        {!!order.paymentFee && (
+          <p className="mt-1 text-right text-xs text-brown-light">Includes {formatNaira(order.paymentFee)} payment processing fee</p>
+        )}
       </div>
 
       {branches[order.branchId] && (

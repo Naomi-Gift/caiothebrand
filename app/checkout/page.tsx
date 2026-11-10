@@ -7,6 +7,7 @@ import { useBranch } from "@/context/BranchContext";
 import { useAccount } from "@/context/AccountContext";
 import { useOrderMethod } from "@/context/OrderMethodContext";
 import { formatNaira } from "@/lib/format";
+import { paystackFee } from "@/lib/paystackFee";
 import { saveOrder } from "@/lib/orders";
 import Button from "@/components/Button";
 import type { FulfillmentMode, OrderRecord, SavedAddress } from "@/lib/types";
@@ -16,6 +17,8 @@ const LAST_ORDER_KEY = "caio-last-order-id";
 export default function CheckoutPage() {
   const router = useRouter();
   const { lines, subtotal, discount, total, promoCode, clearCart } = useCart();
+  // Paystack's fee is paid by the customer, on top of the food total.
+  const fee = paystackFee(total);
   const { branch, openPrompt } = useBranch();
   const { account, hydrated, addAddress } = useAccount();
   const { fulfillment: chosenFulfillment } = useOrderMethod();
@@ -164,7 +167,7 @@ export default function CheckoutPage() {
         // Menu prices changed since these items were added: show the real
         // total first, and charge it when they tap pay again.
         setPayError(
-          `Prices have changed since you added these items — your total is now ${formatNaira(started.total)}. Tap pay again to continue.`
+          `Prices have changed since you added these items — your total is now ${formatNaira(started.total + paystackFee(started.total))}. Tap pay again to continue.`
         );
         setPriceConfirmed(started.total);
         setPaying(false);
@@ -235,6 +238,7 @@ export default function CheckoutPage() {
             subtotal,
             discount,
             total,
+            paymentFee: fee,
             promoCode: promoCode ?? undefined,
             deliveryAddress: orderPayload.deliveryAddress,
             status: "received",
@@ -457,9 +461,13 @@ export default function CheckoutPage() {
                 <span>−{formatNaira(discount)}</span>
               </div>
             )}
+            <div className="flex justify-between text-brown-light">
+              <span>Payment processing fee</span>
+              <span>{formatNaira(fee)}</span>
+            </div>
             <div className="flex justify-between font-display text-xl font-black text-brown">
               <span>Total</span>
-              <span>{formatNaira(total)}</span>
+              <span>{formatNaira(total + fee)}</span>
             </div>
           </div>
 

@@ -12,6 +12,7 @@ import { priceLines, PricingError, type IncomingLine } from "@/lib/orderPricing"
 import { findPromo } from "@/lib/promo";
 import { cleanPhone } from "@/lib/placeOrder";
 import { initializePaystackTransaction } from "@/lib/paystack";
+import { paystackFee } from "@/lib/paystackFee";
 import type { BranchId } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
@@ -57,11 +58,13 @@ export async function POST(req: NextRequest) {
 
   const deliveryAddress =
     fulfillment === "DELIVERY" && typeof body.deliveryAddress === "string" ? body.deliveryAddress.trim().slice(0, 300) || null : null;
+  const fee = paystackFee(total);
   const reference = `CAIO-${Date.now()}-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
 
   const started = await initializePaystackTransaction({
     email: session.user.email,
-    amountKobo: Math.round(total * 100),
+    // The customer pays Paystack's fee on top of the food total.
+    amountKobo: Math.round((total + fee) * 100),
     reference,
     subaccount: branch.paystackSubaccount,
     bearer: branch.paystackBearer,
@@ -87,5 +90,5 @@ export async function POST(req: NextRequest) {
     },
   });
   if (!started.ok) return NextResponse.json({ error: started.error }, { status: started.status });
-  return NextResponse.json({ accessCode: started.accessCode, reference: started.reference, total });
+  return NextResponse.json({ accessCode: started.accessCode, reference: started.reference, total, fee });
 }

@@ -99,6 +99,8 @@ export interface OrderRecord {
   subtotal: number;
   discount: number;
   total: number;
+  /** Paystack fee the customer paid on top of total. */
+  paymentFee?: number;
   promoCode?: string;
   deliveryAddress?: string | null;
   status: "received" | "kitchen" | "out-for-delivery" | "delivered";
