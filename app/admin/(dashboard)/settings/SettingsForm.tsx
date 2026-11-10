@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import SubaccountCheck from "./SubaccountCheck";
 
 const inp = "w-full rounded-xl border border-bone-dark/70 bg-crisp px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brown/25";
 
@@ -12,6 +13,8 @@ export interface SettingsField {
   options?: { value: string; label: string }[];
   help?: string;
   wide?: boolean;
+  /** Show a "check with Paystack" button for this subaccount code. */
+  checkSubaccount?: boolean;
 }
 
 export interface SettingsSection {
@@ -78,6 +81,7 @@ export default function SettingsForm({ sections, initial }: { sections: Settings
                     placeholder={f.placeholder} className={inp} />
                 )}
                 {f.help && <p className="text-xs text-brown-light/80">{f.help}</p>}
+                {f.checkSubaccount && <SubaccountCheck code={values[f.key] ?? ""} onUse={(code) => set(f.key, code)} />}
               </div>
             ))}
           </div>

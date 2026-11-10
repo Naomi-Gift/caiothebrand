@@ -61,6 +61,7 @@ export default async function SettingsPage() {
           label: "Paystack subaccount code",
           placeholder: "ACCT_xxxxxxxxxx",
           help: "Payments for this branch settle into this subaccount's bank account. Find it in Paystack → Subaccounts. Leave empty to use the main account.",
+          checkSubaccount: true,
         },
         {
           key: `branch_${id}_paystack_bearer`,
