@@ -108,6 +108,14 @@ export default function CheckoutPage() {
     addressLine.trim().length > 0;
 
   const canPay = lines.length > 0 && addressReady && phoneReady && branch;
+  // Say why Pay is greyed out instead of leaving a dead button.
+  const payBlocker = !branch
+    ? "Choose a branch first."
+    : !phoneReady
+      ? "Add your phone number above to continue."
+      : !addressReady
+        ? "Add your delivery address above to continue."
+        : null;
 
   const deliveryAddressText = () =>
     fulfillment === "delivery"
@@ -484,6 +492,9 @@ export default function CheckoutPage() {
           >
             {paying ? "Processing…" : "Pay with Paystack"}
           </Button>
+          {!paying && payBlocker && (
+            <p className="mt-2 text-center text-xs text-brown-light">{payBlocker}</p>
+          )}
         </div>
       </div>
     </div>
