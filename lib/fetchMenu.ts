@@ -4,7 +4,10 @@
  */
 import type { MenuItem } from "@/lib/types";
 import { menuItems as staticItems } from "@/lib/data/menu";
+import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { erpConfig } from "@/lib/erp";
+import { autoSyncMenu } from "@/lib/erpSync";
 
 interface ApiMenuItem {
   id: string;
@@ -49,6 +52,14 @@ function toMenuItem(raw: ApiMenuItem): MenuItem {
 }
 
 export async function fetchMenuItems(): Promise<MenuItem[]> {
+  // Pull price/product changes from ERPNext in the background (throttled).
+  if (erpConfig()) {
+    try {
+      after(() => autoSyncMenu().catch(() => {}));
+    } catch {
+      // Not inside a request (e.g. build time): skip.
+    }
+  }
   try {
     const raw = await prisma.menuItem.findMany({
       where: { available: true },

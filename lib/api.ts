@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { AddOnOption } from "@/lib/types";
 
 export interface Category {
   id: string;
@@ -109,6 +110,13 @@ export async function deleteMenuItem(id: string): Promise<{ ok: boolean }> {
   const res = await fetch(`/api/menu/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error("Failed to delete menu item");
   return res.json();
+}
+
+/** Toppings offered on pizzas (from the pizza with the most), for a new pizza to copy. */
+export async function getPizzaToppings(): Promise<AddOnOption[]> {
+  const pizzas = await prisma.menuItem.findMany({ where: { category: { slug: "pizzas" } }, select: { addOns: true } });
+  const lists = pizzas.map((p) => (Array.isArray(p.addOns) ? (p.addOns as unknown as AddOnOption[]) : []));
+  return lists.sort((a, b) => b.length - a.length)[0] ?? [];
 }
 
 export async function getCategories(): Promise<Category[]> {

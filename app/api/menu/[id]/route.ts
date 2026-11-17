@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/adminAuth";
+import { cleanAddOns, cleanSizes } from "@/lib/menuOptions";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -39,6 +40,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   for (const key of allowedFields) {
     if (key in body) data[key] = body[key];
   }
+  if ("sizes" in data) data.sizes = cleanSizes(data.sizes) ?? [];
+  if ("addOns" in data) data.addOns = cleanAddOns(data.addOns) ?? [];
 
   const item = await prisma.menuItem.update({ where: { id }, data });
   return NextResponse.json(item);

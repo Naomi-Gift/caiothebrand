@@ -7,6 +7,7 @@ interface Report {
   dryRun: boolean;
   outlet: string;
   changes: { item: string; what: string }[];
+  added: string[];
   unmatchedErp: string[];
   unmatchedSite: string[];
   toppings: number;
@@ -42,7 +43,7 @@ export default function ErpSyncPanel() {
           <h2 className="font-display text-xl font-bold text-brown-darkest">Prices from ERPNext</h2>
           <p className="text-sm text-brown-light">
             Prices, sizes and toppings come from ERPNext. Photos, descriptions and featured picks stay here.
-            Runs automatically every morning.
+            Runs automatically every 15 minutes. New ERPNext products are added <b>hidden</b> — add a photo, then press Show.
           </p>
         </div>
         <div className="flex gap-2">
@@ -75,10 +76,15 @@ export default function ErpSyncPanel() {
             </ul>
           </div>
           <div>
-            <p className="font-semibold text-brown-darkest">In ERPNext, not on the website ({report.unmatchedErp.length})</p>
-            <p className="text-xs text-brown-light/80">Add them under + Add Item with the same name, then sync.</p>
+            <p className="font-semibold text-brown-darkest">
+              New from ERPNext ({report.added.length + report.unmatchedErp.length})
+            </p>
+            <p className="text-xs text-brown-light/80">
+              {report.dryRun ? "Will be added" : "Added"} hidden. If one is really an existing product with a slightly different name, rename that product to match ERPNext and delete the new copy.
+            </p>
             <ul className="mt-2 max-h-56 space-y-1 overflow-auto text-brown-muted">
-              {report.unmatchedErp.map((n) => <li key={n}>{n}</li>)}
+              {report.added.map((n) => <li key={n}>{n}</li>)}
+              {report.unmatchedErp.map((n) => <li key={n} className="text-red-700">{n} — couldn&apos;t add</li>)}
             </ul>
           </div>
           <div>

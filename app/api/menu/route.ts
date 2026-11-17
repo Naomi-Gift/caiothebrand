@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/adminAuth";
+import { cleanAddOns, cleanSizes } from "@/lib/menuOptions";
 
 export async function GET() {
   const items = await prisma.menuItem.findMany({
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
   const { name, slug, descriptor, description, basePrice, categoryId,
           spicy, vegetarian, featured, sizes, addOns, image } = body;
 
-  if (!name || !slug || !basePrice || !categoryId) {
+  if (!name || !slug || basePrice === undefined || basePrice === "" || Number(basePrice) < 0 || !categoryId) {
     return NextResponse.json({ error: "name, slug, basePrice and categoryId are required." }, { status: 400 });
   }
 
@@ -45,8 +46,8 @@ export async function POST(req: NextRequest) {
       spicy: Boolean(spicy),
       vegetarian: Boolean(vegetarian),
       featured: Boolean(featured),
-      sizes: (sizes as object) ?? [],
-      addOns: (addOns as object) ?? [],
+      sizes: (cleanSizes(sizes) ?? []) as object[],
+      addOns: (cleanAddOns(addOns) ?? []) as object[],
       image: image ? String(image) : null,
     },
   });
